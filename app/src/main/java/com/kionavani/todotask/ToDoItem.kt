@@ -16,6 +16,6 @@ data class ToDoItem(
 
 enum class Importance(@StringRes val displayName: Int) {
     LOW(R.string.importance_low),
-    NORMAL(R.string.importance_regular),
+    REGULAR(R.string.importance_regular),
     HIGH(R.string.importance_high)
 }
