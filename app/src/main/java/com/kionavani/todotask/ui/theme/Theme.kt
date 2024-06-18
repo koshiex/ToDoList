@@ -1,7 +1,6 @@
 package com.kionavani.todotask.ui.theme
 
 import android.app.Activity
-import android.hardware.lights.Light
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -16,41 +15,32 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-val LightColorScheme = lightColorScheme(    // TODO: Написать схему через датакласс
-    primary = LightBackPrimary,
-    secondary = LightBackSecondary,
-    tertiary = LightBackElevated,
-    onPrimary = LightPrimaryLabel,
-    onSecondaryContainer = LightSecondaryLabel,
-    onTertiary = LightTertiaryLabel,
-    outline = LightSeparator,
-    surface = LightOverlay,
-    onSurface = LightBackElevated,
-    inverseSurface = TransparentLightBlue,
-    inverseOnSurface = LightBlue,
-    inversePrimary = LightGreen,
-    error = LightRed
+private val DarkColorScheme = darkColorScheme(
+    primary = Purple80,
+    secondary = PurpleGrey80,
+    tertiary = Pink80
 )
 
-val DarkColorScheme = darkColorScheme(
-    primary = DarkBackPrimary,
-    secondary = DarkBackSecondary,
-    tertiary = DarkBackElevated,
-    onPrimary = DarkPrimaryLabel,
-    onSecondaryContainer = DarkSecondaryLabel,
-    onTertiary = DarkTertiaryLabel,
-    outline = DarkSeparator,
-    surface = DarkOverlay,
-    onSurface = DarkBackElevated,
-    inverseSurface = TransparentDarkBlue,
-    inverseOnSurface = DarkBlue,
-    inversePrimary = DarkGreen,
-    error = DarkRed
+private val LightColorScheme = lightColorScheme(
+    primary = Purple40,
+    secondary = PurpleGrey40,
+    tertiary = Pink40
+
+    /* Other default colors to override
+    background = Color(0xFFFFFBFE),
+    surface = Color(0xFFFFFBFE),
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onTertiary = Color.White,
+    onBackground = Color(0xFF1C1B1F),
+    onSurface = Color(0xFF1C1B1F),
+    */
 )
 
 @Composable
 fun ToDoTaskTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
@@ -63,7 +53,6 @@ fun ToDoTaskTheme(
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
-
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
