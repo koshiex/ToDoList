@@ -1,3 +1,8 @@
 <resources>
   <string name="app_name">ToDoTask</string>
+
+  <!--Task importance-->
+  <string name="importance_low">low</string>
+  <string name="importance_regular">regular</string>
+  <string name="importance_high">high</string>
 </resources>
