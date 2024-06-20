@@ -5,4 +5,7 @@
   <string name="importance_low">low</string>
   <string name="importance_regular">regular</string>
   <string name="importance_high">high</string>
+
+  <string name="new_task_button">New</string>
+
 </resources>

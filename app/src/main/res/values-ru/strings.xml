@@ -5,4 +5,9 @@
   <!--Task importance-->
   <string name="importance_low">низкая</string>
   <string name="importance_regular">обычная</string>
-  <string name="importance_high">срочная</string></resources>
+  <string name="importance_high">срочная</string>
+
+  <string name="new_task_button">Новое</string>
+
+</resources>
+
