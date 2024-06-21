@@ -1,5 +1,6 @@
 package com.kionavani.todotask
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -7,20 +8,28 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.safeGesturesPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxColors
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.res.stringResource
@@ -39,6 +49,8 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.LargeFloatingActionButton
 import com.kionavani.todotask.ui.theme.*
 
 
@@ -53,16 +65,60 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val tasksRepository = TodoItemsRepository()
+        val items = tasksRepository.getTodoItems()
         setContent {
             ToDoTaskTheme {
-                Box(
+                MainScreen(items = items)
+            }
+        }
+    }
+
+    @Composable
+    fun MainScreen(items: List<ToDoItem>) {
+        Scaffold(
+            floatingActionButton = {
+                LargeFloatingActionButton(
                     modifier = Modifier
-                        .background(MaterialTheme.colorScheme.surface)
-                        .fillMaxSize()
-                        .safeDrawingPadding()
+                        .padding(end = 12.dp, bottom = 24.dp),
+                    shape = CircleShape,
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = MaterialTheme.colorScheme.onTertiary,
+                    onClick = {
+                        // TODO
+                    }
                 ) {
-                    TaskList(tasks = tasksRepository.getTodoItems())
+                    Icon(Icons.Filled.Add, null)
                 }
+            }
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.background)
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                Text(
+                    text = stringResource(R.string.my_tasks_title),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        color = MaterialTheme.colorScheme.onBackground
+                    ),
+                    modifier = Modifier
+                        .padding(top = 50.dp, start = 88.dp)
+                )
+
+                Text(
+                    text = stringResource(R.string.completed_task_title),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.onBackground
+                    ),
+                    modifier = Modifier
+                        .alpha(0.8f)
+                        .padding(top = 5.dp, bottom = 18.dp, start = 88.dp)
+                )
+
+                TaskList(tasks = items)
+
+
             }
         }
     }
@@ -72,7 +128,7 @@ class MainActivity : ComponentActivity() {
 fun TaskList(tasks: List<ToDoItem>) {
     LazyColumn(
         modifier = Modifier
-            .padding(8.dp)
+            .padding(12.dp)
             .wrapContentSize()
             .shadow(1.dp, shape = RoundedCornerShape(12.dp))
             .background(
