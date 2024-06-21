@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -49,9 +50,7 @@ class MainActivity : ComponentActivity() {
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         )
 
-
         super.onCreate(savedInstanceState)
-
 
         val tasksRepository = TodoItemsRepository()
         setContent {
@@ -60,6 +59,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier
                         .background(MaterialTheme.colorScheme.surface)
                         .fillMaxSize()
+                        .safeDrawingPadding()
                 ) {
                     TaskList(tasks = tasksRepository.getTodoItems())
                 }
