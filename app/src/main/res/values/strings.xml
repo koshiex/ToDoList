@@ -7,5 +7,7 @@
   <string name="importance_high">high</string>
 
   <string name="new_task_button">New</string>
+  <string name="my_tasks_title">My tasks</string>
+  <string name="completed_task_title">Completed -</string>
 
 </resources>

@@ -8,6 +8,8 @@
   <string name="importance_high">срочная</string>
 
   <string name="new_task_button">Новое</string>
+  <string name="my_tasks_title">Мои дела</string>
+  <string name="completed_task_title">Выполнено -</string>
 
 </resources>
 
