@@ -3,8 +3,10 @@ package com.kionavani.todotask.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.*
+import androidx.compose.material3.SwitchColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +23,8 @@ import androidx.navigation.NavController
 import com.kionavani.todotask.Importance
 import com.kionavani.todotask.LocalNavController
 import com.kionavani.todotask.R
+import com.kionavani.todotask.ui.theme.LightBlue
+import com.kionavani.todotask.ui.theme.LightRed
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -41,7 +45,7 @@ fun AddTaskScreen() {
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.Start,
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.primary)
             .fillMaxSize()
             .safeDrawingPadding()
     ) {
@@ -80,14 +84,14 @@ fun Header() {
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.close_icon),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onBackground
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         }
 
         ClickableText(
             text = AnnotatedString(stringResource(id = R.string.save_task_button)).toUpperCase(),
             style = MaterialTheme.typography.labelMedium.copy(
-                color = MaterialTheme.colorScheme.tertiary
+                color = LightBlue
             ),
             modifier = Modifier.padding(top = 16.dp, end = 16.dp)
         ) {
@@ -106,13 +110,13 @@ fun TaskTextField(textFiledState: String, onTextChange: (String) -> Unit) {
             .shadow(1.dp, RoundedCornerShape(12.dp)),
         shape = RoundedCornerShape(8.dp),
         textStyle = MaterialTheme.typography.bodyMedium.copy(
-            color = MaterialTheme.colorScheme.onSecondaryContainer
+            color = MaterialTheme.colorScheme.onPrimary
         ),
         placeholder = {
             Text(
                 stringResource(R.string.text_field_hint),
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                    color = MaterialTheme.colorScheme.onTertiary
                 )
             )
         },
@@ -124,14 +128,15 @@ fun TaskTextField(textFiledState: String, onTextChange: (String) -> Unit) {
 @Composable
 fun ImportanceDropDown(
     dropDownState: Boolean,
-    onDropDownStateChange: (Boolean) -> Unit
+    onDropDownStateChange: (Boolean) -> Unit,
+
 ) {
     Box(modifier = Modifier.padding(start = 16.dp, top = 28.dp)) {
         Column {
             Text(
                 text = stringResource(R.string.importance_drop_down),
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             )
 
@@ -139,7 +144,7 @@ fun ImportanceDropDown(
                 modifier = Modifier.alpha(0.7f),
                 text = AnnotatedString(stringResource(Importance.LOW.displayName)),
                 style = MaterialTheme.typography.headlineSmall.copy(
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                    color = MaterialTheme.colorScheme.onTertiary
                 )
             ) {
                 onDropDownStateChange(true)
@@ -148,7 +153,7 @@ fun ImportanceDropDown(
 
         DropdownMenu(
             offset = DpOffset(0.dp, (-20).dp),
-            modifier = Modifier.background(MaterialTheme.colorScheme.secondaryContainer),
+            modifier = Modifier.background(MaterialTheme.colorScheme.secondary),
             expanded = dropDownState,
             onDismissRequest = { onDropDownStateChange(false) }
         ) {
@@ -158,7 +163,7 @@ fun ImportanceDropDown(
                         Text(
                             text = stringResource(importance.displayName),
                             style = MaterialTheme.typography.bodyMedium.copy(
-                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                                color = MaterialTheme.colorScheme.onPrimary
                             )
                         )
                     },
@@ -196,7 +201,7 @@ fun DeadlineRow(
             Text(
                 text = stringResource(R.string.switch_deadline_descr),
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             )
 
@@ -204,7 +209,7 @@ fun DeadlineRow(
                 ClickableText(
                     text = AnnotatedString(dateTextState),
                     style = MaterialTheme.typography.headlineSmall.copy(
-                        color = MaterialTheme.colorScheme.tertiary
+                        color = LightBlue
                     )
                 ) {
                     onDatePickerOnStateChange(true)
@@ -223,23 +228,25 @@ fun DeadlineRow(
                             onDateTextStateChange(formattedDate)
                             onDatePickerOnStateChange(false)
                         }) {
-                            Text(stringResource(android.R.string.ok))
+                            Text(stringResource(android.R.string.ok),
+                                style = MaterialTheme.typography.bodyMedium)
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { onDatePickerOnStateChange(false) }) {
-                            Text(stringResource(android.R.string.cancel))
+                            Text(stringResource(android.R.string.cancel),
+                                style = MaterialTheme.typography.bodyMedium)
                         }
                     }
                 ) {
-                    DatePicker(state = dateState)
+                    DatePicker(state = dateState) // TODO : DatePickerColors
                 }
             }
         }
 
         Switch(
             checked = switchState,
-            onCheckedChange = onSwitchStateChange
+            onCheckedChange = onSwitchStateChange   // TODO: switch colors
         )
     }
 }
@@ -258,13 +265,13 @@ fun DeleteTaskRow() {
         Icon(
             imageVector = ImageVector.vectorResource(id = R.drawable.delete_icon),
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.tertiary
+            tint = LightRed
         )
         ClickableText(
             modifier = Modifier.padding(start = 12.dp),
             text = AnnotatedString(stringResource(R.string.delete_button)),
             style = MaterialTheme.typography.bodyMedium.copy(
-                color = MaterialTheme.colorScheme.tertiary
+                color = LightRed
             )
         ) {
             navController.navigate(MainScreenNav)

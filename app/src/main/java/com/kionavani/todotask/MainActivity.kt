@@ -34,12 +34,9 @@ class MainActivity : ComponentActivity() {
         val tasksRepository = TodoItemsRepository()
         val items = tasksRepository.getTodoItems()
         setContent {
-            ToDoTaskTheme {
-//                MainScreen(items = items)
-//                AddTaskScreen()
+            ToDoTaskTheme(dynamicColor = false) {
                 val navController = rememberNavController()
                 CompositionLocalProvider(LocalNavController provides navController) {
-
                     NavHost(
                         navController = navController,
                         startDestination = MainScreenNav

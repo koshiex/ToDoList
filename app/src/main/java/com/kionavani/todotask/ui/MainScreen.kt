@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.res.stringResource
@@ -42,6 +43,7 @@ import com.kionavani.todotask.LocalNavController
 import com.kionavani.todotask.R
 import com.kionavani.todotask.ToDoItem
 import com.kionavani.todotask.ui.AddTaskScreenNav
+import com.kionavani.todotask.ui.theme.LightBlue
 
 @Composable
 fun MainScreen(items: List<ToDoItem>) {
@@ -53,8 +55,8 @@ fun MainScreen(items: List<ToDoItem>) {
                 modifier = Modifier
                     .padding(end = 12.dp, bottom = 24.dp),
                 shape = CircleShape,
-                containerColor = MaterialTheme.colorScheme.tertiary,
-                contentColor = MaterialTheme.colorScheme.onTertiary,
+                containerColor = LightBlue,
+                contentColor = Color.White,
                 onClick = {
                     navController.navigate(AddTaskScreenNav)
                 }
@@ -65,14 +67,14 @@ fun MainScreen(items: List<ToDoItem>) {
     ) { paddingValues ->
         Column(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.background)
+                .background(MaterialTheme.colorScheme.primary)
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
             Text(
                 text = stringResource(R.string.my_tasks_title),
                 style = MaterialTheme.typography.titleLarge.copy(
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onPrimary
                 ),
                 modifier = Modifier
                     .padding(top = 50.dp, start = 88.dp)
@@ -89,7 +91,7 @@ fun MainScreen(items: List<ToDoItem>) {
                 Text(
                     text = stringResource(R.string.completed_task_title),
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onBackground
+                        color = MaterialTheme.colorScheme.onTertiary
                     ),
                     modifier = Modifier
                         .alpha(0.8f)
@@ -101,7 +103,7 @@ fun MainScreen(items: List<ToDoItem>) {
                     Icon(
                         imageVector = ImageVector.vectorResource(id = R.drawable.visibility_on_icon),
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onBackground)
+                        tint = LightBlue)
                 }
             }
 
@@ -119,9 +121,9 @@ fun TaskList(tasks: List<ToDoItem>) {
         modifier = Modifier
             .padding(12.dp)
             .wrapContentSize()
-            .shadow(1.dp, shape = RoundedCornerShape(12.dp))
+            .shadow(4.dp, shape = RoundedCornerShape(12.dp))
             .background(
-                color = MaterialTheme.colorScheme.primaryContainer,
+                color = MaterialTheme.colorScheme.secondary,
                 shape = RoundedCornerShape(12.dp)
             ),
     ) {
@@ -135,7 +137,7 @@ fun TaskList(tasks: List<ToDoItem>) {
                     .padding(top = 24.dp, bottom = 22.dp, start = 76.dp)
                     .alpha(0.3f),
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = MaterialTheme.colorScheme.onTertiary
                 ),
                 onClick = {
                     navController.navigate(AddTaskScreenNav)
@@ -156,7 +158,7 @@ fun Task(item: ToDoItem) {
         modifier = Modifier.fillMaxSize()
     ) {
         Checkbox(
-            modifier = Modifier.padding(start = 16.dp, top = 12.dp),
+            modifier = Modifier.padding(start = 16.dp, top = 12.dp),    // TODO : Checkbox colors
             checked = checkedState,
             onCheckedChange = {
                 item.isCompleted = it // TODO: перенести в другое место
@@ -169,7 +171,7 @@ fun Task(item: ToDoItem) {
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            color = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier
                 .alignBy(FirstBaseline)
                 .padding(start = 12.dp, top = 30.dp)
@@ -186,7 +188,7 @@ fun Task(item: ToDoItem) {
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.info_icon),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                tint = MaterialTheme.colorScheme.onTertiary
             )
         }
     }
