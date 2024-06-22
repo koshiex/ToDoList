@@ -37,11 +37,16 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.kionavani.todotask.LocalNavController
 import com.kionavani.todotask.R
 import com.kionavani.todotask.ToDoItem
+import com.kionavani.todotask.ui.AddTaskScreenNav
 
 @Composable
 fun MainScreen(items: List<ToDoItem>) {
+    val navController = LocalNavController.current
+
     Scaffold(
         floatingActionButton = {
             LargeFloatingActionButton(
@@ -51,7 +56,7 @@ fun MainScreen(items: List<ToDoItem>) {
                 containerColor = MaterialTheme.colorScheme.tertiary,
                 contentColor = MaterialTheme.colorScheme.onTertiary,
                 onClick = {
-                    // TODO
+                    navController.navigate(AddTaskScreenNav)
                 }
             ) {
                 Icon(Icons.Filled.Add, null)
@@ -108,6 +113,8 @@ fun MainScreen(items: List<ToDoItem>) {
 
 @Composable
 fun TaskList(tasks: List<ToDoItem>) {
+    val navController = LocalNavController.current
+
     LazyColumn(
         modifier = Modifier
             .padding(12.dp)
@@ -131,7 +138,7 @@ fun TaskList(tasks: List<ToDoItem>) {
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 onClick = {
-
+                    navController.navigate(AddTaskScreenNav)
                 }
             )
         }
@@ -140,6 +147,8 @@ fun TaskList(tasks: List<ToDoItem>) {
 
 @Composable
 fun Task(item: ToDoItem) {
+    val navController = LocalNavController.current
+
     var checkedState by remember { mutableStateOf(item.isCompleted) }
 
     Row(
@@ -163,7 +172,7 @@ fun Task(item: ToDoItem) {
             color = MaterialTheme.colorScheme.onPrimaryContainer,
             modifier = Modifier
                 .alignBy(FirstBaseline)
-                .padding(start = 12.dp, top = 24.dp)
+                .padding(start = 12.dp, top = 30.dp)
                 .weight(1f)
         )
 
@@ -172,7 +181,7 @@ fun Task(item: ToDoItem) {
             modifier = Modifier
                 .padding(end = 16.dp, top = 12.dp)
                 .alpha(0.6f),
-            onClick = { /*TODO*/ }
+            onClick = { navController.navigate(AddTaskScreenNav) }
         ) {
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.info_icon),
