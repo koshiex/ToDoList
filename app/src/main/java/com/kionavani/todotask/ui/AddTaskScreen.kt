@@ -17,7 +17,9 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.kionavani.todotask.Importance
+import com.kionavani.todotask.LocalNavController
 import com.kionavani.todotask.R
 import java.text.SimpleDateFormat
 import java.util.*
@@ -64,6 +66,8 @@ fun AddTaskScreen() {
 
 @Composable
 fun Header() {
+    val navController = LocalNavController.current
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -71,7 +75,7 @@ fun Header() {
     ) {
         IconButton(
             modifier = Modifier.padding(top = 16.dp, start = 16.dp),
-            onClick = { /*TODO*/ }
+            onClick = { navController.navigate(MainScreenNav) }
         ) {
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.close_icon),
@@ -87,7 +91,7 @@ fun Header() {
             ),
             modifier = Modifier.padding(top = 16.dp, end = 16.dp)
         ) {
-            // TODO
+            navController.navigate(MainScreenNav)
         }
     }
 }
@@ -148,7 +152,7 @@ fun ImportanceDropDown(
             expanded = dropDownState,
             onDismissRequest = { onDropDownStateChange(false) }
         ) {
-            Importance.values().forEach { importance ->
+            Importance.entries.forEach { importance ->
                 DropdownMenuItem(
                     text = {
                         Text(
@@ -242,6 +246,8 @@ fun DeadlineRow(
 
 @Composable
 fun DeleteTaskRow() {
+    val navController = LocalNavController.current
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
@@ -261,7 +267,7 @@ fun DeleteTaskRow() {
                 color = MaterialTheme.colorScheme.tertiary
             )
         ) {
-            // TODO:
+            navController.navigate(MainScreenNav)
         }
     }
 }
