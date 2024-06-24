@@ -1,3 +1,21 @@
 <resources>
   <string name="app_name">ToDoTask</string>
+
+  <!--Task importance-->
+  <string name="importance_low">Low</string>
+  <string name="importance_regular">Regular</string>
+  <string name="importance_high">High</string>
+
+  <string name="new_task_button">New</string>
+  <string name="my_tasks_title">My tasks</string>
+  <string name="completed_task_title">Completed -</string>
+  <string name="save_task_button">Save</string>
+  <string name="text_field_hint">What I need to do…</string>
+  <string name="importance_drop_down">Importance</string>
+  <string name="switch_deadline_descr">Do it by</string>
+  <string name="deadline_selector">Pick a date</string>
+  <string name="delete_button">Delete</string>
+
+
+
 </resources>

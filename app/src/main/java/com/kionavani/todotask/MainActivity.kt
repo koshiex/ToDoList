@@ -1,46 +1,58 @@
 package com.kionavani.todotask
 
+import MainScreen
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import com.kionavani.todotask.ui.AddTaskScreen
+import com.kionavani.todotask.ui.AddTaskScreenNav
+import com.kionavani.todotask.ui.MainScreenNav
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
+
+val LocalNavController = compositionLocalOf<NavController> { error("No NavController provided") }
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        )
+
         super.onCreate(savedInstanceState)
+
+        val tasksRepository = TodoItemsRepository()
+        val items = tasksRepository.getTodoItems()
         setContent {
-            ToDoTaskTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
+            ToDoTaskTheme(dynamicColor = false) {
+                val navController = rememberNavController()
+                CompositionLocalProvider(LocalNavController provides navController) {
+                    NavHost(
+                        navController = navController,
+                        startDestination = MainScreenNav
+                    ) {
+                        composable<MainScreenNav> {
+                            MainScreen(items = items)
+                        }
+                        composable<AddTaskScreenNav> {
+                            AddTaskScreen()
+                        }
+                    }
                 }
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ToDoTaskTheme {
-        Greeting("Android")
-    }
-}
+
