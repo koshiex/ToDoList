@@ -6,9 +6,12 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -22,6 +25,7 @@ import com.kionavani.todotask.ui.theme.ToDoTaskTheme
 val LocalNavController = compositionLocalOf<NavController> { error("No NavController provided") }
 
 class MainActivity : ComponentActivity() {
+    private lateinit var viewModel: ToDoViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         window.setFlags(
@@ -31,8 +35,9 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
 
-        val tasksRepository = TodoItemsRepository()
-        val items = tasksRepository.getTodoItems()
+        val viewModelFactory = ToDoViewModelFactory(TodoItemsRepository())
+        viewModel = ViewModelProvider(this, viewModelFactory) [ToDoViewModel::class.java]
+
         setContent {
             ToDoTaskTheme(dynamicColor = false) {
                 val navController = rememberNavController()
@@ -42,10 +47,11 @@ class MainActivity : ComponentActivity() {
                         startDestination = MainScreenNav
                     ) {
                         composable<MainScreenNav> {
-                            MainScreen(items = items)
+                            MainScreen(viewModel)
                         }
-                        composable<AddTaskScreenNav> {
-                            AddTaskScreen()
+                        composable<AddTaskScreenNav> { backStackEntry ->
+                            val itemID = backStackEntry.toRoute<AddTaskScreenNav>().itemID
+                            AddTaskScreen(viewModel, itemID)
                         }
                     }
                 }

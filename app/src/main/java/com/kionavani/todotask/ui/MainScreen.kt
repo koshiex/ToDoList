@@ -15,6 +15,7 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFloatingActionButton
@@ -22,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,27 +40,28 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.kionavani.todotask.LocalNavController
 import com.kionavani.todotask.R
 import com.kionavani.todotask.ToDoItem
+import com.kionavani.todotask.ToDoViewModel
 import com.kionavani.todotask.ui.AddTaskScreenNav
 import com.kionavani.todotask.ui.theme.LightBlue
 
 @Composable
-fun MainScreen(items: List<ToDoItem>) {
+fun MainScreen(viewModel: ToDoViewModel) {
     val navController = LocalNavController.current
+    val tasks by viewModel.todoItems.collectAsState()
 
     Scaffold(
         floatingActionButton = {
-            LargeFloatingActionButton(
+            FloatingActionButton(
                 modifier = Modifier
                     .padding(end = 12.dp, bottom = 24.dp),
                 shape = CircleShape,
                 containerColor = LightBlue,
                 contentColor = Color.White,
                 onClick = {
-                    navController.navigate(AddTaskScreenNav)
+                    navController.navigate(AddTaskScreenNav(null))
                 }
             ) {
                 Icon(Icons.Filled.Add, null)
@@ -103,18 +106,21 @@ fun MainScreen(items: List<ToDoItem>) {
                     Icon(
                         imageVector = ImageVector.vectorResource(id = R.drawable.visibility_on_icon),
                         contentDescription = null,
-                        tint = LightBlue)
+                        tint = LightBlue
+                    )
                 }
             }
 
-            TaskList(tasks = items)
+            TaskList(tasks = tasks) { itemId: String, isCompleted: Boolean ->
+                viewModel.toggleTaskCompletion(itemId, isCompleted)
+            }
         }
     }
 }
 
 
 @Composable
-fun TaskList(tasks: List<ToDoItem>) {
+fun TaskList(tasks: List<ToDoItem>, changeTaskState: (String, Boolean) -> Unit) {
     val navController = LocalNavController.current
 
     LazyColumn(
@@ -128,7 +134,8 @@ fun TaskList(tasks: List<ToDoItem>) {
             ),
     ) {
         items(tasks) { task ->
-            Task(item = task)
+            Task(item = task, changeTaskState)
+
         }
         item {
             ClickableText(
@@ -140,7 +147,7 @@ fun TaskList(tasks: List<ToDoItem>) {
                     color = MaterialTheme.colorScheme.onTertiary
                 ),
                 onClick = {
-                    navController.navigate(AddTaskScreenNav)
+                    navController.navigate(AddTaskScreenNav(null))
                 }
             )
         }
@@ -148,7 +155,7 @@ fun TaskList(tasks: List<ToDoItem>) {
 }
 
 @Composable
-fun Task(item: ToDoItem) {
+fun Task(item: ToDoItem, changeTaskState: (String, Boolean) -> Unit) {
     val navController = LocalNavController.current
 
     var checkedState by remember { mutableStateOf(item.isCompleted) }
@@ -161,7 +168,7 @@ fun Task(item: ToDoItem) {
             modifier = Modifier.padding(start = 16.dp, top = 12.dp),    // TODO : Checkbox colors
             checked = checkedState,
             onCheckedChange = {
-                item.isCompleted = it // TODO: перенести в другое место
+                changeTaskState(item.id, it)
                 checkedState = it
             }
         )
@@ -183,7 +190,7 @@ fun Task(item: ToDoItem) {
             modifier = Modifier
                 .padding(end = 16.dp, top = 12.dp)
                 .alpha(0.6f),
-            onClick = { navController.navigate(AddTaskScreenNav) }
+            onClick = { navController.navigate(AddTaskScreenNav(item.id)) }
         ) {
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.info_icon),

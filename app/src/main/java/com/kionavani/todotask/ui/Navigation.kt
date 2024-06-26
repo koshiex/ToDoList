@@ -7,4 +7,4 @@ import kotlinx.serialization.Serializable
 object MainScreenNav
 
 @Serializable
-object AddTaskScreenNav
+data class AddTaskScreenNav(val itemID: String?)
