@@ -3,10 +3,8 @@ package com.kionavani.todotask.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.*
-import androidx.compose.material3.SwitchColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,27 +17,44 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+import androidx.navigation.toRoute
 import com.kionavani.todotask.Importance
 import com.kionavani.todotask.LocalNavController
 import com.kionavani.todotask.R
+import com.kionavani.todotask.ToDoItem
+import com.kionavani.todotask.ToDoViewModel
 import com.kionavani.todotask.ui.theme.LightBlue
 import com.kionavani.todotask.ui.theme.LightRed
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddTaskScreen() {
+fun AddTaskScreen(viewModel: ToDoViewModel, itemID: String? = null) {
+    val navController = LocalNavController.current
+
     val deadlineSelectorText = stringResource(R.string.deadline_selector)
 
     var textFiledState by remember { mutableStateOf("") }
     var dropDownState by remember { mutableStateOf(false) }
     var switchState by remember { mutableStateOf(false) }
-    var dateTextState by remember { mutableStateOf(deadlineSelectorText) }
-    var datePickerOnState by remember { mutableStateOf(false) }
 
+    var dateTextState by remember { mutableStateOf("") }
+    var datePickerOnState by remember { mutableStateOf(false) }
     val dateState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
+
+    val parsedDate : LocalDateTime? = null
+    if (dateTextState != "") {
+        val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val parsedDay = LocalDateTime.parse(dateTextState, dateFormatter)
+    }
+
+
+    var selectedImportanceState by remember {
+        mutableStateOf(Importance.LOW)
+    }
 
     Column(
         verticalArrangement = Arrangement.Top,
@@ -49,9 +64,17 @@ fun AddTaskScreen() {
             .fillMaxSize()
             .safeDrawingPadding()
     ) {
-        Header()
+        Header(
+            viewModel,
+            itemID,
+            textFiledState,
+            selectedImportanceState,
+            parsedDate
+        )
         TaskTextField(textFiledState, onTextChange = { textFiledState = it })
-        ImportanceDropDown(dropDownState, onDropDownStateChange = { dropDownState = it })
+        ImportanceDropDown(dropDownState,
+            onDropDownStateChange = { dropDownState = it },
+            onDropDownSelected = { selectedImportanceState = it })
         Divider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp))
         DeadlineRow(
             switchState = switchState,
@@ -64,12 +87,20 @@ fun AddTaskScreen() {
             deadlineSelectorText = deadlineSelectorText
         )
         Divider(modifier = Modifier.padding(vertical = 16.dp))
-        DeleteTaskRow()
+        DeleteTaskRow(itemID) { itemID ->
+            viewModel.deleteTodoItem(itemID)
+        }
     }
 }
 
 @Composable
-fun Header() {
+fun Header(
+    viewModel: ToDoViewModel,
+    itemId: String?,
+    descr: String,
+    importance: Importance,
+    deadlineDate: LocalDateTime?
+) {
     val navController = LocalNavController.current
 
     Row(
@@ -95,6 +126,28 @@ fun Header() {
             ),
             modifier = Modifier.padding(top = 16.dp, end = 16.dp)
         ) {
+            if (itemId != null) {
+                val item = ToDoItem(
+                    itemId,
+                    descr,
+                    false,
+                    importance,
+                    LocalDateTime.now(),
+                    deadlineDate,
+                    LocalDateTime.now()
+                )
+                viewModel.updateTodoItem(item)
+            } else {
+                val item = ToDoItem(
+                    viewModel.getNextId(),
+                    descr,
+                    false,
+                    importance,
+                    LocalDateTime.now(),
+                    deadlineDate
+                )
+                viewModel.addTodoItem(item)
+            }
             navController.navigate(MainScreenNav)
         }
     }
@@ -129,7 +182,7 @@ fun TaskTextField(textFiledState: String, onTextChange: (String) -> Unit) {
 fun ImportanceDropDown(
     dropDownState: Boolean,
     onDropDownStateChange: (Boolean) -> Unit,
-
+    onDropDownSelected: (Importance) -> Unit
 ) {
     Box(modifier = Modifier.padding(start = 16.dp, top = 28.dp)) {
         Column {
@@ -167,7 +220,7 @@ fun ImportanceDropDown(
                             )
                         )
                     },
-                    onClick = { /*TODO*/ }
+                    onClick = { onDropDownSelected(importance) }
                 )
             }
         }
@@ -224,18 +277,22 @@ fun DeadlineRow(
                             val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                             val formattedDate = dateState.selectedDateMillis?.let {
                                 dateFormat.format(Date(it))
-                            } ?: deadlineSelectorText
+                            } ?: ""
                             onDateTextStateChange(formattedDate)
                             onDatePickerOnStateChange(false)
                         }) {
-                            Text(stringResource(android.R.string.ok),
-                                style = MaterialTheme.typography.bodyMedium)
+                            Text(
+                                stringResource(android.R.string.ok),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { onDatePickerOnStateChange(false) }) {
-                            Text(stringResource(android.R.string.cancel),
-                                style = MaterialTheme.typography.bodyMedium)
+                            Text(
+                                stringResource(android.R.string.cancel),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
                         }
                     }
                 ) {
@@ -252,29 +309,32 @@ fun DeadlineRow(
 }
 
 @Composable
-fun DeleteTaskRow() {
+fun DeleteTaskRow(itemId: String?, delete: (String) -> Unit) {
     val navController = LocalNavController.current
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 27.dp, start = 16.dp)
-    ) {
-        Icon(
-            imageVector = ImageVector.vectorResource(id = R.drawable.delete_icon),
-            contentDescription = null,
-            tint = LightRed
-        )
-        ClickableText(
-            modifier = Modifier.padding(start = 12.dp),
-            text = AnnotatedString(stringResource(R.string.delete_button)),
-            style = MaterialTheme.typography.bodyMedium.copy(
-                color = LightRed
-            )
+    if (itemId != null) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 27.dp, start = 16.dp)
         ) {
-            navController.navigate(MainScreenNav)
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.delete_icon),
+                contentDescription = null,
+                tint = LightRed
+            )
+            ClickableText(
+                modifier = Modifier.padding(start = 12.dp),
+                text = AnnotatedString(stringResource(R.string.delete_button)),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = LightRed
+                )
+            ) {
+                delete(itemId)
+                navController.navigate(MainScreenNav)
+            }
         }
     }
 }
