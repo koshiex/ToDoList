@@ -3,99 +3,99 @@ package com.kionavani.todotask
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.time.LocalDateTime
 
 class TodoItemsRepository {
     private val _todoItems = MutableStateFlow<List<ToDoItem>>(emptyList())
     val todoItems: StateFlow<List<ToDoItem>> = _todoItems.asStateFlow()
 
     init {
+        val currentTime = System.currentTimeMillis()
         _todoItems.value = mutableListOf(
             ToDoItem(
                 id = "1",
                 taskDescription = "Закончить проект",
                 isCompleted = false,
-                importanceTask = Importance.HIGH,
-                creatingDate = LocalDateTime.now(),
-                deadlineDate = LocalDateTime.now().plusDays(1)
+                importance = Importance.HIGH,
+                creatingDate = currentTime,
+                deadlineDate = currentTime + 86400000 // плюс 1 день в миллисекундах
             ),
             ToDoItem(
                 id = "2",
                 taskDescription = "Сходить в магазин",
                 isCompleted = false,
-                importanceTask = Importance.REGULAR,
-                creatingDate = LocalDateTime.now(),
-                deadlineDate = LocalDateTime.now().plusDays(2)
+                importance = Importance.REGULAR,
+                creatingDate = currentTime,
+                deadlineDate = currentTime + 2 * 86400000 // плюс 2 дня в миллисекундах
             ),
             ToDoItem(
                 id = "3",
                 taskDescription = "Прочитать книгу",
                 isCompleted = true,
-                importanceTask = Importance.LOW,
-                creatingDate = LocalDateTime.now(),
-                deadlineDate = LocalDateTime.now().plusDays(3)
+                importance = Importance.LOW,
+                creatingDate = currentTime,
+                deadlineDate = currentTime + 3 * 86400000 // плюс 3 дня в миллисекундах
             ),
             ToDoItem(
                 id = "4",
                 taskDescription = "Посмотреть книгу, а потом написать " +
                         "для нее невероятную рецензию на мой любимый кинопоиск. " +
-                        "Кстати, надеюсь это не будет багом из за слишком длинной строки",
+                        "Кстати, надеюсь это не будет багом из-за слишком длинной строки",
                 isCompleted = false,
-                importanceTask = Importance.HIGH,
-                creatingDate = LocalDateTime.now(),
+                importance = Importance.HIGH,
+                creatingDate = currentTime
             ),
             ToDoItem(
                 id = "5",
                 taskDescription = "Сгонять на пересдачу по матлогике",
                 isCompleted = false,
-                importanceTask = Importance.LOW,
-                creatingDate = LocalDateTime.now().minusDays(2),
-                changingDate = LocalDateTime.now().minusDays(1)
+                importance = Importance.LOW,
+                creatingDate = currentTime - 2 * 86400000, // минус 2 дня в миллисекундах
+                changingDate = currentTime - 86400000 // минус 1 день в миллисекундах
             ),
             ToDoItem(
                 id = "6",
                 taskDescription = "Сделать невероятно важное дело",
                 isCompleted = false,
-                importanceTask = Importance.LOW,
-                creatingDate = LocalDateTime.now().minusDays(2),
+                importance = Importance.LOW,
+                creatingDate = currentTime - 2 * 86400000 // минус 2 дня в миллисекундах
             ),
             ToDoItem(
                 id = "7",
                 taskDescription = "Ничего не делать много времени",
                 isCompleted = true,
-                importanceTask = Importance.HIGH,
-                creatingDate = LocalDateTime.now(),
+                importance = Importance.HIGH,
+                creatingDate = currentTime
             ),
             ToDoItem(
                 id = "8",
                 taskDescription = "Спросить у ментора, что он ел на обед",
                 isCompleted = false,
-                importanceTask = Importance.REGULAR,
-                creatingDate = LocalDateTime.now().minusDays(1),
-                deadlineDate = LocalDateTime.now().minusHours(2)
+                importance = Importance.REGULAR,
+                creatingDate = currentTime - 86400000, // минус 1 день в миллисекундах
+                deadlineDate = currentTime - 7200000 // минус 2 часа в миллисекундах
             ),
             ToDoItem(
                 id = "9",
                 taskDescription = "Посмотреть лекцию по компоузу третий раз",
                 isCompleted = false,
-                importanceTask = Importance.REGULAR,
-                creatingDate = LocalDateTime.now().minusDays(4),
-                deadlineDate = LocalDateTime.now().plusDays(15)
+                importance = Importance.REGULAR,
+                creatingDate = currentTime - 4 * 86400000, // минус 4 дня в миллисекундах
+                deadlineDate = currentTime + 15 * 86400000 // плюс 15 дней в миллисекундах
             ),
             ToDoItem(
                 id = "10",
                 taskDescription = "Помыть воду из пятилитровки",
                 isCompleted = false,
-                importanceTask = Importance.HIGH,
-                creatingDate = LocalDateTime.now().minusDays(4),
-                changingDate = LocalDateTime.now().minusHours(1)
+                importance = Importance.HIGH,
+                creatingDate = currentTime - 4 * 86400000, // минус 4 дня в миллисекундах
+                changingDate = currentTime - 3600000 // минус 1 час в миллисекундах
             ),
             ToDoItem(
                 id = "11",
                 taskDescription = "Создать 11 глупых тасков для теста приложения",
                 isCompleted = false,
-                importanceTask = Importance.HIGH,
-                creatingDate = LocalDateTime.now(),
+                importance = Importance.HIGH,
+                creatingDate = currentTime
             ),
         )
     }
@@ -108,12 +108,16 @@ class TodoItemsRepository {
         val itemToCompare = _todoItems.value.find { it.id == newItem.id }
 
         if (itemToCompare != null) {
-            newItem.isCompleted = itemToCompare.isCompleted
-            newItem.creatingDate = itemToCompare.creatingDate
+            val itemToAdd = itemToCompare.copy(
+                taskDescription = newItem.taskDescription,
+                importance = newItem.importance,
+                deadlineDate = newItem.deadlineDate,
+                changingDate = newItem.changingDate
+            )
 
             _todoItems.value = _todoItems.value.map {
-                if (newItem.id == it.id) {
-                    newItem
+                if (it.id == itemToAdd.id) {
+                    itemToAdd
                 } else {
                     it
                 }
@@ -131,8 +135,7 @@ class TodoItemsRepository {
         }
     }
 
-    // Почему в тз айди - строка???
+    fun getTaskById(itemId: String) = _todoItems.value.find { it.id == itemId }
+
     fun getNextId(): String = (_todoItems.value.last().id.toInt() + 1).toString()
-
-
 }
