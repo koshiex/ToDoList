@@ -7,6 +7,7 @@ import com.kionavani.todotask.data.Importance
 import com.kionavani.todotask.data.ToDoItem
 import com.kionavani.todotask.data.TodoItemsRepository
 import com.kionavani.todotask.ui.ResourcesProvider
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -20,26 +21,30 @@ class TodoViewModel(
 ) : ViewModel() {
     val todoItems: StateFlow<List<ToDoItem>> = repository.todoItems
 
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+
+    }
+
     fun addTodoItem(item: ToDoItem) {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             repository.addTodoItem(item)
         }
     }
 
     fun updateTodoItem(newItem: ToDoItem) {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             repository.updateTodoItem(newItem)
         }
     }
 
     fun deleteTodoItem(itemId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             repository.deleteTodoItem(itemId)
         }
     }
 
     fun toggleTaskCompletion(itemId: String, isCompleted: Boolean) {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             repository.toggleTaskCompletion(itemId, isCompleted)
         }
     }

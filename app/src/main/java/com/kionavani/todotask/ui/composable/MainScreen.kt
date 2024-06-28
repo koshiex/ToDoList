@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.kionavani.todotask.R
@@ -214,13 +215,7 @@ fun Task(
                 .padding(start = 12.dp, top = 12.dp)
                 .weight(1f)
         ) {
-            Text(
-                text = description,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onPrimary,
-            )
+            ItemDescription(description, item.isCompleted)
 
             if (deadlineDate != null) {
                 Text(
@@ -244,6 +239,28 @@ fun Task(
                 tint = MaterialTheme.colorScheme.onTertiary
             )
         }
+    }
+}
+
+@Composable
+fun ItemDescription(description: String, isCompleted: Boolean) {
+    if (isCompleted) {
+        Text(
+            text = description,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onTertiary,
+            textDecoration = TextDecoration.LineThrough
+        )
+    } else {
+        Text(
+            text = description,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
     }
 }
 
