@@ -13,7 +13,6 @@ data class ToDoItem(
     val changingDate: Long? = null
 )
 
-
 enum class Importance(@StringRes val displayName: Int) {
     LOW(R.string.importance_low),
     REGULAR(R.string.importance_regular),

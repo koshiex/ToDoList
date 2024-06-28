@@ -154,6 +154,7 @@ fun Header(
             ),
             modifier = Modifier.padding(top = 16.dp, end = 16.dp)
         ) {
+            // TODO : Перенести в модель
             if (itemId != null) {
                 val item = ToDoItem(
                     itemId,
