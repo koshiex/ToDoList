@@ -52,6 +52,17 @@ fun MainScreen(viewModel: ToDoViewModel) {
     val navController = LocalNavController.current
     val tasks by viewModel.todoItems.collectAsState()
 
+    val changeTaskState = { itemId: String, isCompleted: Boolean ->
+        viewModel.toggleTaskCompletion(itemId, isCompleted)
+    }
+    val getDeadlineDate = { item: ToDoItem ->
+        item.deadlineDate?.let { viewModel.dateToString(it) }
+    }
+
+    var visibilityButtonState by remember {
+        mutableStateOf(true)
+    }
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
@@ -92,7 +103,9 @@ fun MainScreen(viewModel: ToDoViewModel) {
                     .padding(end = 24.dp, start = 88.dp, bottom = 18.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.completed_task_title),
+                    text =
+                    stringResource(R.string.completed_task_title) +
+                            " - ${viewModel.getCompletedCount()}",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = MaterialTheme.colorScheme.onTertiary
                     ),
@@ -101,26 +114,43 @@ fun MainScreen(viewModel: ToDoViewModel) {
                 )
 
                 IconButton(
-                    onClick = { /*TODO*/ }
+                    onClick = {
+                        visibilityButtonState = !visibilityButtonState
+                    }
                 ) {
                     Icon(
-                        imageVector = ImageVector.vectorResource(id = R.drawable.visibility_on_icon),
+                        imageVector =
+                        if (visibilityButtonState) {
+                            ImageVector.vectorResource(R.drawable.visibility_on_icon)
+                        } else {
+                            ImageVector.vectorResource(R.drawable.visibility_off_icon)
+                        },
                         contentDescription = null,
                         tint = LightBlue
                     )
                 }
             }
 
-            TaskList(tasks = tasks) { itemId: String, isCompleted: Boolean ->
-                viewModel.toggleTaskCompletion(itemId, isCompleted)
-            }
+            TaskList(
+                tasks = if (!visibilityButtonState) {
+                    viewModel.filterTasksByCompleted(tasks)
+                } else {
+                    tasks
+                },
+                changeTaskState,
+                getDeadlineDate
+            )
         }
     }
 }
 
 
 @Composable
-fun TaskList(tasks: List<ToDoItem>, changeTaskState: (String, Boolean) -> Unit) {
+fun TaskList(
+    tasks: List<ToDoItem>,
+    changeTaskState: (String, Boolean) -> Unit,
+    getDeadlineDate: (ToDoItem) -> String?
+) {
     val navController = LocalNavController.current
 
     LazyColumn(
@@ -134,7 +164,7 @@ fun TaskList(tasks: List<ToDoItem>, changeTaskState: (String, Boolean) -> Unit) 
             ),
     ) {
         items(tasks) { task ->
-            Task(item = task, changeTaskState)
+            Task(item = task, changeTaskState, getDeadlineDate)
 
         }
         item {
@@ -155,35 +185,50 @@ fun TaskList(tasks: List<ToDoItem>, changeTaskState: (String, Boolean) -> Unit) 
 }
 
 @Composable
-fun Task(item: ToDoItem, changeTaskState: (String, Boolean) -> Unit) {
+fun Task(
+    item: ToDoItem,
+    changeTaskState: (String, Boolean) -> Unit,
+    getDeadlineDate: (ToDoItem) -> String?
+) {
     val navController = LocalNavController.current
-
-    var checkedState by remember { mutableStateOf(item.isCompleted) }
+    val deadlineDate = getDeadlineDate(item)
 
     Row(
-        verticalAlignment = Alignment.Top,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start,
         modifier = Modifier.fillMaxSize()
     ) {
         Checkbox(
             modifier = Modifier.padding(start = 16.dp, top = 12.dp),    // TODO : Checkbox colors
-            checked = checkedState,
+            checked = item.isCompleted,
             onCheckedChange = {
                 changeTaskState(item.id, it)
-                checkedState = it
             }
         )
 
-        Text(
-            text = item.taskDescription,
-            maxLines = 3,
-            overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onPrimary,
+        Column(
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Center,
             modifier = Modifier
-                .alignBy(FirstBaseline)
-                .padding(start = 12.dp, top = 30.dp)
+                .padding(start = 12.dp, top = 12.dp)
                 .weight(1f)
-        )
+        ) {
+            Text(
+                text = item.taskDescription,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimary,
+            )
+
+            if (deadlineDate != null) {
+                Text(
+                    text = deadlineDate,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onTertiary
+                )
+            }
+        }
 
 
         IconButton(

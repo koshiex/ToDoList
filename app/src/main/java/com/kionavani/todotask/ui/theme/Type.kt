@@ -44,7 +44,7 @@ val Typography = Typography(
     // Button
     labelMedium = TextStyle(
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp,

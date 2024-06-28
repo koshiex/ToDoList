@@ -17,7 +17,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.navigation.toRoute
 import com.kionavani.todotask.Importance
 import com.kionavani.todotask.LocalNavController
 import com.kionavani.todotask.R
@@ -25,35 +24,24 @@ import com.kionavani.todotask.ToDoItem
 import com.kionavani.todotask.ToDoViewModel
 import com.kionavani.todotask.ui.theme.LightBlue
 import com.kionavani.todotask.ui.theme.LightRed
-import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTaskScreen(viewModel: ToDoViewModel, itemID: String? = null) {
-    val navController = LocalNavController.current
-
+    val task by lazy { itemID?.let { viewModel.getTaskById(it) } }
     val deadlineSelectorText = stringResource(R.string.deadline_selector)
 
-    var textFiledState by remember { mutableStateOf("") }
-    var dropDownState by remember { mutableStateOf(false) }
+    var textFiledState by remember { mutableStateOf(task?.taskDescription ?: "") }
     var switchState by remember { mutableStateOf(false) }
 
-    var dateTextState by remember { mutableStateOf("") }
+    var dateTextState by remember { mutableStateOf(deadlineSelectorText) }
     var datePickerOnState by remember { mutableStateOf(false) }
     val dateState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
+    var deadlineDate by remember { mutableStateOf<Long?>(null) }
 
-    val parsedDate : LocalDateTime? = null
-    if (dateTextState != "") {
-        val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        val parsedDay = LocalDateTime.parse(dateTextState, dateFormatter)
-    }
-
-
+    var dropDownState by remember { mutableStateOf(false) }
     var selectedImportanceState by remember {
-        mutableStateOf(Importance.LOW)
+        mutableStateOf(task?.importance ?: Importance.REGULAR)
     }
 
     Column(
@@ -69,22 +57,31 @@ fun AddTaskScreen(viewModel: ToDoViewModel, itemID: String? = null) {
             itemID,
             textFiledState,
             selectedImportanceState,
-            parsedDate
+            deadlineDate
         )
         TaskTextField(textFiledState, onTextChange = { textFiledState = it })
-        ImportanceDropDown(dropDownState,
+        ImportanceDropDown(
+            dropDownState,
             onDropDownStateChange = { dropDownState = it },
-            onDropDownSelected = { selectedImportanceState = it })
+            onDropDownSelected = { selectedImportanceState = it },
+            selectedImportanceState
+        )
         Divider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp))
         DeadlineRow(
             switchState = switchState,
             dateTextState = dateTextState,
             datePickerOnState = datePickerOnState,
             onSwitchStateChange = { switchState = it },
-            onDateTextStateChange = { dateTextState = it },
+            onDateTextStateChange = {
+                if (it != null) {
+                    dateTextState = viewModel.dateToString(it)
+                    deadlineDate = it
+                } else {
+                    dateTextState = deadlineSelectorText
+                }
+            },
             onDatePickerOnStateChange = { datePickerOnState = it },
-            dateState = dateState,
-            deadlineSelectorText = deadlineSelectorText
+            dateState = dateState
         )
         Divider(modifier = Modifier.padding(vertical = 16.dp))
         DeleteTaskRow(itemID) { itemID ->
@@ -99,7 +96,7 @@ fun Header(
     itemId: String?,
     descr: String,
     importance: Importance,
-    deadlineDate: LocalDateTime?
+    deadlineDate: Long?
 ) {
     val navController = LocalNavController.current
 
@@ -132,9 +129,9 @@ fun Header(
                     descr,
                     false,
                     importance,
-                    LocalDateTime.now(),
+                    System.currentTimeMillis(),
                     deadlineDate,
-                    LocalDateTime.now()
+                    System.currentTimeMillis()
                 )
                 viewModel.updateTodoItem(item)
             } else {
@@ -143,7 +140,7 @@ fun Header(
                     descr,
                     false,
                     importance,
-                    LocalDateTime.now(),
+                    System.currentTimeMillis(),
                     deadlineDate
                 )
                 viewModel.addTodoItem(item)
@@ -182,7 +179,8 @@ fun TaskTextField(textFiledState: String, onTextChange: (String) -> Unit) {
 fun ImportanceDropDown(
     dropDownState: Boolean,
     onDropDownStateChange: (Boolean) -> Unit,
-    onDropDownSelected: (Importance) -> Unit
+    onDropDownSelected: (Importance) -> Unit,
+    selectedImportanceState: Importance
 ) {
     Box(modifier = Modifier.padding(start = 16.dp, top = 28.dp)) {
         Column {
@@ -195,7 +193,7 @@ fun ImportanceDropDown(
 
             ClickableText(
                 modifier = Modifier.alpha(0.7f),
-                text = AnnotatedString(stringResource(Importance.LOW.displayName)),
+                text = AnnotatedString(stringResource(selectedImportanceState.displayName)),
                 style = MaterialTheme.typography.headlineSmall.copy(
                     color = MaterialTheme.colorScheme.onTertiary
                 )
@@ -220,7 +218,10 @@ fun ImportanceDropDown(
                             )
                         )
                     },
-                    onClick = { onDropDownSelected(importance) }
+                    onClick = {
+                        onDropDownSelected(importance)
+                        onDropDownStateChange(false)
+                    }
                 )
             }
         }
@@ -234,10 +235,9 @@ fun DeadlineRow(
     dateTextState: String,
     datePickerOnState: Boolean,
     onSwitchStateChange: (Boolean) -> Unit,
-    onDateTextStateChange: (String) -> Unit,
+    onDateTextStateChange: (Long?) -> Unit,
     onDatePickerOnStateChange: (Boolean) -> Unit,
     dateState: DatePickerState,
-    deadlineSelectorText: String
 ) {
     Row(
         verticalAlignment = Alignment.Top,
@@ -274,11 +274,7 @@ fun DeadlineRow(
                     onDismissRequest = { onDatePickerOnStateChange(false) },
                     confirmButton = {
                         TextButton(onClick = {
-                            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                            val formattedDate = dateState.selectedDateMillis?.let {
-                                dateFormat.format(Date(it))
-                            } ?: ""
-                            onDateTextStateChange(formattedDate)
+                            onDateTextStateChange(dateState.selectedDateMillis)
                             onDatePickerOnStateChange(false)
                         }) {
                             Text(

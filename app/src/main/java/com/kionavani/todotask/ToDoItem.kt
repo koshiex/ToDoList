@@ -1,16 +1,15 @@
 package com.kionavani.todotask
 
 import androidx.annotation.StringRes
-import java.time.LocalDateTime
 
 data class ToDoItem(
     val id: String,
-    var taskDescription: String,
-    var isCompleted: Boolean,
-    var importanceTask: Importance,
-    var creatingDate: LocalDateTime,
-    var deadlineDate: LocalDateTime? = null,
-    var changingDate: LocalDateTime? = null
+    val taskDescription: String,
+    val isCompleted: Boolean,
+    val importance: Importance,
+    val creatingDate: Long,
+    val deadlineDate: Long? = null,
+    val changingDate: Long? = null
 )
 
 
