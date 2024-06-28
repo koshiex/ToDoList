@@ -21,7 +21,7 @@ val LightColorScheme = lightColorScheme(
     tertiary = LightBackElevated,
     onPrimary = LightPrimaryLabel,
     onSecondaryContainer = LightSecondaryLabel,
-    onTertiary = LightTertiaryLabel
+    onTertiary = LightTertiaryLabel,
 )
 
 val DarkColorScheme = darkColorScheme(
