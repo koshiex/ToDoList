@@ -5,7 +5,7 @@
   <!--Task importance-->
   <string name="importance_low">Низкая</string>
   <string name="importance_regular">Обычная</string>
-  <string name="importance_high">Срочная</string>
+  <string name="importance_high">!! Срочная</string>
 
   <string name="new_task_button">Новое</string>
   <string name="my_tasks_title">Мои дела</string>
@@ -18,7 +18,7 @@
   <string name="delete_button">Удалить</string>
 
   <string name="high_importance_emoji">&#10071;</string>
-  <string name="low_importance_emoji">&#11015;</string>
+  <string name="low_importance_emoji">&#128164;</string>
 
 </resources>
 

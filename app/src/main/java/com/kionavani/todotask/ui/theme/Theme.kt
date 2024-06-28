@@ -1,6 +1,7 @@
 package com.kionavani.todotask.ui.theme
 
 import android.app.Activity
+import android.hardware.lights.Light
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -15,13 +16,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-val LightColorScheme = lightColorScheme(
+val LightColorScheme = lightColorScheme(    // TODO: Написать схему через датакласс
     primary = LightBackPrimary,
     secondary = LightBackSecondary,
     tertiary = LightBackElevated,
     onPrimary = LightPrimaryLabel,
     onSecondaryContainer = LightSecondaryLabel,
     onTertiary = LightTertiaryLabel,
+    outline = LightSeparator,
+    surface = LightOverlay,
+    onSurface = LightBackElevated,
+    inverseSurface = TransparentLightBlue,
+    inverseOnSurface = LightBlue,
+    inversePrimary = LightGreen,
+    error = LightRed
 )
 
 val DarkColorScheme = darkColorScheme(
@@ -30,7 +38,14 @@ val DarkColorScheme = darkColorScheme(
     tertiary = DarkBackElevated,
     onPrimary = DarkPrimaryLabel,
     onSecondaryContainer = DarkSecondaryLabel,
-    onTertiary = DarkTertiaryLabel
+    onTertiary = DarkTertiaryLabel,
+    outline = DarkSeparator,
+    surface = DarkOverlay,
+    onSurface = DarkBackElevated,
+    inverseSurface = TransparentDarkBlue,
+    inverseOnSurface = DarkBlue,
+    inversePrimary = DarkGreen,
+    error = DarkRed
 )
 
 @Composable

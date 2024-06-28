@@ -1,4 +1,4 @@
-package com.kionavani.todotask.ui
+package com.kionavani.todotask.ui.composable
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -43,10 +43,11 @@ import androidx.compose.ui.unit.dp
 import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
 import com.kionavani.todotask.data.ToDoItem
-import com.kionavani.todotask.ui.viewmodels.ToDoViewModel
+import com.kionavani.todotask.domain.LocalNavController
+import com.kionavani.todotask.ui.viewmodels.TodoViewModel
 
 @Composable
-fun MainScreen(viewModel: ToDoViewModel) {
+fun MainScreen(viewModel: TodoViewModel) {
     val navController = LocalNavController.current
     val tasks by viewModel.todoItems.collectAsState()
 
@@ -55,6 +56,9 @@ fun MainScreen(viewModel: ToDoViewModel) {
     }
     val getDeadlineDate = { item: ToDoItem ->
         item.deadlineDate?.let { viewModel.dateToString(it) }
+    }
+    val getDescription = { item: ToDoItem ->
+        viewModel.getDescWithEmoji(item)
     }
 
     var visibilityButtonState by remember {
@@ -136,7 +140,8 @@ fun MainScreen(viewModel: ToDoViewModel) {
                     tasks
                 },
                 changeTaskState,
-                getDeadlineDate
+                getDeadlineDate,
+                getDescription
             )
         }
     }
@@ -147,7 +152,8 @@ fun MainScreen(viewModel: ToDoViewModel) {
 fun TaskList(
     tasks: List<ToDoItem>,
     changeTaskState: (String, Boolean) -> Unit,
-    getDeadlineDate: (ToDoItem) -> String?
+    getDeadlineDate: (ToDoItem) -> String?,
+    getDescription: (ToDoItem) -> String
 ) {
     val navController = LocalNavController.current
 
@@ -162,7 +168,7 @@ fun TaskList(
             ),
     ) {
         items(tasks) { task ->
-            Task(item = task, changeTaskState, getDeadlineDate)
+            Task(item = task, changeTaskState, getDeadlineDate, getDescription)
 
         }
         item {
@@ -186,10 +192,13 @@ fun TaskList(
 fun Task(
     item: ToDoItem,
     changeTaskState: (String, Boolean) -> Unit,
-    getDeadlineDate: (ToDoItem) -> String?
+    getDeadlineDate: (ToDoItem) -> String?,
+    getDescription: (ToDoItem) -> String
 ) {
     val navController = LocalNavController.current
     val deadlineDate = getDeadlineDate(item)
+    val description = getDescription(item)
+
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -206,7 +215,7 @@ fun Task(
                 .weight(1f)
         ) {
             Text(
-                text = item.taskDescription,
+                text = description,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodyMedium,

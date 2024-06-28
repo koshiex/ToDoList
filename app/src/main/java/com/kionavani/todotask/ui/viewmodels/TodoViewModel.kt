@@ -2,18 +2,22 @@ package com.kionavani.todotask.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kionavani.todotask.R
+import com.kionavani.todotask.data.Importance
 import com.kionavani.todotask.data.ToDoItem
 import com.kionavani.todotask.data.TodoItemsRepository
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.kionavani.todotask.ui.ResourcesProvider
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class ToDoViewModel(private val repository: TodoItemsRepository) : ViewModel() {
+// TODO : отдельная модель для второго экрана
+class TodoViewModel(
+    private val repository: TodoItemsRepository,
+    private val provider: ResourcesProvider
+) : ViewModel() {
     val todoItems: StateFlow<List<ToDoItem>> = repository.todoItems
 
     fun addTodoItem(item: ToDoItem) {
@@ -60,5 +64,18 @@ class ToDoViewModel(private val repository: TodoItemsRepository) : ViewModel() {
 
     fun getTaskById(itemId: String): ToDoItem? {
         return repository.getTaskById(itemId)
+    }
+
+    fun getDescWithEmoji(item: ToDoItem): String {
+        return when (item.importance) {
+            Importance.LOW ->
+                provider.getString(R.string.low_importance_emoji) + " ${item.taskDescription}"
+
+            Importance.REGULAR ->
+                item.taskDescription
+
+            Importance.HIGH ->
+                provider.getString(R.string.high_importance_emoji) + " ${item.taskDescription}"
+        }
     }
 }
