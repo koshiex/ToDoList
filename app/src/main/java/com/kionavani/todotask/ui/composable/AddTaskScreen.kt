@@ -1,4 +1,4 @@
-package com.kionavani.todotask.ui.composable
+package com.kionavani.todotask.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,40 +53,21 @@ import androidx.compose.ui.unit.dp
 import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
 import com.kionavani.todotask.data.ToDoItem
-import com.kionavani.todotask.domain.LocalNavController
-import com.kionavani.todotask.ui.viewmodels.TodoViewModel
+import com.kionavani.todotask.ui.viewmodels.ToDoViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddTaskScreen(viewModel: TodoViewModel, itemID: String? = null) {
+fun AddTaskScreen(viewModel: ToDoViewModel, itemID: String? = null) {
     val task by lazy { itemID?.let { viewModel.getTaskById(it) } }
     val deadlineSelectorText = stringResource(R.string.deadline_selector)
 
     var textFiledState by remember { mutableStateOf(task?.taskDescription ?: "") }
-    var switchState by remember { mutableStateOf(task?.deadlineDate != null) }
+    var switchState by remember { mutableStateOf(false) }
 
-    var dateTextState by remember {
-        mutableStateOf(
-            if (task?.deadlineDate != null) {
-                viewModel.dateToString(task?.deadlineDate!!)
-            } else {
-                deadlineSelectorText
-            }
-        )
-    }
-
+    var dateTextState by remember { mutableStateOf(deadlineSelectorText) }
     var datePickerOnState by remember { mutableStateOf(false) }
     val dateState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
     var deadlineDate by remember { mutableStateOf<Long?>(null) }
-
-    val onDateTextStateChange = { date: Long? ->
-        dateTextState = if (date != null) {
-            viewModel.dateToString(date)
-        } else {
-            deadlineSelectorText
-        }
-        deadlineDate = date
-    }
 
     var dropDownState by remember { mutableStateOf(false) }
     var selectedImportanceState by remember {
@@ -121,7 +102,14 @@ fun AddTaskScreen(viewModel: TodoViewModel, itemID: String? = null) {
             dateTextState = dateTextState,
             datePickerOnState = datePickerOnState,
             onSwitchStateChange = { switchState = it },
-            onDateTextStateChange = onDateTextStateChange,
+            onDateTextStateChange = {
+                if (it != null) {
+                    dateTextState = viewModel.dateToString(it)
+                    deadlineDate = it
+                } else {
+                    dateTextState = deadlineSelectorText
+                }
+            },
             onDatePickerOnStateChange = { datePickerOnState = it },
             dateState = dateState
         )
@@ -134,7 +122,7 @@ fun AddTaskScreen(viewModel: TodoViewModel, itemID: String? = null) {
 
 @Composable
 fun Header(
-    viewModel: TodoViewModel,
+    viewModel: ToDoViewModel,
     itemId: String?,
     descr: String,
     importance: Importance,
@@ -165,7 +153,6 @@ fun Header(
             ),
             modifier = Modifier.padding(top = 16.dp, end = 16.dp)
         ) {
-            // TODO : Перенести в модель
             if (itemId != null) {
                 val item = ToDoItem(
                     itemId,
@@ -214,12 +201,9 @@ fun TaskTextField(textFiledState: String, onTextChange: (String) -> Unit) {
             )
         },
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.secondary,
             unfocusedContainerColor = MaterialTheme.colorScheme.secondary,
             focusedBorderColor = Color.Transparent,
-            unfocusedBorderColor = Color.Transparent,
-            cursorColor = MaterialTheme.colorScheme.onPrimary
-
+            unfocusedBorderColor = Color.Transparent
         ),
         value = textFiledState,
         onValueChange = onTextChange,
