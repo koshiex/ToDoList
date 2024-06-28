@@ -1,12 +1,18 @@
-package com.kionavani.todotask
+package com.kionavani.todotask.data
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class TodoItemsRepository {
     private val _todoItems = MutableStateFlow<List<ToDoItem>>(emptyList())
     val todoItems: StateFlow<List<ToDoItem>> = _todoItems.asStateFlow()
+
+    private val repositoryScope = CoroutineScope(Dispatchers.IO)
+
 
     init {
         val currentTime = System.currentTimeMillis()
@@ -101,39 +107,42 @@ class TodoItemsRepository {
     }
 
     fun addTodoItem(item: ToDoItem) {
-        _todoItems.value += item
+        repositoryScope.launch {
+            _todoItems.value += item
+        }
     }
 
     fun updateTodoItem(newItem: ToDoItem) {
-        val itemToCompare = _todoItems.value.find { it.id == newItem.id }
-
-        if (itemToCompare != null) {
-            val itemToAdd = itemToCompare.copy(
-                taskDescription = newItem.taskDescription,
-                importance = newItem.importance,
-                deadlineDate = newItem.deadlineDate,
-                changingDate = newItem.changingDate
-            )
-
-            _todoItems.value = _todoItems.value.map {
-                if (it.id == itemToAdd.id) {
-                    itemToAdd
-                } else {
-                    it
+        repositoryScope.launch {
+            val itemToCompare = _todoItems.value.find { it.id == newItem.id }
+            if (itemToCompare != null) {
+                val itemToAdd = itemToCompare.copy(
+                    taskDescription = newItem.taskDescription,
+                    importance = newItem.importance,
+                    deadlineDate = newItem.deadlineDate,
+                    changingDate = newItem.changingDate
+                )
+                _todoItems.value = _todoItems.value.map {
+                    if (it.id == itemToAdd.id) itemToAdd else it
                 }
             }
         }
     }
 
     fun deleteTodoItem(itemId: String) {
-        _todoItems.value = _todoItems.value.filter { it.id != itemId }
+        repositoryScope.launch {
+            _todoItems.value = _todoItems.value.filter { it.id != itemId }
+        }
     }
 
     fun toggleTaskCompletion(itemId: String, isCompleted: Boolean) {
-        _todoItems.value = _todoItems.value.map { item ->
-            if (item.id == itemId) item.copy(isCompleted = isCompleted) else item
+        repositoryScope.launch {
+            _todoItems.value = _todoItems.value.map { item ->
+                if (item.id == itemId) item.copy(isCompleted = isCompleted) else item
+            }
         }
     }
+
 
     fun getTaskById(itemId: String) = _todoItems.value.find { it.id == itemId }
 

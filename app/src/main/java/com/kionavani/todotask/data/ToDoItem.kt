@@ -1,6 +1,7 @@
-package com.kionavani.todotask
+package com.kionavani.todotask.data
 
 import androidx.annotation.StringRes
+import com.kionavani.todotask.R
 
 data class ToDoItem(
     val id: String,

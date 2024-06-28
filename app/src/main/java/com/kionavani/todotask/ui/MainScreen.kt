@@ -18,7 +18,6 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -34,16 +33,15 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.kionavani.todotask.LocalNavController
+import com.kionavani.todotask.ui.LocalNavController
 import com.kionavani.todotask.R
-import com.kionavani.todotask.ToDoItem
-import com.kionavani.todotask.ToDoViewModel
+import com.kionavani.todotask.data.ToDoItem
+import com.kionavani.todotask.ui.viewmodels.ToDoViewModel
 import com.kionavani.todotask.ui.AddTaskScreenNav
 import com.kionavani.todotask.ui.theme.LightBlue
 

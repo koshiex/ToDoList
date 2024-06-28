@@ -1,4 +1,4 @@
-package com.kionavani.todotask
+package com.kionavani.todotask.ui
 
 import MainScreen
 import android.os.Bundle
@@ -6,20 +6,17 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.kionavani.todotask.ui.AddTaskScreen
-import com.kionavani.todotask.ui.AddTaskScreenNav
-import com.kionavani.todotask.ui.MainScreenNav
+import com.kionavani.todotask.ui.viewmodels.ToDoViewModel
+import com.kionavani.todotask.ui.viewmodels.ToDoViewModelFactory
+import com.kionavani.todotask.data.TodoItemsRepository
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
 
 val LocalNavController = compositionLocalOf<NavController> { error("No NavController provided") }
@@ -34,7 +31,7 @@ class MainActivity : ComponentActivity() {
         )
 
         super.onCreate(savedInstanceState)
-
+        
         val viewModelFactory = ToDoViewModelFactory(TodoItemsRepository())
         viewModel = ViewModelProvider(this, viewModelFactory) [ToDoViewModel::class.java]
 

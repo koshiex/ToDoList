@@ -1,7 +1,8 @@
-package com.kionavani.todotask
+package com.kionavani.todotask.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.kionavani.todotask.data.TodoItemsRepository
 
 class ToDoViewModelFactory(private val repository: TodoItemsRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
