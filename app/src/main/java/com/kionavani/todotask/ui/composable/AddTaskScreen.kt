@@ -203,9 +203,12 @@ fun TaskTextField(textFiledState: String, onTextChange: (String) -> Unit) {
             )
         },
         colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.secondary,
             unfocusedContainerColor = MaterialTheme.colorScheme.secondary,
             focusedBorderColor = Color.Transparent,
-            unfocusedBorderColor = Color.Transparent
+            unfocusedBorderColor = Color.Transparent,
+            cursorColor = MaterialTheme.colorScheme.onPrimary
+
         ),
         value = textFiledState,
         onValueChange = onTextChange,
