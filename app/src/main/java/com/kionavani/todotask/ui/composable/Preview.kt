@@ -1,6 +1,5 @@
 package com.kionavani.todotask.ui
 
-import MainScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,7 +36,7 @@ fun PreviewLightAddTaskScreen() {
     ToDoTaskTheme(darkTheme = false, dynamicColor = false) {
         val navController = rememberNavController()
         CompositionLocalProvider(LocalNavController provides navController) {
-            AddTaskScreen(viewModel)
+            AddTaskScreen(viewModel, "123")
         }
     }
 }
@@ -49,7 +48,7 @@ fun PreviewDarkAddTaskScreen() {
     ToDoTaskTheme(darkTheme = true, dynamicColor = false) {
         val navController = rememberNavController()
         CompositionLocalProvider(LocalNavController provides navController) {
-            AddTaskScreen(viewModel)
+            AddTaskScreen(viewModel, "123")
         }
     }
 }

@@ -1,4 +1,7 @@
+package com.kionavani.todotask.ui
+
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,10 +14,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,15 +38,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.kionavani.todotask.ui.LocalNavController
 import com.kionavani.todotask.R
+import com.kionavani.todotask.data.Importance
 import com.kionavani.todotask.data.ToDoItem
 import com.kionavani.todotask.ui.viewmodels.ToDoViewModel
-import com.kionavani.todotask.ui.AddTaskScreenNav
-import com.kionavani.todotask.ui.theme.LightBlue
 
 @Composable
 fun MainScreen(viewModel: ToDoViewModel) {
@@ -67,7 +67,7 @@ fun MainScreen(viewModel: ToDoViewModel) {
                 modifier = Modifier
                     .padding(end = 12.dp, bottom = 24.dp),
                 shape = CircleShape,
-                containerColor = LightBlue,
+                containerColor = MaterialTheme.colorScheme.inverseOnSurface,
                 contentColor = Color.White,
                 onClick = {
                     navController.navigate(AddTaskScreenNav(null))
@@ -124,7 +124,7 @@ fun MainScreen(viewModel: ToDoViewModel) {
                             ImageVector.vectorResource(R.drawable.visibility_off_icon)
                         },
                         contentDescription = null,
-                        tint = LightBlue
+                        tint = MaterialTheme.colorScheme.inverseOnSurface
                     )
                 }
             }
@@ -166,17 +166,17 @@ fun TaskList(
 
         }
         item {
-            ClickableText(
-                text = AnnotatedString(stringResource(R.string.new_task_button)),
+            Text(
+                text = stringResource(R.string.new_task_button),
                 modifier = Modifier
                     .padding(top = 24.dp, bottom = 22.dp, start = 76.dp)
-                    .alpha(0.3f),
+                    .alpha(0.3f)
+                    .clickable {
+                        navController.navigate(AddTaskScreenNav(null))
+                    },
                 style = MaterialTheme.typography.bodyMedium.copy(
                     color = MaterialTheme.colorScheme.onTertiary
-                ),
-                onClick = {
-                    navController.navigate(AddTaskScreenNav(null))
-                }
+                )
             )
         }
     }
@@ -196,13 +196,7 @@ fun Task(
         horizontalArrangement = Arrangement.Start,
         modifier = Modifier.fillMaxSize()
     ) {
-        Checkbox(
-            modifier = Modifier.padding(start = 16.dp, top = 12.dp),    // TODO : Checkbox colors
-            checked = item.isCompleted,
-            onCheckedChange = {
-                changeTaskState(item.id, it)
-            }
-        )
+        ItemCheckbox(item, changeTaskState)
 
         Column(
             horizontalAlignment = Alignment.Start,
@@ -241,5 +235,37 @@ fun Task(
                 tint = MaterialTheme.colorScheme.onTertiary
             )
         }
+    }
+}
+
+// TODO: Заменить на кастомный чекбокс
+@Composable
+fun ItemCheckbox(item: ToDoItem, changeTaskState: (String, Boolean) -> Unit) {
+    if (item.importance == Importance.HIGH) {
+        Checkbox(
+            modifier = Modifier.padding(start = 16.dp, top = 12.dp),
+            checked = item.isCompleted,
+            colors = CheckboxDefaults.colors(
+                uncheckedColor = MaterialTheme.colorScheme.error,
+                checkedColor = MaterialTheme.colorScheme.inversePrimary,
+                checkmarkColor = MaterialTheme.colorScheme.secondary
+            ),
+            onCheckedChange = {
+                changeTaskState(item.id, it)
+            }
+        )
+    } else {
+        Checkbox(
+            modifier = Modifier.padding(start = 16.dp, top = 12.dp),
+            checked = item.isCompleted,
+            colors = CheckboxDefaults.colors(
+                uncheckedColor = MaterialTheme.colorScheme.outline,
+                checkedColor = MaterialTheme.colorScheme.inversePrimary,
+                checkmarkColor = MaterialTheme.colorScheme.secondary
+            ),
+            onCheckedChange = {
+                changeTaskState(item.id, it)
+            }
+        )
     }
 }

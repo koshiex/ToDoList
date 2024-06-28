@@ -1,15 +1,48 @@
 package com.kionavani.todotask.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerState
+import androidx.compose.material3.DisplayMode
+import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -17,12 +50,10 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import com.kionavani.todotask.data.Importance
 import com.kionavani.todotask.R
+import com.kionavani.todotask.data.Importance
 import com.kionavani.todotask.data.ToDoItem
 import com.kionavani.todotask.ui.viewmodels.ToDoViewModel
-import com.kionavani.todotask.ui.theme.LightBlue
-import com.kionavani.todotask.ui.theme.LightRed
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -118,7 +149,7 @@ fun Header(
         ClickableText(
             text = AnnotatedString(stringResource(id = R.string.save_task_button)).toUpperCase(),
             style = MaterialTheme.typography.labelMedium.copy(
-                color = LightBlue
+                color = MaterialTheme.colorScheme.inverseOnSurface
             ),
             modifier = Modifier.padding(top = 16.dp, end = 16.dp)
         ) {
@@ -169,6 +200,11 @@ fun TaskTextField(textFiledState: String, onTextChange: (String) -> Unit) {
                 )
             )
         },
+        colors = OutlinedTextFieldDefaults.colors(
+            unfocusedContainerColor = MaterialTheme.colorScheme.secondary,
+            focusedBorderColor = Color.Transparent,
+            unfocusedBorderColor = Color.Transparent
+        ),
         value = textFiledState,
         onValueChange = onTextChange,
     )
@@ -190,15 +226,18 @@ fun ImportanceDropDown(
                 )
             )
 
-            ClickableText(
-                modifier = Modifier.alpha(0.7f),
-                text = AnnotatedString(stringResource(selectedImportanceState.displayName)),
+            Text(
+                modifier = Modifier
+                    .alpha(0.7f)
+                    .padding(top = 4.dp)
+                    .clickable {
+                        onDropDownStateChange(true)
+                    },
+                text = stringResource(selectedImportanceState.displayName),
                 style = MaterialTheme.typography.headlineSmall.copy(
                     color = MaterialTheme.colorScheme.onTertiary
                 )
-            ) {
-                onDropDownStateChange(true)
-            }
+            )
         }
 
         DropdownMenu(
@@ -258,18 +297,24 @@ fun DeadlineRow(
             )
 
             if (switchState) {
-                ClickableText(
-                    text = AnnotatedString(dateTextState),
+                Text(
+                    modifier = Modifier
+                        .padding(top = 4.dp)
+                        .clickable {
+                            onDatePickerOnStateChange(true)
+                        },
+                    text = dateTextState,
                     style = MaterialTheme.typography.headlineSmall.copy(
-                        color = LightBlue
+                        color = MaterialTheme.colorScheme.inverseOnSurface
                     )
-                ) {
-                    onDatePickerOnStateChange(true)
-                }
+                )
             }
 
             if (datePickerOnState) {
                 DatePickerDialog(
+                    colors = DatePickerDefaults.colors(
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    ),
                     onDismissRequest = { onDatePickerOnStateChange(false) },
                     confirmButton = {
                         TextButton(onClick = {
@@ -278,7 +323,9 @@ fun DeadlineRow(
                         }) {
                             Text(
                                 stringResource(android.R.string.ok),
-                                style = MaterialTheme.typography.bodyMedium
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    color = MaterialTheme.colorScheme.inverseOnSurface
+                                )
                             )
                         }
                     },
@@ -286,19 +333,43 @@ fun DeadlineRow(
                         TextButton(onClick = { onDatePickerOnStateChange(false) }) {
                             Text(
                                 stringResource(android.R.string.cancel),
-                                style = MaterialTheme.typography.bodyMedium
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    color = MaterialTheme.colorScheme.inverseOnSurface
+                                )
                             )
                         }
                     }
                 ) {
-                    DatePicker(state = dateState) // TODO : DatePickerColors
+                    DatePicker(
+                        state = dateState,
+                        colors = DatePickerDefaults.colors(
+                            titleContentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                            headlineContentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                            weekdayContentColor = MaterialTheme.colorScheme.onTertiary,
+                            subheadContentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                            yearContentColor = MaterialTheme.colorScheme.onPrimary,
+                            currentYearContentColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedYearContentColor = MaterialTheme.colorScheme.onPrimary,
+                            dayContentColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedDayContentColor = Color.White,
+                            todayContentColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedDayContainerColor = MaterialTheme.colorScheme.inverseOnSurface,
+                            todayDateBorderColor = MaterialTheme.colorScheme.inverseOnSurface,
+                        )
+                    )
                 }
             }
         }
 
         Switch(
             checked = switchState,
-            onCheckedChange = onSwitchStateChange   // TODO: switch colors
+            onCheckedChange = onSwitchStateChange,
+            colors = SwitchDefaults.colors(
+                checkedTrackColor = MaterialTheme.colorScheme.inverseSurface,
+                checkedThumbColor = MaterialTheme.colorScheme.inverseOnSurface,
+                uncheckedTrackColor = MaterialTheme.colorScheme.surface,
+                uncheckedThumbColor = MaterialTheme.colorScheme.onSurface,
+            )
         )
     }
 }
@@ -318,18 +389,20 @@ fun DeleteTaskRow(itemId: String?, delete: (String) -> Unit) {
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.delete_icon),
                 contentDescription = null,
-                tint = LightRed
+                tint = MaterialTheme.colorScheme.error
             )
-            ClickableText(
-                modifier = Modifier.padding(start = 12.dp),
-                text = AnnotatedString(stringResource(R.string.delete_button)),
+            Text(
+                text = stringResource(R.string.delete_button),
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    color = LightRed
-                )
-            ) {
-                delete(itemId)
-                navController.navigate(MainScreenNav)
-            }
+                    color = MaterialTheme.colorScheme.error
+                ),
+                modifier = Modifier
+                    .padding(start = 12.dp)
+                    .clickable {
+                        delete(itemId)
+                        navController.navigate(MainScreenNav)
+                    }
+            )
         }
     }
 }
