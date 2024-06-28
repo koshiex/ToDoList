@@ -8,7 +8,10 @@ import com.kionavani.todotask.data.ToDoItem
 import com.kionavani.todotask.data.TodoItemsRepository
 import com.kionavani.todotask.ui.ResourcesProvider
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -21,8 +24,13 @@ class TodoViewModel(
 ) : ViewModel() {
     val todoItems: StateFlow<List<ToDoItem>> = repository.todoItems
 
-    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+    private val _errorFlow = MutableSharedFlow<String>()
+    val errorFlow: SharedFlow<String> = _errorFlow.asSharedFlow()
 
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        viewModelScope.launch {
+            _errorFlow.emit(throwable.message ?: "Неизвестная ошибка")
+        }
     }
 
     fun addTodoItem(item: ToDoItem) {
