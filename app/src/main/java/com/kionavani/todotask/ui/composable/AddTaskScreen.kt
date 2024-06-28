@@ -63,12 +63,30 @@ fun AddTaskScreen(viewModel: TodoViewModel, itemID: String? = null) {
     val deadlineSelectorText = stringResource(R.string.deadline_selector)
 
     var textFiledState by remember { mutableStateOf(task?.taskDescription ?: "") }
-    var switchState by remember { mutableStateOf(false) }
+    var switchState by remember { mutableStateOf(task?.deadlineDate != null) }
 
-    var dateTextState by remember { mutableStateOf(deadlineSelectorText) }
+    var dateTextState by remember {
+        mutableStateOf(
+            if (task?.deadlineDate != null) {
+                viewModel.dateToString(task?.deadlineDate!!)
+            } else {
+                deadlineSelectorText
+            }
+        )
+    }
+
     var datePickerOnState by remember { mutableStateOf(false) }
     val dateState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
     var deadlineDate by remember { mutableStateOf<Long?>(null) }
+
+    val onDateTextStateChange = { date: Long? ->
+        dateTextState = if (date != null) {
+            viewModel.dateToString(date)
+        } else {
+            deadlineSelectorText
+        }
+        deadlineDate = date
+    }
 
     var dropDownState by remember { mutableStateOf(false) }
     var selectedImportanceState by remember {
@@ -103,14 +121,7 @@ fun AddTaskScreen(viewModel: TodoViewModel, itemID: String? = null) {
             dateTextState = dateTextState,
             datePickerOnState = datePickerOnState,
             onSwitchStateChange = { switchState = it },
-            onDateTextStateChange = {
-                if (it != null) {
-                    dateTextState = viewModel.dateToString(it)
-                    deadlineDate = it
-                } else {
-                    dateTextState = deadlineSelectorText
-                }
-            },
+            onDateTextStateChange = onDateTextStateChange,
             onDatePickerOnStateChange = { datePickerOnState = it },
             dateState = dateState
         )
