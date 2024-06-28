@@ -17,11 +17,10 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import com.kionavani.todotask.Importance
-import com.kionavani.todotask.LocalNavController
+import com.kionavani.todotask.data.Importance
 import com.kionavani.todotask.R
-import com.kionavani.todotask.ToDoItem
-import com.kionavani.todotask.ToDoViewModel
+import com.kionavani.todotask.data.ToDoItem
+import com.kionavani.todotask.ui.viewmodels.ToDoViewModel
 import com.kionavani.todotask.ui.theme.LightBlue
 import com.kionavani.todotask.ui.theme.LightRed
 
