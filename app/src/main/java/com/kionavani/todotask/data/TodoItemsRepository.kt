@@ -143,7 +143,6 @@ class TodoItemsRepository {
         }
     }
 
-
     fun getTaskById(itemId: String) = _todoItems.value.find { it.id == itemId }
 
     fun getNextId(): String = (_todoItems.value.last().id.toInt() + 1).toString()

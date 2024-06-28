@@ -1,4 +1,4 @@
-package com.kionavani.todotask.ui
+package com.kionavani.todotask.ui.composable
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,11 +53,12 @@ import androidx.compose.ui.unit.dp
 import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
 import com.kionavani.todotask.data.ToDoItem
-import com.kionavani.todotask.ui.viewmodels.ToDoViewModel
+import com.kionavani.todotask.domain.LocalNavController
+import com.kionavani.todotask.ui.viewmodels.TodoViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddTaskScreen(viewModel: ToDoViewModel, itemID: String? = null) {
+fun AddTaskScreen(viewModel: TodoViewModel, itemID: String? = null) {
     val task by lazy { itemID?.let { viewModel.getTaskById(it) } }
     val deadlineSelectorText = stringResource(R.string.deadline_selector)
 
@@ -122,7 +123,7 @@ fun AddTaskScreen(viewModel: ToDoViewModel, itemID: String? = null) {
 
 @Composable
 fun Header(
-    viewModel: ToDoViewModel,
+    viewModel: TodoViewModel,
     itemId: String?,
     descr: String,
     importance: Importance,

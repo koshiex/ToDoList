@@ -1,4 +1,4 @@
-package com.kionavani.todotask.ui
+package com.kionavani.todotask.domain
 
 import android.os.Bundle
 import android.view.WindowManager
@@ -19,13 +19,14 @@ import com.kionavani.todotask.ui.composable.AddTaskScreenNav
 import com.kionavani.todotask.ui.composable.MainScreen
 import com.kionavani.todotask.ui.composable.MainScreenNav
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
-import com.kionavani.todotask.ui.viewmodels.ToDoViewModel
-import com.kionavani.todotask.ui.viewmodels.ToDoViewModelFactory
+import com.kionavani.todotask.ui.viewmodels.TodoViewModel
+import com.kionavani.todotask.ui.viewmodels.TodoViewModelFactory
 
 val LocalNavController = compositionLocalOf<NavController> { error("No NavController provided") }
 
 class MainActivity : ComponentActivity() {
-    private lateinit var viewModel: ToDoViewModel
+    private val viewModel by lazy { createViewModel() }
+    private val provider by lazy { setupProvider() }
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         window.setFlags(
@@ -34,9 +35,8 @@ class MainActivity : ComponentActivity() {
         )
 
         super.onCreate(savedInstanceState)
-        
-        val viewModelFactory = ToDoViewModelFactory(TodoItemsRepository())
-        viewModel = ViewModelProvider(this, viewModelFactory) [ToDoViewModel::class.java]
+
+        provider.attachActivityContext(this)
 
         setContent {
             ToDoTaskTheme(dynamicColor = false) {
@@ -58,6 +58,17 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onDestroy() {
+        provider.detachActivityContext()
+        super.onDestroy()
+    }
+
+    private fun createViewModel() : TodoViewModel {
+        val viewModelFactory = TodoViewModelFactory(TodoItemsRepository(), provider)
+        return ViewModelProvider(this, viewModelFactory) [TodoViewModel::class.java]
+    }
+    private fun setupProvider() = (this.application as TodoApplication).resourcesProvider
 }
 
 
