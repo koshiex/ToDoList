@@ -1,5 +1,6 @@
 package com.kionavani.todotask.data
 
+import com.kionavani.todotask.data.remote.TasksService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -10,7 +11,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class TodoItemsRepository {
+class TodoItemsRepository(
+    private val networkService: TasksService
+) {
     private val _todoItems = MutableStateFlow<List<ToDoItem>>(emptyList())
     val todoItems: StateFlow<List<ToDoItem>> = _todoItems.asStateFlow()
 
