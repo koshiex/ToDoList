@@ -7,34 +7,26 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.getValue
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.kionavani.todotask.data.TodoItemsRepository
-import com.kionavani.todotask.ui.composable.AddTaskScreen
-import com.kionavani.todotask.ui.composable.AddTaskScreenNav
-import com.kionavani.todotask.ui.composable.MainScreen
-import com.kionavani.todotask.ui.composable.MainScreenNav
+import com.kionavani.todotask.ui.ResourcesProvider
 import com.kionavani.todotask.ui.composable.SetupUI
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
 import com.kionavani.todotask.ui.viewmodels.TodoViewModel
 import com.kionavani.todotask.ui.viewmodels.TodoViewModelFactory
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 val LocalNavController = compositionLocalOf<NavController> { error("No NavController provided") }
 
 class MainActivity : ComponentActivity() {
-    private val repository by lazy { setupRepository() }
-    private val provider by lazy { setupProvider() }
+    @Inject
+    lateinit var repository : TodoItemsRepository
+    @Inject
+    lateinit var provider : ResourcesProvider
+
     private val viewModelFactory by lazy { TodoViewModelFactory(repository, provider) }
     private val viewModel: TodoViewModel by viewModels { viewModelFactory }
 
@@ -46,6 +38,8 @@ class MainActivity : ComponentActivity() {
         )
 
         super.onCreate(savedInstanceState)
+
+        (this.application as TodoApplication).appComponent.inject(this)
 
         provider.attachActivityContext(this)
 
@@ -66,13 +60,6 @@ class MainActivity : ComponentActivity() {
         provider.detachActivityContext()
         super.onDestroy()
     }
-
-    private fun createViewModel() : TodoViewModel {
-        val viewModelFactory = TodoViewModelFactory(TodoItemsRepository(), provider)
-        return ViewModelProvider(this, viewModelFactory) [TodoViewModel::class.java]
-    }
-    private fun setupProvider() = (this.application as TodoApplication).resourcesProvider
-    private fun setupRepository() = (this.application as TodoApplication).todoItemsRepository
 }
 
 

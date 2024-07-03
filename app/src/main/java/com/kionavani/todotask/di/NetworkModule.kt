@@ -2,6 +2,7 @@ package com.kionavani.todotask.di
 
 import com.kionavani.todotask.data.remote.TasksService
 import com.kionavani.todotask.data.remote.TasksServiceImpl
+import com.kionavani.todotask.data.remote.createHttpClient
 import dagger.Module
 import dagger.Provides
 import io.ktor.client.HttpClient
@@ -16,15 +17,7 @@ class NetworkModule {
     @Provides
     @Singleton
     fun provideHttpClient(): HttpClient {
-        return HttpClient {
-            install(ContentNegotiation) {
-                json()
-            }
-
-            install(Logging) {
-                level = LogLevel.INFO
-            }
-        }
+        return createHttpClient()
     }
 
 

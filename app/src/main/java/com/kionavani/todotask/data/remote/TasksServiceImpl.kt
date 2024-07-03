@@ -6,6 +6,9 @@ import com.kionavani.todotask.data.remote.dto.SingleElementRequestDto
 import com.kionavani.todotask.data.remote.dto.SingleElementResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -14,8 +17,19 @@ import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.request.url
+import io.ktor.serialization.kotlinx.json.json
 
 private const val REVISION_HEADER = "X-Last-Known-Revision"
+
+fun createHttpClient() = HttpClient {
+    install(ContentNegotiation) {
+        json()
+    }
+
+    install(Logging) {
+        level = LogLevel.INFO
+    }
+}
 
 class TasksServiceImpl(
     private val client: HttpClient

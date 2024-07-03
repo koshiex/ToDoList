@@ -9,6 +9,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.kionavani.todotask.data.TodoItemsRepository
+import com.kionavani.todotask.data.remote.TasksServiceImpl
+import com.kionavani.todotask.data.remote.createHttpClient
 import com.kionavani.todotask.domain.LocalNavController
 import com.kionavani.todotask.ui.ResourcesProvider
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
@@ -16,8 +18,9 @@ import com.kionavani.todotask.ui.viewmodels.TodoViewModel
 
 @Preview(name = "Light Main Screen", showBackground = true)
 @Composable
-fun PreviewLightMainScreen() {
-    val viewModel = TodoViewModel(TodoItemsRepository(), ResourcesProvider(LocalContext.current))
+private fun PreviewLightMainScreen() {
+    val service = TasksServiceImpl(createHttpClient())
+    val viewModel = TodoViewModel(TodoItemsRepository(service), ResourcesProvider(LocalContext.current))
     ToDoTaskTheme(darkTheme = false, dynamicColor = false) {
         PreviewNavHost(viewModel)
     }
@@ -25,8 +28,9 @@ fun PreviewLightMainScreen() {
 
 @Preview(name = "Dark Main Screen", showBackground = true)
 @Composable
-fun PreviewDarkMainScreen() {
-    val viewModel = TodoViewModel(TodoItemsRepository(), ResourcesProvider(LocalContext.current))
+private fun PreviewDarkMainScreen() {
+    val service = TasksServiceImpl(createHttpClient())
+    val viewModel = TodoViewModel(TodoItemsRepository(service), ResourcesProvider(LocalContext.current))
     ToDoTaskTheme(darkTheme = true, dynamicColor = false) {
         PreviewNavHost(viewModel)
     }
@@ -34,8 +38,9 @@ fun PreviewDarkMainScreen() {
 
 @Preview(name = "Light Add Task Screen", showBackground = true)
 @Composable
-fun PreviewLightAddTaskScreen() {
-    val viewModel = TodoViewModel(TodoItemsRepository(), ResourcesProvider(LocalContext.current))
+private fun PreviewLightAddTaskScreen() {
+    val service = TasksServiceImpl(createHttpClient())
+    val viewModel = TodoViewModel(TodoItemsRepository(service), ResourcesProvider(LocalContext.current))
     ToDoTaskTheme(darkTheme = false, dynamicColor = false) {
         val navController = rememberNavController()
         CompositionLocalProvider(LocalNavController provides navController) {
@@ -46,8 +51,9 @@ fun PreviewLightAddTaskScreen() {
 
 @Preview(name = "Dark Add Task Screen", showBackground = true)
 @Composable
-fun PreviewDarkAddTaskScreen() {
-    val viewModel = TodoViewModel(TodoItemsRepository(), ResourcesProvider(LocalContext.current))
+private fun PreviewDarkAddTaskScreen() {
+    val service = TasksServiceImpl(createHttpClient())
+    val viewModel = TodoViewModel(TodoItemsRepository(service), ResourcesProvider(LocalContext.current))
     ToDoTaskTheme(darkTheme = true, dynamicColor = false) {
         val navController = rememberNavController()
         CompositionLocalProvider(LocalNavController provides navController) {
@@ -58,7 +64,7 @@ fun PreviewDarkAddTaskScreen() {
 
 
 @Composable
-fun PreviewNavHost(viewModel: TodoViewModel) {
+private fun PreviewNavHost(viewModel: TodoViewModel) {
     val navController = rememberNavController()
     CompositionLocalProvider(LocalNavController provides navController) {
         NavHost(
