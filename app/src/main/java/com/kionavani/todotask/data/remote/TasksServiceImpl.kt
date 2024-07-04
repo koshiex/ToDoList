@@ -19,6 +19,7 @@ import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.request.url
 import io.ktor.serialization.kotlinx.json.json
+import com.kionavani.todotask.BuildConfig
 
 private const val REVISION_HEADER = "X-Last-Known-Revision"
 
@@ -28,7 +29,7 @@ fun createHttpClient() = HttpClient {
     }
 
     defaultRequest {
-        header("Authorization", "OAuth y0_AgAAAABeVeI5AARC0QAAAAEJT93gAABweXgfETZFSoemQY5ihiIZoos7CA")
+        header("Authorization", "OAuth {${BuildConfig.OAUTH_TOKEN}}")
     }
 
 

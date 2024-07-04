@@ -20,6 +20,15 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        val clientId: String = project.findProperty("YANDEX_CLIENT_ID") as String
+        manifestPlaceholders["YANDEX_CLIENT_ID"] = clientId
+
+        val baseUrl: String = project.findProperty("BASE_URL") as String
+        buildConfigField("String", "BASE_URL", baseUrl)
+
+        val oAuthToken: String = project.findProperty("OAUTH_TOKEN") as String
+        buildConfigField("String", "OAUTH_TOKEN", oAuthToken)
     }
 
     buildTypes {
@@ -39,6 +48,7 @@ android {
         jvmTarget = "1.8"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     composeOptions {

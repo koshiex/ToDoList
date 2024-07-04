@@ -11,7 +11,8 @@ import androidx.navigation.toRoute
 import com.kionavani.todotask.data.TodoItemsRepository
 import com.kionavani.todotask.data.remote.TasksServiceImpl
 import com.kionavani.todotask.data.remote.createHttpClient
-import com.kionavani.todotask.domain.LocalNavController
+import com.kionavani.todotask.ui.LocalNavController
+import com.kionavani.todotask.ui.LocalTodoViewModel
 import com.kionavani.todotask.ui.ResourcesProvider
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
 import com.kionavani.todotask.ui.viewmodels.TodoViewModel
@@ -20,7 +21,8 @@ import com.kionavani.todotask.ui.viewmodels.TodoViewModel
 @Composable
 private fun PreviewLightMainScreen() {
     val service = TasksServiceImpl(createHttpClient())
-    val viewModel = TodoViewModel(TodoItemsRepository(service), ResourcesProvider(LocalContext.current))
+    val viewModel =
+        TodoViewModel(TodoItemsRepository(service), ResourcesProvider(LocalContext.current))
     ToDoTaskTheme(darkTheme = false, dynamicColor = false) {
         PreviewNavHost(viewModel)
     }
@@ -30,7 +32,8 @@ private fun PreviewLightMainScreen() {
 @Composable
 private fun PreviewDarkMainScreen() {
     val service = TasksServiceImpl(createHttpClient())
-    val viewModel = TodoViewModel(TodoItemsRepository(service), ResourcesProvider(LocalContext.current))
+    val viewModel =
+        TodoViewModel(TodoItemsRepository(service), ResourcesProvider(LocalContext.current))
     ToDoTaskTheme(darkTheme = true, dynamicColor = false) {
         PreviewNavHost(viewModel)
     }
@@ -40,11 +43,14 @@ private fun PreviewDarkMainScreen() {
 @Composable
 private fun PreviewLightAddTaskScreen() {
     val service = TasksServiceImpl(createHttpClient())
-    val viewModel = TodoViewModel(TodoItemsRepository(service), ResourcesProvider(LocalContext.current))
+    val viewModel =
+        TodoViewModel(TodoItemsRepository(service), ResourcesProvider(LocalContext.current))
     ToDoTaskTheme(darkTheme = false, dynamicColor = false) {
         val navController = rememberNavController()
         CompositionLocalProvider(LocalNavController provides navController) {
-            AddTaskScreen(viewModel, "123")
+            CompositionLocalProvider(LocalTodoViewModel provides viewModel) {
+                AddTaskScreen("123")
+            }
         }
     }
 }
@@ -53,11 +59,14 @@ private fun PreviewLightAddTaskScreen() {
 @Composable
 private fun PreviewDarkAddTaskScreen() {
     val service = TasksServiceImpl(createHttpClient())
-    val viewModel = TodoViewModel(TodoItemsRepository(service), ResourcesProvider(LocalContext.current))
+    val viewModel =
+        TodoViewModel(TodoItemsRepository(service), ResourcesProvider(LocalContext.current))
     ToDoTaskTheme(darkTheme = true, dynamicColor = false) {
         val navController = rememberNavController()
         CompositionLocalProvider(LocalNavController provides navController) {
-            AddTaskScreen(viewModel, "123")
+            CompositionLocalProvider(LocalTodoViewModel provides viewModel) {
+                AddTaskScreen("123")
+            }
         }
     }
 }
@@ -67,16 +76,17 @@ private fun PreviewDarkAddTaskScreen() {
 private fun PreviewNavHost(viewModel: TodoViewModel) {
     val navController = rememberNavController()
     CompositionLocalProvider(LocalNavController provides navController) {
-        NavHost(
-            navController = navController,
-            startDestination = MainScreenNav
-        ) {
-            composable<MainScreenNav> {
-                MainScreen(viewModel)
-            }
-            composable<AddTaskScreenNav> { backStackEntry ->
-                val itemID = backStackEntry.toRoute<AddTaskScreenNav>().itemID
-                AddTaskScreen(viewModel, itemID)
+        CompositionLocalProvider(LocalTodoViewModel provides viewModel) {
+            NavHost(
+                navController = navController, startDestination = MainScreenNav
+            ) {
+                composable<MainScreenNav> {
+                    MainScreen()
+                }
+                composable<AddTaskScreenNav> { backStackEntry ->
+                    val itemID = backStackEntry.toRoute<AddTaskScreenNav>().itemID
+                    AddTaskScreen(itemID)
+                }
             }
         }
     }

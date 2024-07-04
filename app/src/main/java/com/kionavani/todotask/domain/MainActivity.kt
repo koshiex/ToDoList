@@ -10,8 +10,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.compositionLocalOf
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
+import com.kionavani.todotask.R
 import com.kionavani.todotask.data.TodoItemsRepository
 import com.kionavani.todotask.data.remote.NetworkResult
 import com.kionavani.todotask.ui.ResourcesProvider
@@ -48,7 +50,8 @@ class MainActivity : ComponentActivity() {
         }
 
         lifecycleScope.launch {
-            viewModel.errorFlow.collect { errorMessage ->
+            viewModel.errorFlow.flowWithLifecycle(lifecycle).collect { error ->
+                val errorMessage = error?.message ?: provider.getString(R.string.smth_error)
                 Toast.makeText(this@MainActivity, errorMessage, Toast.LENGTH_SHORT).show()
             }
         }

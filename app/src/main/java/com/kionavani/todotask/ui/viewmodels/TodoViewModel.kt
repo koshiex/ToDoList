@@ -25,12 +25,12 @@ class TodoViewModel @Inject constructor(
 ) : ViewModel() {
     val todoItems: StateFlow<List<ToDoItem>> = repository.todoItems
 
-    private val _errorFlow = MutableSharedFlow<String>()
-    val errorFlow: SharedFlow<String> = _errorFlow.asSharedFlow()
+    private val _errorFlow = MutableSharedFlow<Exception?>()
+    val errorFlow: SharedFlow<Exception?> = _errorFlow.asSharedFlow()
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         viewModelScope.launch {
-            _errorFlow.emit(throwable.message ?: "Неизвестная ошибка")
+            _errorFlow.emit(throwable as? Exception)
         }
     }
 
