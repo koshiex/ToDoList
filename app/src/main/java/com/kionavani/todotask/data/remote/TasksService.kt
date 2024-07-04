@@ -1,9 +1,7 @@
 package com.kionavani.todotask.data.remote
 
-import com.kionavani.todotask.data.remote.dto.ListElementRequestDto
-import com.kionavani.todotask.data.remote.dto.ListElementResponseDto
-import com.kionavani.todotask.data.remote.dto.SingleElementRequestDto
-import com.kionavani.todotask.data.remote.dto.SingleElementResponseDto
+import com.kionavani.todotask.data.remote.dto.ListElementDto.*
+import com.kionavani.todotask.data.remote.dto.SingleElementDto.*
 
 interface TasksService {
     suspend fun getList(): NetworkResult<ListElementResponseDto>

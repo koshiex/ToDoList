@@ -163,7 +163,8 @@ fun TaskList(
     LazyColumn(
         modifier = Modifier
             .padding(12.dp)
-            .wrapContentSize()
+            .fillMaxWidth()
+            .wrapContentHeight()
             .shadow(4.dp, shape = RoundedCornerShape(12.dp))
             .background(
                 color = MaterialTheme.colorScheme.secondary,

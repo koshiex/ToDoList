@@ -1,9 +1,7 @@
 package com.kionavani.todotask.data.remote
 
-import com.kionavani.todotask.data.remote.dto.ListElementRequestDto
-import com.kionavani.todotask.data.remote.dto.ListElementResponseDto
-import com.kionavani.todotask.data.remote.dto.SingleElementRequestDto
-import com.kionavani.todotask.data.remote.dto.SingleElementResponseDto
+import com.kionavani.todotask.data.remote.dto.ListElementDto.*
+import com.kionavani.todotask.data.remote.dto.SingleElementDto.*
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -29,12 +27,12 @@ fun createHttpClient() = HttpClient {
     }
 
     defaultRequest {
-        header("Authorization", "OAuth {${BuildConfig.OAUTH_TOKEN}}")
+        header("Authorization", "OAuth ${BuildConfig.OAUTH_TOKEN}]]")
     }
 
 
     install(Logging) {
-        level = LogLevel.INFO
+        level = LogLevel.ALL
     }
 }
 

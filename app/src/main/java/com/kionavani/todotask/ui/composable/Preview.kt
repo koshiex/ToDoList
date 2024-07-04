@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.kionavani.todotask.data.TasksMapper
 import com.kionavani.todotask.data.TodoItemsRepository
 import com.kionavani.todotask.data.remote.TasksServiceImpl
 import com.kionavani.todotask.data.remote.createHttpClient
@@ -22,7 +23,7 @@ import com.kionavani.todotask.ui.viewmodels.TodoViewModel
 private fun PreviewLightMainScreen() {
     val service = TasksServiceImpl(createHttpClient())
     val viewModel =
-        TodoViewModel(TodoItemsRepository(service), ResourcesProvider(LocalContext.current))
+        TodoViewModel(TodoItemsRepository(service, TasksMapper()), ResourcesProvider(LocalContext.current))
     ToDoTaskTheme(darkTheme = false, dynamicColor = false) {
         PreviewNavHost(viewModel)
     }
@@ -33,7 +34,7 @@ private fun PreviewLightMainScreen() {
 private fun PreviewDarkMainScreen() {
     val service = TasksServiceImpl(createHttpClient())
     val viewModel =
-        TodoViewModel(TodoItemsRepository(service), ResourcesProvider(LocalContext.current))
+        TodoViewModel(TodoItemsRepository(service, TasksMapper()), ResourcesProvider(LocalContext.current))
     ToDoTaskTheme(darkTheme = true, dynamicColor = false) {
         PreviewNavHost(viewModel)
     }
@@ -44,7 +45,7 @@ private fun PreviewDarkMainScreen() {
 private fun PreviewLightAddTaskScreen() {
     val service = TasksServiceImpl(createHttpClient())
     val viewModel =
-        TodoViewModel(TodoItemsRepository(service), ResourcesProvider(LocalContext.current))
+        TodoViewModel(TodoItemsRepository(service, TasksMapper()), ResourcesProvider(LocalContext.current))
     ToDoTaskTheme(darkTheme = false, dynamicColor = false) {
         val navController = rememberNavController()
         CompositionLocalProvider(LocalNavController provides navController) {
@@ -60,7 +61,7 @@ private fun PreviewLightAddTaskScreen() {
 private fun PreviewDarkAddTaskScreen() {
     val service = TasksServiceImpl(createHttpClient())
     val viewModel =
-        TodoViewModel(TodoItemsRepository(service), ResourcesProvider(LocalContext.current))
+        TodoViewModel(TodoItemsRepository(service, TasksMapper()), ResourcesProvider(LocalContext.current))
     ToDoTaskTheme(darkTheme = true, dynamicColor = false) {
         val navController = rememberNavController()
         CompositionLocalProvider(LocalNavController provides navController) {

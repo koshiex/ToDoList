@@ -8,6 +8,7 @@ import com.kionavani.todotask.data.ToDoItem
 import com.kionavani.todotask.data.TodoItemsRepository
 import com.kionavani.todotask.ui.ResourcesProvider
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,26 +35,28 @@ class TodoViewModel @Inject constructor(
         }
     }
 
+    private val scopeContext = exceptionHandler + SupervisorJob()
+
     fun addTodoItem(item: ToDoItem) {
-        viewModelScope.launch(exceptionHandler) {
+        viewModelScope.launch(scopeContext) {
             repository.addTodoItem(item)
         }
     }
 
     fun updateTodoItem(newItem: ToDoItem) {
-        viewModelScope.launch(exceptionHandler) {
+        viewModelScope.launch(scopeContext) {
             repository.updateTodoItem(newItem)
         }
     }
 
     fun deleteTodoItem(itemId: String) {
-        viewModelScope.launch(exceptionHandler) {
+        viewModelScope.launch(scopeContext) {
             repository.deleteTodoItem(itemId)
         }
     }
 
     fun toggleTaskCompletion(itemId: String, isCompleted: Boolean) {
-        viewModelScope.launch(exceptionHandler) {
+        viewModelScope.launch(scopeContext) {
             repository.toggleTaskCompletion(itemId, isCompleted)
         }
     }
