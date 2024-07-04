@@ -16,9 +16,10 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
 
 // TODO : отдельная модель для второго экрана
-class TodoViewModel(
+class TodoViewModel @Inject constructor(
     private val repository: TodoItemsRepository,
     private val provider: ResourcesProvider
 ) : ViewModel() {

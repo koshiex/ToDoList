@@ -7,6 +7,7 @@ import com.kionavani.todotask.data.remote.dto.SingleElementResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.delete
@@ -25,6 +26,11 @@ fun createHttpClient() = HttpClient {
     install(ContentNegotiation) {
         json()
     }
+
+    defaultRequest {
+        header("Authorization", "OAuth y0_AgAAAABeVeI5AARC0QAAAAEJT93gAABweXgfETZFSoemQY5ihiIZoos7CA")
+    }
+
 
     install(Logging) {
         level = LogLevel.INFO

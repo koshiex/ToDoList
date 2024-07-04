@@ -1,6 +1,7 @@
 package com.kionavani.todotask.domain
 
 import android.os.Bundle
+import android.util.Log
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -8,26 +9,23 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.compositionLocalOf
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import com.kionavani.todotask.data.TodoItemsRepository
+import com.kionavani.todotask.data.remote.NetworkResult
 import com.kionavani.todotask.ui.ResourcesProvider
 import com.kionavani.todotask.ui.composable.SetupUI
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
 import com.kionavani.todotask.ui.viewmodels.TodoViewModel
-import com.kionavani.todotask.ui.viewmodels.TodoViewModelFactory
+import com.kionavani.todotask.ui.viewmodels.ViewModelFactory
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-val LocalNavController = compositionLocalOf<NavController> { error("No NavController provided") }
-
 class MainActivity : ComponentActivity() {
-    @Inject
-    lateinit var repository : TodoItemsRepository
-    @Inject
-    lateinit var provider : ResourcesProvider
+    private lateinit var provider : ResourcesProvider
+    private lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    private val viewModelFactory by lazy { TodoViewModelFactory(repository, provider) }
     private val viewModel: TodoViewModel by viewModels { viewModelFactory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,6 +57,16 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         provider.detachActivityContext()
         super.onDestroy()
+    }
+
+    @Inject
+    fun setProvider(provider: ResourcesProvider) {
+        this.provider = provider
+    }
+
+    @Inject
+    fun setFactory(factory: ViewModelFactory) {
+        viewModelFactory = factory
     }
 }
 

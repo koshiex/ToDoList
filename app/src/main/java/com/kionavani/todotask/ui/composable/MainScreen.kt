@@ -44,11 +44,13 @@ import androidx.compose.ui.unit.dp
 import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
 import com.kionavani.todotask.data.ToDoItem
-import com.kionavani.todotask.domain.LocalNavController
+import com.kionavani.todotask.ui.LocalNavController
+import com.kionavani.todotask.ui.LocalTodoViewModel
 import com.kionavani.todotask.ui.viewmodels.TodoViewModel
 
 @Composable
-fun MainScreen(viewModel: TodoViewModel) {
+fun MainScreen() {
+    val viewModel = LocalTodoViewModel.current
     val navController = LocalNavController.current
     val tasks by viewModel.todoItems.collectAsState()
 
