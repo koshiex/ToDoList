@@ -1,5 +1,6 @@
 package com.kionavani.todotask.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kionavani.todotask.R
@@ -31,16 +32,15 @@ class MainScreenViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    private val _errorFlow = MutableSharedFlow<Exception?>()
-    val errorFlow: SharedFlow<Exception?> = _errorFlow.asSharedFlow()
-
     private val _completedTaskCounter = MutableStateFlow(0)
     val completedTaskCounter: StateFlow<Int> = _completedTaskCounter.asStateFlow()
 
-    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        viewModelScope.launch {
-            _errorFlow.emit(throwable as? Exception)
-        }
+    private val _isErrorHappened = MutableStateFlow(false)
+    val isErrorHappened = _isErrorHappened.asStateFlow()
+
+    private val exceptionHandler = CoroutineExceptionHandler { _, _ ->
+            _isErrorHappened.value = true
+
     }
 
     init {
@@ -49,6 +49,10 @@ class MainScreenViewModel @Inject constructor(
                 updateCompletedCount(it)
             }
         }
+    }
+
+    fun errorProcessed() {
+        _isErrorHappened.value = false
     }
 
     fun fetchData() {

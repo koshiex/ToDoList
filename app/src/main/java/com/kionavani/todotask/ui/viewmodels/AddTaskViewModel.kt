@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -25,8 +26,8 @@ class AddTaskViewModel @Inject constructor(
     private val resourcesProvider: ResourcesProvider
 ) : ViewModel() {
 
-    private val _errorFlow = MutableSharedFlow<Exception?>()
-    val errorFlow: SharedFlow<Exception?> = _errorFlow.asSharedFlow()
+    private val _isErrorHappened = MutableStateFlow(false)
+    val isErrorHappened = _isErrorHappened.asStateFlow()
 
     private val _dataChanged = MutableStateFlow(false)
     var dataChanged = _dataChanged.asStateFlow()
@@ -55,7 +56,7 @@ class AddTaskViewModel @Inject constructor(
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         viewModelScope.launch {
-            _errorFlow.emit(throwable as? Exception)
+            _isErrorHappened.value = true
         }
     }
 
@@ -73,6 +74,10 @@ class AddTaskViewModel @Inject constructor(
             val task = repository.getTaskById(itemId)
             initializeState(task)
         }
+    }
+
+    fun errorProcessed() {
+        _isErrorHappened.value = false
     }
 
     fun initializeState(task: ToDoItem?) {

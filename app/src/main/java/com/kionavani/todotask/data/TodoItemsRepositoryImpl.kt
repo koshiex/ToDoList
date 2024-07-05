@@ -50,7 +50,7 @@ class TodoItemsRepositoryImpl(
     }
 
     override suspend fun updateTodoItem(newItem: ToDoItem) {
-        coroutineScope.launch(dispatcher) {
+        coroutineScope.async(dispatcher) {
             val itemToCompare = _todoItems.value.find { it.id == newItem.id }
             if (itemToCompare != null) {
                 val itemToAdd = itemToCompare.copy(
@@ -71,23 +71,23 @@ class TodoItemsRepositoryImpl(
                     is NetworkResult.Success -> currentRevision = response.data.revision
                 }
             }
-        }.join()
+        }.await()
     }
 
     override suspend fun deleteTodoItem(itemId: String) {
-        coroutineScope.launch(dispatcher) {
+        coroutineScope.async(dispatcher) {
             _todoItems.value = _todoItems.value.filter { it.id != itemId }
-            val response = networkService.deleteTask(itemId)
+            val response = networkService.deleteTask(itemId, currentRevision)
 
             when (response) {
                 is NetworkResult.Error -> throw response.exception
                 is NetworkResult.Success -> currentRevision = response.data.revision
             }
-        }.join()
+        }.await()
     }
 
     override suspend fun toggleTaskCompletion(itemId: String, isCompleted: Boolean) {
-        coroutineScope.launch(dispatcher) {
+        coroutineScope.async(dispatcher) {
             var item: ToDoItem? = null
             _todoItems.value = _todoItems.value.map {
                 if (it.id == itemId) {
@@ -105,26 +105,22 @@ class TodoItemsRepositoryImpl(
                     is NetworkResult.Success -> currentRevision = response.data.revision
                 }
             }
-        }.join()
+        }.await()
     }
 
-    override suspend fun getTaskById(itemId: String): ToDoItem? {
-        val result: ToDoItem?
+    override suspend fun getTaskById(itemId: String): ToDoItem? =
         withContext(dispatcher) {
-            result = _todoItems.value.find { it.id == itemId }
+             _todoItems.value.find { it.id == itemId }
         }
-        return result
-    }
 
-    override suspend fun getNextId(): String {
-        val res: String
+
+    override suspend fun getNextId(): String =
         withContext(dispatcher) {
-            res = if (_todoItems.value.isNotEmpty()) {
+            if (_todoItems.value.isNotEmpty()) {
                 (_todoItems.value.last().id.toInt() + 1).toString()
             } else {
                 "0"
             }
         }
-        return res
-    }
+
 }

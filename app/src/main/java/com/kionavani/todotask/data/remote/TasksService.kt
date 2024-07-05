@@ -17,5 +17,5 @@ interface TasksService {
     ): NetworkResult<SingleElementResponseDto>
 
     suspend fun updateTask(task: SingleElementRequestDto, revision: Int): NetworkResult<SingleElementResponseDto>
-    suspend fun deleteTask(taskId: String): NetworkResult<SingleElementResponseDto>
+    suspend fun deleteTask(taskId: String, revision: Int): NetworkResult<SingleElementResponseDto>
 }

@@ -29,7 +29,8 @@ val LightColorScheme = lightColorScheme(    // TODO: Написать схему
     inverseSurface = TransparentLightBlue,
     inverseOnSurface = LightBlue,
     inversePrimary = LightGreen,
-    error = LightRed
+    error = LightRed,
+    onError = LightWhite
 )
 
 val DarkColorScheme = darkColorScheme(
@@ -45,7 +46,8 @@ val DarkColorScheme = darkColorScheme(
     inverseSurface = TransparentDarkBlue,
     inverseOnSurface = DarkBlue,
     inversePrimary = DarkGreen,
-    error = DarkRed
+    error = DarkRed,
+    onError = DarkWhite
 )
 
 @Composable

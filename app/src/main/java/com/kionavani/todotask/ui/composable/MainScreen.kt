@@ -1,5 +1,6 @@
 package com.kionavani.todotask.ui.composable
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,13 +23,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -40,14 +46,17 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
 import com.kionavani.todotask.data.ToDoItem
 import com.kionavani.todotask.ui.LocalNavController
-import com.kionavani.todotask.ui.LocalMainScreenViewModel
 import com.kionavani.todotask.ui.Util
 import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen(viewModel: MainScreenViewModel) {
@@ -55,6 +64,18 @@ fun MainScreen(viewModel: MainScreenViewModel) {
     val tasks by viewModel.todoItems.collectAsState()
     val completedCount by viewModel.completedTaskCounter.collectAsState()
     val isFiltering by viewModel.isFiltering.collectAsState()
+    val isErrorHappened by viewModel.isErrorHappened.collectAsState()
+    Log.e("Compose", isErrorHappened.toString())
+
+
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val onFetchErrorClick = {
+        viewModel.fetchData()
+        viewModel.errorProcessed()
+    }
+    val fetchingErrorMessage = stringResource(R.string.fetching_error)
+    val retryStr = stringResource(R.string.retry)
 
     val changeTaskState = { itemId: String, isCompleted: Boolean ->
         viewModel.toggleTaskCompletion(itemId, isCompleted)
@@ -63,12 +84,31 @@ fun MainScreen(viewModel: MainScreenViewModel) {
         item.deadlineDate?.let { Util.dateToString(it) }
     }
 
-
-    var visibilityButtonState by remember {
-        mutableStateOf(true)
+    LaunchedEffect(isErrorHappened) {
+        if (isErrorHappened) {
+            showSnackBar(
+                scope = scope,
+                snackbarHostState = snackbarHostState,
+                onClick = onFetchErrorClick,
+                message = fetchingErrorMessage,
+                onActionMessage = retryStr
+            )
+        }
     }
 
+
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) {
+                Snackbar(
+                    snackbarData = it,
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError,
+                    actionColor = MaterialTheme.colorScheme.onError,
+                )
+
+            }
+        },
         floatingActionButton = {
             FloatingActionButton(
                 modifier = Modifier
@@ -288,5 +328,26 @@ fun ItemCheckbox(item: ToDoItem, changeTaskState: (String, Boolean) -> Unit) {
                 changeTaskState(item.id, it)
             }
         )
+    }
+}
+
+fun showSnackBar(
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
+    onClick: () -> Unit,
+    message: String,
+    onActionMessage: String
+) {
+    scope.launch {
+        val result = snackbarHostState
+            .showSnackbar(
+                message = message,
+                actionLabel = onActionMessage,
+                duration = SnackbarDuration.Indefinite
+            )
+        when (result) {
+            SnackbarResult.ActionPerformed -> onClick()
+            SnackbarResult.Dismissed -> Unit
+        }
     }
 }

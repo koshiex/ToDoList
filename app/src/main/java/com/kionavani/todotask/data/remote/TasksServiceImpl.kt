@@ -36,7 +36,7 @@ fun createHttpClient() = HttpClient {
     }
 
     defaultRequest {
-        header("Authorization", "OAuth ${BuildConfig.OAUTH_TOKEN}")
+        header("Authorization", "OAuth ${BuildConfig.OAUTH_TOKEN}j")
         header(ContentType, Application.Json)
     }
 
@@ -113,10 +113,11 @@ class TasksServiceImpl(
             NetworkResult.Error(e)
         }
 
-    override suspend fun deleteTask(taskId: String): NetworkResult<SingleElementResponseDto> =
+    override suspend fun deleteTask(taskId: String, revision: Int): NetworkResult<SingleElementResponseDto> =
         try {
             val response: SingleElementResponseDto = client.delete {
                 url(Endpoints.getListOneUrl(taskId))
+                header(REVISION_HEADER, revision.toString())
             }.body()
             NetworkResult.Success(response)
         } catch (e: Exception) {

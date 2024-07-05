@@ -54,13 +54,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun startCoroutines() {
-        // TODO : флоу второй модели
-        lifecycleScope.launch {
-            mainViewModel.errorFlow.flowWithLifecycle(lifecycle).collect { error ->
-                val errorMessage = error?.message ?: provider.getString(R.string.smth_error)
-                Toast.makeText(this@MainActivity, errorMessage, Toast.LENGTH_SHORT).show()
-            }
-        }
         lifecycleScope.launch {
             addViewModel.dataChanged.collect {isChanged ->
                 if (!isChanged) mainViewModel.fetchData()
