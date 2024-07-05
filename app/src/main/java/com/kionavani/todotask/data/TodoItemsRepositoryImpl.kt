@@ -1,10 +1,13 @@
 package com.kionavani.todotask.data
 
+import android.util.Log
 import com.kionavani.todotask.data.remote.NetworkResult
 import com.kionavani.todotask.data.remote.TasksService
+import com.kionavani.todotask.data.remote.dto.ResponseDto
 import com.kionavani.todotask.domain.TodoItemsRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,15 +19,14 @@ class TodoItemsRepositoryImpl(
     private val tasksMapper: TasksMapper,
     private val coroutineScope: CoroutineScope,
     private val dispatcher: CoroutineDispatcher
-) : TodoItemsRepository{
+) : TodoItemsRepository {
     private val _todoItems = MutableStateFlow<List<ToDoItem>>(emptyList())
     override val todoItems: StateFlow<List<ToDoItem>> = _todoItems.asStateFlow()
 
     private var currentRevision = 0
-
     override suspend fun fetchData() {
         withContext(dispatcher) {
-            when(val response = networkService.getList()) {
+            when (val response = networkService.getList()) {
                 is NetworkResult.Error -> throw response.exception
                 is NetworkResult.Success -> {
                     val mappedList = tasksMapper.toEntityList(response.data)
@@ -36,9 +38,14 @@ class TodoItemsRepositoryImpl(
     }
 
     override suspend fun addTodoItem(item: ToDoItem) {
-        coroutineScope.launch(dispatcher) {
+        coroutineScope.async(dispatcher) {
             _todoItems.value += item
-        }.join()
+            val response = networkService.addTask(tasksMapper.toRequestElement(item), currentRevision)
+            when(response) {
+                is NetworkResult.Error -> throw response.exception
+                is NetworkResult.Success -> currentRevision = response.data.revision
+            }
+        }.await()
     }
 
     override suspend fun updateTodoItem(newItem: ToDoItem) {
@@ -54,6 +61,14 @@ class TodoItemsRepositoryImpl(
                 _todoItems.value = _todoItems.value.map {
                     if (it.id == itemToAdd.id) itemToAdd else it
                 }
+                val response = networkService.updateTask(
+                    tasksMapper.toRequestElement(itemToAdd), currentRevision
+                )
+
+                when(response) {
+                    is NetworkResult.Error -> throw response.exception
+                    is NetworkResult.Success -> currentRevision = response.data.revision
+                }
             }
         }.join()
     }
@@ -61,6 +76,12 @@ class TodoItemsRepositoryImpl(
     override suspend fun deleteTodoItem(itemId: String) {
         coroutineScope.launch(dispatcher) {
             _todoItems.value = _todoItems.value.filter { it.id != itemId }
+            val response = networkService.deleteTask(itemId)
+
+            when(response) {
+                is NetworkResult.Error -> throw response.exception
+                is NetworkResult.Success -> currentRevision = response.data.revision
+            }
         }.join()
     }
 
@@ -69,10 +90,21 @@ class TodoItemsRepositoryImpl(
             _todoItems.value = _todoItems.value.map { item ->
                 if (item.id == itemId) item.copy(isCompleted = isCompleted) else item
             }
+            val item = getTaskById(itemId)
+            if (item != null) {
+                val response = networkService.updateTask(
+                    tasksMapper.toRequestElement(item), currentRevision
+                )
+
+                when(response) {
+                    is NetworkResult.Error -> throw response.exception
+                    is NetworkResult.Success -> currentRevision = response.data.revision
+                }
+            }
         }.join()
     }
 
-    override suspend fun getTaskById(itemId: String) : ToDoItem? {
+    override suspend fun getTaskById(itemId: String): ToDoItem? {
         val result: ToDoItem?
         withContext(dispatcher) {
             result = _todoItems.value.find { it.id == itemId }

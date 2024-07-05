@@ -1,7 +1,8 @@
 package com.kionavani.todotask.data.remote
 
-import com.kionavani.todotask.data.remote.dto.ListElementDto.*
-import com.kionavani.todotask.data.remote.dto.SingleElementDto.*
+import android.util.Log
+import com.kionavani.todotask.data.remote.dto.ResponseDto.*
+import com.kionavani.todotask.data.remote.dto.RequestDto.*
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -18,20 +19,34 @@ import io.ktor.client.request.setBody
 import io.ktor.client.request.url
 import io.ktor.serialization.kotlinx.json.json
 import com.kionavani.todotask.BuildConfig
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.http.ContentType.Application
+import io.ktor.http.HttpHeaders.ContentType
+import kotlinx.serialization.json.Json
 
 private const val REVISION_HEADER = "X-Last-Known-Revision"
+private const val CLIENT_LOGGER_TAG = "HTTP call"
 
 fun createHttpClient() = HttpClient {
     install(ContentNegotiation) {
-        json()
+        json(Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+        })
     }
 
     defaultRequest {
         header("Authorization", "OAuth ${BuildConfig.OAUTH_TOKEN}")
+        header(ContentType, Application.Json)
     }
 
 
     install(Logging) {
+        logger = object : Logger {
+            override fun log(message: String) {
+                Log.d(CLIENT_LOGGER_TAG, message)
+            }
+        }
         level = LogLevel.ALL
     }
 }
@@ -53,7 +68,7 @@ class TasksServiceImpl(
         val response: ListElementResponseDto = client.patch {
             url(Endpoints.LIST)
             setBody(list)
-            header(REVISION_HEADER, revision)
+            header(REVISION_HEADER, revision.toString())
         }.body()
         NetworkResult.Success(response)
     } catch (e: Exception) {
@@ -75,21 +90,23 @@ class TasksServiceImpl(
         task: SingleElementRequestDto, revision: Int
     ): NetworkResult<SingleElementResponseDto> =
         try {
-            val taskId = task.element.id
             val response: SingleElementResponseDto = client.post {
-                url(Endpoints.getListOneUrl(taskId))
-                header(REVISION_HEADER, revision)
+                url(Endpoints.LIST)
+                header(REVISION_HEADER, revision.toString())
+                setBody(task)
             }.body()
             NetworkResult.Success(response)
         } catch (e: Exception) {
             NetworkResult.Error(e)
         }
 
-    override suspend fun updateTask(task: SingleElementRequestDto): NetworkResult<SingleElementResponseDto> =
+    override suspend fun updateTask(task: SingleElementRequestDto, revision: Int): NetworkResult<SingleElementResponseDto> =
         try {
             val taskId = task.element.id
             val response: SingleElementResponseDto = client.put {
                 url(Endpoints.getListOneUrl(taskId))
+                header(REVISION_HEADER, revision.toString())
+                setBody(task)
             }.body()
             NetworkResult.Success(response)
         } catch (e: Exception) {

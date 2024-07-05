@@ -1,8 +1,8 @@
 package com.kionavani.todotask.data
 
 import com.kionavani.todotask.data.remote.dto.ElementDto
-import com.kionavani.todotask.data.remote.dto.ListElementDto.*
-import com.kionavani.todotask.data.remote.dto.SingleElementDto
+import com.kionavani.todotask.data.remote.dto.ResponseDto.*
+import com.kionavani.todotask.data.remote.dto.RequestDto.*
 
 class TasksMapper {
     fun toEntityList(dto: ListElementResponseDto): List<ToDoItem> {
@@ -25,8 +25,7 @@ class TasksMapper {
         return ListElementRequestDto(newList)
     }
 
-    fun toRequestElement(item: ToDoItem) = SingleElementDto
-        .SingleElementRequestDto(toElement(item))
+    fun toRequestElement(item: ToDoItem) = SingleElementRequestDto(toElement(item))
 
     fun toEntity(element: ElementDto): ToDoItem = ToDoItem(
         element.id,

@@ -1,7 +1,7 @@
 package com.kionavani.todotask.data.remote
 
-import com.kionavani.todotask.data.remote.dto.ListElementDto.*
-import com.kionavani.todotask.data.remote.dto.SingleElementDto.*
+import com.kionavani.todotask.data.remote.dto.RequestDto.*
+import com.kionavani.todotask.data.remote.dto.ResponseDto.*
 
 interface TasksService {
     suspend fun getList(): NetworkResult<ListElementResponseDto>
@@ -16,6 +16,6 @@ interface TasksService {
         revision: Int
     ): NetworkResult<SingleElementResponseDto>
 
-    suspend fun updateTask(task: SingleElementRequestDto): NetworkResult<SingleElementResponseDto>
+    suspend fun updateTask(task: SingleElementRequestDto, revision: Int): NetworkResult<SingleElementResponseDto>
     suspend fun deleteTask(taskId: String): NetworkResult<SingleElementResponseDto>
 }

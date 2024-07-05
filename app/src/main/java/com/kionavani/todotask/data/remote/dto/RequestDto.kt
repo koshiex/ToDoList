@@ -1,17 +1,18 @@
 package com.kionavani.todotask.data.remote.dto
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-sealed class SingleElementDto {
+sealed class RequestDto {
     @Serializable
-    data class SingleElementResponseDto(
-        val status: String,
-        val element: ElementDto,
-        val revision: Int
+    data class SingleElementRequestDto(
+        @SerialName("element")
+        val element: ElementDto
     )
 
     @Serializable
-    data class SingleElementRequestDto(
-        val element: ElementDto
+    data class ListElementRequestDto(
+        @SerialName("list")
+        val list: List<ElementDto>
     )
 }

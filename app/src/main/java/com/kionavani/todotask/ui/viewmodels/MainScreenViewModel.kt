@@ -1,5 +1,6 @@
 package com.kionavani.todotask.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kionavani.todotask.R
@@ -10,9 +11,11 @@ import com.kionavani.todotask.domain.TodoItemsRepository
 import com.kionavani.todotask.ui.ResourcesProvider
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -22,12 +25,13 @@ import javax.inject.Inject
 // TODO : отдельная модель для второго экрана
 class MainScreenViewModel @Inject constructor(
     private val repository: TodoItemsRepository,
-    private val provider: ResourcesProvider
+    private val provider: ResourcesProvider,
 ) : ViewModel() {
     val todoItems: StateFlow<List<ToDoItem>> = repository.todoItems
 
     private val _errorFlow = MutableSharedFlow<Exception?>()
     val errorFlow: SharedFlow<Exception?> = _errorFlow.asSharedFlow()
+    
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         viewModelScope.launch {
