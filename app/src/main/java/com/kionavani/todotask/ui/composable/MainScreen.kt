@@ -40,27 +40,29 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
 import com.kionavani.todotask.data.ToDoItem
 import com.kionavani.todotask.ui.LocalNavController
 import com.kionavani.todotask.ui.LocalMainScreenViewModel
+import com.kionavani.todotask.ui.Util
+import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
 
 @Composable
-fun MainScreen() {
-    val viewModel = LocalMainScreenViewModel.current
+fun MainScreen(viewModel: MainScreenViewModel) {
     val navController = LocalNavController.current
     val tasks by viewModel.todoItems.collectAsState()
+    val completedCount by viewModel.completedTaskCounter.collectAsState()
+    val isFiltering by viewModel.isFiltering.collectAsState()
 
     val changeTaskState = { itemId: String, isCompleted: Boolean ->
         viewModel.toggleTaskCompletion(itemId, isCompleted)
     }
     val getDeadlineDate = { item: ToDoItem ->
-        item.deadlineDate?.let { viewModel.dateToString(it) }
+        item.deadlineDate?.let { Util.dateToString(it) }
     }
-    val getDescription = { item: ToDoItem ->
-        viewModel.getDescWithEmoji(item)
-    }
+
 
     var visibilityButtonState by remember {
         mutableStateOf(true)
@@ -108,7 +110,7 @@ fun MainScreen() {
                 Text(
                     text =
                     stringResource(R.string.completed_task_title) +
-                            " - ${viewModel.getCompletedCount()}",
+                            " - $completedCount",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = MaterialTheme.colorScheme.onTertiary
                     ),
@@ -118,12 +120,12 @@ fun MainScreen() {
 
                 IconButton(
                     onClick = {
-                        visibilityButtonState = !visibilityButtonState
+                        viewModel.changeFiltering()
                     }
                 ) {
                     Icon(
                         imageVector =
-                        if (visibilityButtonState) {
+                        if (isFiltering) {
                             ImageVector.vectorResource(R.drawable.visibility_on_icon)
                         } else {
                             ImageVector.vectorResource(R.drawable.visibility_off_icon)
@@ -135,14 +137,9 @@ fun MainScreen() {
             }
 
             TaskList(
-                tasks = if (!visibilityButtonState) {
-                    viewModel.filterTasksByCompleted(tasks)
-                } else {
-                    tasks
-                },
+                tasks = tasks,
                 changeTaskState,
-                getDeadlineDate,
-                getDescription
+                getDeadlineDate
             )
         }
     }
@@ -154,7 +151,6 @@ fun TaskList(
     tasks: List<ToDoItem>,
     changeTaskState: (String, Boolean) -> Unit,
     getDeadlineDate: (ToDoItem) -> String?,
-    getDescription: (ToDoItem) -> String
 ) {
     val navController = LocalNavController.current
 
@@ -170,7 +166,7 @@ fun TaskList(
             ),
     ) {
         items(tasks) { task ->
-            Task(item = task, changeTaskState, getDeadlineDate, getDescription)
+            Task(item = task, changeTaskState, getDeadlineDate)
 
         }
         item {
@@ -195,11 +191,9 @@ fun Task(
     item: ToDoItem,
     changeTaskState: (String, Boolean) -> Unit,
     getDeadlineDate: (ToDoItem) -> String?,
-    getDescription: (ToDoItem) -> String
 ) {
     val navController = LocalNavController.current
     val deadlineDate = getDeadlineDate(item)
-    val description = getDescription(item)
 
 
     Row(
@@ -216,7 +210,7 @@ fun Task(
                 .padding(start = 12.dp, top = 12.dp)
                 .weight(1f)
         ) {
-            ItemDescription(description, item.isCompleted)
+            ItemDescription(item.taskDescription, item.isCompleted)
 
             if (deadlineDate != null) {
                 Text(

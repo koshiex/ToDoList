@@ -40,8 +40,9 @@ class TodoItemsRepositoryImpl(
     override suspend fun addTodoItem(item: ToDoItem) {
         coroutineScope.async(dispatcher) {
             _todoItems.value += item
-            val response = networkService.addTask(tasksMapper.toRequestElement(item), currentRevision)
-            when(response) {
+            val response =
+                networkService.addTask(tasksMapper.toRequestElement(item), currentRevision)
+            when (response) {
                 is NetworkResult.Error -> throw response.exception
                 is NetworkResult.Success -> currentRevision = response.data.revision
             }
@@ -65,7 +66,7 @@ class TodoItemsRepositoryImpl(
                     tasksMapper.toRequestElement(itemToAdd), currentRevision
                 )
 
-                when(response) {
+                when (response) {
                     is NetworkResult.Error -> throw response.exception
                     is NetworkResult.Success -> currentRevision = response.data.revision
                 }
@@ -78,7 +79,7 @@ class TodoItemsRepositoryImpl(
             _todoItems.value = _todoItems.value.filter { it.id != itemId }
             val response = networkService.deleteTask(itemId)
 
-            when(response) {
+            when (response) {
                 is NetworkResult.Error -> throw response.exception
                 is NetworkResult.Success -> currentRevision = response.data.revision
             }
@@ -87,16 +88,19 @@ class TodoItemsRepositoryImpl(
 
     override suspend fun toggleTaskCompletion(itemId: String, isCompleted: Boolean) {
         coroutineScope.launch(dispatcher) {
-            _todoItems.value = _todoItems.value.map { item ->
-                if (item.id == itemId) item.copy(isCompleted = isCompleted) else item
+            var item: ToDoItem? = null
+            _todoItems.value = _todoItems.value.map {
+                if (it.id == itemId) {
+                    item = it.copy(isCompleted = isCompleted)
+                    item!!
+                } else it
             }
-            val item = getTaskById(itemId)
             if (item != null) {
                 val response = networkService.updateTask(
-                    tasksMapper.toRequestElement(item), currentRevision
+                    tasksMapper.toRequestElement(item!!), currentRevision
                 )
 
-                when(response) {
+                when (response) {
                     is NetworkResult.Error -> throw response.exception
                     is NetworkResult.Success -> currentRevision = response.data.revision
                 }

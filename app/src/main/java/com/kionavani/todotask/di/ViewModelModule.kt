@@ -2,6 +2,7 @@ package com.kionavani.todotask.di
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
 import com.kionavani.todotask.ui.viewmodels.ViewModelFactory
 import dagger.Binds
@@ -13,7 +14,11 @@ interface ViewModelModule {
     @Binds
     @IntoMap
     @ViewModelKey(MainScreenViewModel::class)
-    fun bindTodoViewModel(viewModel: MainScreenViewModel): ViewModel
+    fun bindMainViewModel(viewModel: MainScreenViewModel): ViewModel
+    @Binds
+    @IntoMap
+    @ViewModelKey(AddTaskViewModel::class)
+    fun bindAddTaskViewModel(viewModel: AddTaskViewModel) : ViewModel
     @Binds
     fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
 }

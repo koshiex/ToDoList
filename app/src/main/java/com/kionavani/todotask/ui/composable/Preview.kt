@@ -13,9 +13,9 @@ import com.kionavani.todotask.data.TodoItemsRepositoryImpl
 import com.kionavani.todotask.data.remote.TasksServiceImpl
 import com.kionavani.todotask.data.remote.createHttpClient
 import com.kionavani.todotask.ui.LocalNavController
-import com.kionavani.todotask.ui.LocalMainScreenViewModel
 import com.kionavani.todotask.ui.ResourcesProvider
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
+import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,8 +33,17 @@ private fun PreviewLightMainScreen() {
                 ), Dispatchers.IO
             ), ResourcesProvider(LocalContext.current)
         )
+    val addViewModel =
+        AddTaskViewModel(
+            TodoItemsRepositoryImpl(
+                service, TasksMapper(), CoroutineScope(
+                    SupervisorJob()
+                ), Dispatchers.IO
+            ),
+            ResourcesProvider(LocalContext.current)
+        )
     ToDoTaskTheme(darkTheme = false, dynamicColor = false) {
-        PreviewNavHost(viewModel)
+        PreviewNavHost(viewModel, addViewModel)
     }
 }
 
@@ -50,8 +59,17 @@ private fun PreviewDarkMainScreen() {
                 ), Dispatchers.IO
             ), ResourcesProvider(LocalContext.current)
         )
+    val addViewModel =
+        AddTaskViewModel(
+            TodoItemsRepositoryImpl(
+                service, TasksMapper(), CoroutineScope(
+                    SupervisorJob()
+                ), Dispatchers.IO
+            ),
+            ResourcesProvider(LocalContext.current)
+        )
     ToDoTaskTheme(darkTheme = true, dynamicColor = false) {
-        PreviewNavHost(viewModel)
+        PreviewNavHost(viewModel,addViewModel)
     }
 }
 
@@ -60,19 +78,18 @@ private fun PreviewDarkMainScreen() {
 private fun PreviewLightAddTaskScreen() {
     val service = TasksServiceImpl(createHttpClient())
     val viewModel =
-        MainScreenViewModel(
+        AddTaskViewModel(
             TodoItemsRepositoryImpl(
                 service, TasksMapper(), CoroutineScope(
                     SupervisorJob()
                 ), Dispatchers.IO
-            ), ResourcesProvider(LocalContext.current)
+            ),
+            ResourcesProvider(LocalContext.current)
         )
     ToDoTaskTheme(darkTheme = false, dynamicColor = false) {
         val navController = rememberNavController()
         CompositionLocalProvider(LocalNavController provides navController) {
-            CompositionLocalProvider(LocalMainScreenViewModel provides viewModel) {
-                AddTaskScreen("123")
-            }
+            AddTaskScreen(viewModel, "123")
         }
     }
 }
@@ -82,39 +99,36 @@ private fun PreviewLightAddTaskScreen() {
 private fun PreviewDarkAddTaskScreen() {
     val service = TasksServiceImpl(createHttpClient())
     val viewModel =
-        MainScreenViewModel(
+        AddTaskViewModel(
             TodoItemsRepositoryImpl(
                 service, TasksMapper(), CoroutineScope(
                     SupervisorJob()
                 ), Dispatchers.IO
-            ), ResourcesProvider(LocalContext.current)
+            ),
+            ResourcesProvider(LocalContext.current)
         )
     ToDoTaskTheme(darkTheme = true, dynamicColor = false) {
         val navController = rememberNavController()
         CompositionLocalProvider(LocalNavController provides navController) {
-            CompositionLocalProvider(LocalMainScreenViewModel provides viewModel) {
-                AddTaskScreen("123")
-            }
+            AddTaskScreen(viewModel, "123")
         }
     }
 }
 
 
 @Composable
-private fun PreviewNavHost(viewModel: MainScreenViewModel) {
+private fun PreviewNavHost(viewModel: MainScreenViewModel, addViewModel: AddTaskViewModel) {
     val navController = rememberNavController()
     CompositionLocalProvider(LocalNavController provides navController) {
-        CompositionLocalProvider(LocalMainScreenViewModel provides viewModel) {
-            NavHost(
-                navController = navController, startDestination = MainScreenNav
-            ) {
-                composable<MainScreenNav> {
-                    MainScreen()
-                }
-                composable<AddTaskScreenNav> { backStackEntry ->
-                    val itemID = backStackEntry.toRoute<AddTaskScreenNav>().itemID
-                    AddTaskScreen(itemID)
-                }
+        NavHost(
+            navController = navController, startDestination = MainScreenNav
+        ) {
+            composable<MainScreenNav> {
+                MainScreen(viewModel)
+            }
+            composable<AddTaskScreenNav> { backStackEntry ->
+                val itemID = backStackEntry.toRoute<AddTaskScreenNav>().itemID
+                AddTaskScreen(addViewModel, itemID)
             }
         }
     }

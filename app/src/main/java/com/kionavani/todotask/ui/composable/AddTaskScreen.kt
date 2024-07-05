@@ -34,10 +34,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -52,48 +51,29 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
-import com.kionavani.todotask.data.ToDoItem
 import com.kionavani.todotask.ui.LocalNavController
-import com.kionavani.todotask.ui.LocalMainScreenViewModel
-import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
+import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddTaskScreen(itemID: String? = null) {
-    val viewModel = LocalMainScreenViewModel.current
-    val task by lazy { itemID?.let { viewModel.getTaskById(it) } }
-    val deadlineSelectorText = stringResource(R.string.deadline_selector)
-
-    var textFiledState by remember { mutableStateOf(task?.taskDescription ?: "") }
-    var switchState by remember { mutableStateOf(task?.deadlineDate != null) }
-
-    var dateTextState by remember {
-        mutableStateOf(
-            if (task?.deadlineDate != null) {
-                viewModel.dateToString(task?.deadlineDate!!)
-            } else {
-                deadlineSelectorText
-            }
-        )
-    }
-
-    var datePickerOnState by remember { mutableStateOf(false) }
-    val dateState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
-    var deadlineDate by remember { mutableStateOf<Long?>(null) }
-
-    val onDateTextStateChange = { date: Long? ->
-        dateTextState = if (date != null) {
-            viewModel.dateToString(date)
+fun AddTaskScreen(viewModel: AddTaskViewModel, itemID: String? = null) {
+    LaunchedEffect(itemID) {
+        if (itemID != null) {
+            viewModel.loadTask(itemID)
         } else {
-            deadlineSelectorText
+            viewModel.initializeState(null)
         }
-        deadlineDate = date
     }
 
-    var dropDownState by remember { mutableStateOf(false) }
-    var selectedImportanceState by remember {
-        mutableStateOf(task?.importance ?: Importance.REGULAR)
-    }
+
+    val textFiledState by viewModel.textFieldState.collectAsState()
+    val switchState by viewModel.switchState.collectAsState()
+    val dateTextState by viewModel.dateTextState.collectAsState()
+    val datePickerOnState by viewModel.datePickerOnState.collectAsState()
+    val dateState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
+    val deadlineDate by viewModel.deadlineDate.collectAsState()
+    val dropDownState by viewModel.dropDownState.collectAsState()
+    val selectedImportanceState by viewModel.selectedImportanceState.collectAsState()
 
     Column(
         verticalArrangement = Arrangement.Top,
@@ -105,16 +85,13 @@ fun AddTaskScreen(itemID: String? = null) {
     ) {
         Header(
             viewModel,
-            itemID,
-            textFiledState,
-            selectedImportanceState,
-            deadlineDate
+            itemID
         )
-        TaskTextField(textFiledState, onTextChange = { textFiledState = it })
+        TaskTextField(textFiledState, onTextChange = viewModel::onTextChange)
         ImportanceDropDown(
             dropDownState,
-            onDropDownStateChange = { dropDownState = it },
-            onDropDownSelected = { selectedImportanceState = it },
+            onDropDownStateChange = viewModel::onDropDownStateChange,
+            onDropDownSelected = viewModel::onDropDownSelected,
             selectedImportanceState
         )
         Divider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp))
@@ -122,9 +99,9 @@ fun AddTaskScreen(itemID: String? = null) {
             switchState = switchState,
             dateTextState = dateTextState,
             datePickerOnState = datePickerOnState,
-            onSwitchStateChange = { switchState = it },
-            onDateTextStateChange = onDateTextStateChange,
-            onDatePickerOnStateChange = { datePickerOnState = it },
+            onSwitchStateChange = viewModel::onSwitchStateChange,
+            onDateTextStateChange = viewModel::onDateTextStateChange,
+            onDatePickerOnStateChange = viewModel::onDatePickerOnStateChange,
             dateState = dateState
         )
         Divider(modifier = Modifier.padding(vertical = 16.dp))
@@ -136,11 +113,8 @@ fun AddTaskScreen(itemID: String? = null) {
 
 @Composable
 fun Header(
-    viewModel: MainScreenViewModel,
-    itemId: String?,
-    descr: String,
-    importance: Importance,
-    deadlineDate: Long?
+    viewModel: AddTaskViewModel,
+    itemId: String?
 ) {
     val navController = LocalNavController.current
 
@@ -160,38 +134,16 @@ fun Header(
             )
         }
 
-        ClickableText(
-            text = AnnotatedString(stringResource(id = R.string.save_task_button)).toUpperCase(),
+        Text(
+            text = stringResource(id = R.string.save_task_button).uppercase(),
             style = MaterialTheme.typography.labelMedium.copy(
                 color = MaterialTheme.colorScheme.inverseOnSurface
             ),
-            modifier = Modifier.padding(top = 16.dp, end = 16.dp)
-        ) {
-            // TODO : Перенести в модель
-            if (itemId != null) {
-                val item = ToDoItem(
-                    itemId,
-                    descr,
-                    false,
-                    importance,
-                    System.currentTimeMillis(),
-                    deadlineDate,
-                    System.currentTimeMillis()
-                )
-                viewModel.updateTodoItem(item)
-            } else {
-                val item = ToDoItem(
-                    viewModel.getNextId(),
-                    descr,
-                    false,
-                    importance,
-                    System.currentTimeMillis(),
-                    deadlineDate
-                )
-                viewModel.addTodoItem(item)
+            modifier = Modifier.padding(top = 16.dp, end = 16.dp).clickable {
+                viewModel.addOrUpdateTask(itemId)
+                navController.navigate(MainScreenNav)
             }
-            navController.navigate(MainScreenNav)
-        }
+        )
     }
 }
 

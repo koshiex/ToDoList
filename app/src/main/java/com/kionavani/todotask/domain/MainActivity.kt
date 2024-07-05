@@ -14,16 +14,18 @@ import com.kionavani.todotask.R
 import com.kionavani.todotask.ui.ResourcesProvider
 import com.kionavani.todotask.ui.composable.SetupUI
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
+import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
 import com.kionavani.todotask.ui.viewmodels.ViewModelFactory
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {
     private lateinit var provider : ResourcesProvider
     private lateinit var viewModelFactory: ViewModelProvider.Factory
-
-    private val viewModel: MainScreenViewModel by viewModels { viewModelFactory }
+    private val mainViewModel by viewModels<MainScreenViewModel> { viewModelFactory }
+    private val addViewModel by viewModels<AddTaskViewModel> { viewModelFactory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -37,17 +39,11 @@ class MainActivity : ComponentActivity() {
         (this.application as TodoApplication).appComponent.inject(this)
 
         provider.attachActivityContext(this)
+        startCoroutines()
 
         setContent {
             ToDoTaskTheme(dynamicColor = false) {
-                SetupUI(viewModel)
-            }
-        }
-
-        lifecycleScope.launch {
-            viewModel.errorFlow.flowWithLifecycle(lifecycle).collect { error ->
-                val errorMessage = error?.message ?: provider.getString(R.string.smth_error)
-                Toast.makeText(this@MainActivity, errorMessage, Toast.LENGTH_SHORT).show()
+                SetupUI(viewModelFactory)
             }
         }
     }
@@ -55,6 +51,21 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         provider.detachActivityContext()
         super.onDestroy()
+    }
+
+    private fun startCoroutines() {
+        // TODO : флоу второй модели
+        lifecycleScope.launch {
+            mainViewModel.errorFlow.flowWithLifecycle(lifecycle).collect { error ->
+                val errorMessage = error?.message ?: provider.getString(R.string.smth_error)
+                Toast.makeText(this@MainActivity, errorMessage, Toast.LENGTH_SHORT).show()
+            }
+        }
+        lifecycleScope.launch {
+            addViewModel.dataChanged.collect {isChanged ->
+                if (!isChanged) mainViewModel.fetchData()
+            }
+        }
     }
 
     @Inject
