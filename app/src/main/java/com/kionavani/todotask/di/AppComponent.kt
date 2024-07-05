@@ -6,6 +6,7 @@ import com.kionavani.todotask.domain.MainActivity
 import com.kionavani.todotask.ui.ResourcesProvider
 import dagger.BindsInstance
 import dagger.Component
+import kotlinx.coroutines.CoroutineScope
 import javax.inject.Singleton
 
 @Singleton
@@ -16,6 +17,8 @@ interface AppComponent {
     @Component.Builder
     interface Builder {
         fun build(): AppComponent
+        @BindsInstance
+        fun mainScope(mainScope: CoroutineScope) : Builder
         @BindsInstance
         fun context(application: Context): Builder
     }

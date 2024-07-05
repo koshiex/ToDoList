@@ -7,13 +7,13 @@ sealed class ListElementDto {
     @Serializable
     data class ListElementResponseDto(
         val status: String,
-        val list: List<ElementDTO>,
+        val list: List<ElementDto>,
         val revision: Int
     )
 
     @Serializable
     data class ListElementRequestDto(
-        val list: List<ElementDTO>
+        val list: List<ElementDto>
     )
 }
 

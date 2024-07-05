@@ -5,10 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
 import com.kionavani.todotask.data.ToDoItem
-import com.kionavani.todotask.data.TodoItemsRepository
+import com.kionavani.todotask.data.TodoItemsRepositoryImpl
+import com.kionavani.todotask.domain.TodoItemsRepository
 import com.kionavani.todotask.ui.ResourcesProvider
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +20,7 @@ import java.util.Locale
 import javax.inject.Inject
 
 // TODO : отдельная модель для второго экрана
-class TodoViewModel @Inject constructor(
+class MainScreenViewModel @Inject constructor(
     private val repository: TodoItemsRepository,
     private val provider: ResourcesProvider
 ) : ViewModel() {
@@ -35,34 +35,42 @@ class TodoViewModel @Inject constructor(
         }
     }
 
-    private val scopeContext = exceptionHandler + SupervisorJob()
+    init {
+        viewModelScope.launch(exceptionHandler) {
+            repository.fetchData()
+        }
+    }
 
     fun addTodoItem(item: ToDoItem) {
-        viewModelScope.launch(scopeContext) {
+        viewModelScope.launch(exceptionHandler) {
             repository.addTodoItem(item)
         }
     }
 
     fun updateTodoItem(newItem: ToDoItem) {
-        viewModelScope.launch(scopeContext) {
+        viewModelScope.launch(exceptionHandler) {
             repository.updateTodoItem(newItem)
         }
     }
 
     fun deleteTodoItem(itemId: String) {
-        viewModelScope.launch(scopeContext) {
+        viewModelScope.launch(exceptionHandler) {
             repository.deleteTodoItem(itemId)
         }
     }
 
     fun toggleTaskCompletion(itemId: String, isCompleted: Boolean) {
-        viewModelScope.launch(scopeContext) {
+        viewModelScope.launch(exceptionHandler) {
             repository.toggleTaskCompletion(itemId, isCompleted)
         }
     }
 
     fun getNextId(): String {
-        return repository.getNextId()
+        var res = "0"
+        viewModelScope.launch(exceptionHandler) {
+            res = repository.getNextId()
+        }
+        return res
     }
 
     fun filterTasksByCompleted(tasks: List<ToDoItem>): List<ToDoItem> {
@@ -80,7 +88,11 @@ class TodoViewModel @Inject constructor(
     }
 
     fun getTaskById(itemId: String): ToDoItem? {
-        return repository.getTaskById(itemId)
+        var res: ToDoItem? = null
+        viewModelScope.launch(exceptionHandler) {
+            res = repository.getTaskById(itemId)
+        }
+        return res
     }
 
     fun getDescWithEmoji(item: ToDoItem): String {

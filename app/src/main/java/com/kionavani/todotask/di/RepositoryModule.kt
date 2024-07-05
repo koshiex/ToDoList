@@ -1,24 +1,30 @@
 package com.kionavani.todotask.di
 
 import com.kionavani.todotask.data.TasksMapper
-import com.kionavani.todotask.data.TodoItemsRepository
+import com.kionavani.todotask.data.TodoItemsRepositoryImpl
 import com.kionavani.todotask.data.remote.TasksService
-import com.kionavani.todotask.data.remote.TasksServiceImpl
+import com.kionavani.todotask.domain.TodoItemsRepository
 import dagger.Module
 import dagger.Provides
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import javax.inject.Singleton
 
 @Module
-class RepositoryModule {
+class RepositoryModule() {
     @Provides
     @Singleton
-    fun provideTasksRepository(tasksService: TasksService, tasksMapper: TasksMapper): TodoItemsRepository {
-        return TodoItemsRepository(tasksService, tasksMapper)
+    fun provideTasksRepository(
+        tasksService: TasksService,
+        tasksMapper: TasksMapper,
+        mainScope: CoroutineScope
+    ): TodoItemsRepository {
+        return TodoItemsRepositoryImpl(tasksService, tasksMapper, mainScope, Dispatchers.IO)
     }
 
     @Provides
     @Singleton
-    fun provideTasksMapper() : TasksMapper {
+    fun provideTasksMapper(): TasksMapper {
         return TasksMapper()
     }
 }

@@ -1,6 +1,6 @@
 package com.kionavani.todotask.data
 
-import com.kionavani.todotask.data.remote.dto.ElementDTO
+import com.kionavani.todotask.data.remote.dto.ElementDto
 import com.kionavani.todotask.data.remote.dto.ListElementDto.*
 import com.kionavani.todotask.data.remote.dto.SingleElementDto
 
@@ -16,7 +16,7 @@ class TasksMapper {
     }
 
     fun toRequestList(itemsList: List<ToDoItem>): ListElementRequestDto {
-        val newList: MutableList<ElementDTO> = mutableListOf()
+        val newList: MutableList<ElementDto> = mutableListOf()
 
         for (item in itemsList) {
             newList += toElement(item)
@@ -28,7 +28,7 @@ class TasksMapper {
     fun toRequestElement(item: ToDoItem) = SingleElementDto
         .SingleElementRequestDto(toElement(item))
 
-    fun toEntity(element: ElementDTO): ToDoItem = ToDoItem(
+    fun toEntity(element: ElementDto): ToDoItem = ToDoItem(
         element.id,
         element.text,
         element.done,
@@ -39,7 +39,7 @@ class TasksMapper {
     )
 
     // TODO : прокинуть айди
-    private fun toElement(item: ToDoItem): ElementDTO = ElementDTO(
+    private fun toElement(item: ToDoItem): ElementDto = ElementDto(
         item.id,
         item.taskDescription,
         item.importance.toDtoName(),

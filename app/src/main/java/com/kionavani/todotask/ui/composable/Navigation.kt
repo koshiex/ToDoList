@@ -7,16 +7,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.kionavani.todotask.ui.LocalNavController
-import com.kionavani.todotask.ui.LocalTodoViewModel
-import com.kionavani.todotask.ui.viewmodels.TodoViewModel
+import com.kionavani.todotask.ui.LocalMainScreenViewModel
+import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
 import kotlinx.serialization.Serializable
 
 @Composable
-fun SetupUI(viewModel: TodoViewModel) {
+fun SetupUI(viewModel: MainScreenViewModel) {
     val navController = rememberNavController()
 
     CompositionLocalProvider(LocalNavController provides navController) {
-        CompositionLocalProvider(LocalTodoViewModel provides viewModel) {
+        CompositionLocalProvider(LocalMainScreenViewModel provides viewModel) {
             NavHost(
                 navController = navController,
                 startDestination = MainScreenNav

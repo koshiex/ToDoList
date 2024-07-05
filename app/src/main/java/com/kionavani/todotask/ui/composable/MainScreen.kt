@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -45,12 +44,11 @@ import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
 import com.kionavani.todotask.data.ToDoItem
 import com.kionavani.todotask.ui.LocalNavController
-import com.kionavani.todotask.ui.LocalTodoViewModel
-import com.kionavani.todotask.ui.viewmodels.TodoViewModel
+import com.kionavani.todotask.ui.LocalMainScreenViewModel
 
 @Composable
 fun MainScreen() {
-    val viewModel = LocalTodoViewModel.current
+    val viewModel = LocalMainScreenViewModel.current
     val navController = LocalNavController.current
     val tasks by viewModel.todoItems.collectAsState()
 

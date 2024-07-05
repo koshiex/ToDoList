@@ -6,12 +6,12 @@ sealed class SingleElementDto {
     @Serializable
     data class SingleElementResponseDto(
         val status: String,
-        val element: ElementDTO,
+        val element: ElementDto,
         val revision: Int
     )
 
     @Serializable
     data class SingleElementRequestDto(
-        val element: ElementDTO
+        val element: ElementDto
     )
 }

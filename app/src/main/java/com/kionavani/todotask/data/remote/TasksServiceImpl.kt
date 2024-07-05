@@ -27,7 +27,7 @@ fun createHttpClient() = HttpClient {
     }
 
     defaultRequest {
-        header("Authorization", "OAuth ${BuildConfig.OAUTH_TOKEN}]]")
+        header("Authorization", "OAuth ${BuildConfig.OAUTH_TOKEN}")
     }
 
 

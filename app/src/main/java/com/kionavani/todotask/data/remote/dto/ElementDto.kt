@@ -1,9 +1,11 @@
 package com.kionavani.todotask.data.remote.dto
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ElementDTO(
+data class ElementDto(
+    @SerialName("id")
     val id: String,
     val text: String,
     val importance: String,
