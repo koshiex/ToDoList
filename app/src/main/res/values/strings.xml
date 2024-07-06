@@ -17,6 +17,7 @@
   <string name="delete_button">Delete</string>
   <string name="smth_error">Something went wrong…</string>
   <string name="fetching_error">An error occurred while receiving the data</string>
+  <string name="updating_error">An error occurred while updating the data</string>
   <string name="retry">Retry</string>
 
   <string name="high_importance_emoji">&#10071;</string>

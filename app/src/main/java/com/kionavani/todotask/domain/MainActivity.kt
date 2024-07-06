@@ -59,6 +59,11 @@ class MainActivity : ComponentActivity() {
                 if (!isChanged) mainViewModel.fetchData()
             }
         }
+        lifecycleScope.launch {
+            addViewModel.isErrorHappened.collect {
+                if (it) mainViewModel.setUpdatingError()
+            }
+        }
     }
 
     @Inject

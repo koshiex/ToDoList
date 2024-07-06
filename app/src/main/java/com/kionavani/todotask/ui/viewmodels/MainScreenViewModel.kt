@@ -1,12 +1,13 @@
 package com.kionavani.todotask.ui.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
 import com.kionavani.todotask.data.ToDoItem
 import com.kionavani.todotask.domain.TodoItemsRepository
+import com.kionavani.todotask.ui.ErrorState
+import com.kionavani.todotask.ui.ErrorState.*
 import com.kionavani.todotask.ui.ResourcesProvider
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
@@ -35,12 +36,11 @@ class MainScreenViewModel @Inject constructor(
     private val _completedTaskCounter = MutableStateFlow(0)
     val completedTaskCounter: StateFlow<Int> = _completedTaskCounter.asStateFlow()
 
-    private val _isErrorHappened = MutableStateFlow(false)
-    val isErrorHappened = _isErrorHappened.asStateFlow()
+    private val _errorFlow = MutableStateFlow<ErrorState>(ErrorProcessed())
+    val errorFlow = _errorFlow.asStateFlow()
 
     private val exceptionHandler = CoroutineExceptionHandler { _, _ ->
-            _isErrorHappened.value = true
-
+            _errorFlow.value = FetchingError()
     }
 
     init {
@@ -52,7 +52,11 @@ class MainScreenViewModel @Inject constructor(
     }
 
     fun errorProcessed() {
-        _isErrorHappened.value = false
+        _errorFlow.value = ErrorProcessed()
+    }
+
+    fun setUpdatingError() {
+        _errorFlow.value = UpdatingError()
     }
 
     fun fetchData() {
@@ -87,4 +91,6 @@ class MainScreenViewModel @Inject constructor(
                 provider.getString(R.string.high_importance_emoji) + " ${item.taskDescription}"
         }
     }
+
+
 }

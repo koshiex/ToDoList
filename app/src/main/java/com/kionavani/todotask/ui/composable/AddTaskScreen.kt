@@ -2,37 +2,9 @@ package com.kionavani.todotask.ui.composable
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDefaults
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DatePickerState
-import androidx.compose.material3.DisplayMode
-import androidx.compose.material3.Divider
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -45,18 +17,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
-import com.kionavani.todotask.ui.LocalNavController
 import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddTaskScreen(viewModel: AddTaskViewModel, itemID: String? = null) {
+fun AddTaskScreen(viewModel: AddTaskViewModel, itemID: String? = null, navigate: () -> Unit) {
     LaunchedEffect(itemID) {
         if (itemID != null) {
             viewModel.loadTask(itemID)
@@ -65,13 +34,11 @@ fun AddTaskScreen(viewModel: AddTaskViewModel, itemID: String? = null) {
         }
     }
 
-
     val textFiledState by viewModel.textFieldState.collectAsState()
     val switchState by viewModel.switchState.collectAsState()
     val dateTextState by viewModel.dateTextState.collectAsState()
     val datePickerOnState by viewModel.datePickerOnState.collectAsState()
     val dateState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
-    val deadlineDate by viewModel.deadlineDate.collectAsState()
     val dropDownState by viewModel.dropDownState.collectAsState()
     val selectedImportanceState by viewModel.selectedImportanceState.collectAsState()
 
@@ -83,10 +50,7 @@ fun AddTaskScreen(viewModel: AddTaskViewModel, itemID: String? = null) {
             .fillMaxSize()
             .safeDrawingPadding()
     ) {
-        Header(
-            viewModel,
-            itemID
-        )
+        Header(viewModel, itemID, navigate)
         TaskTextField(textFiledState, onTextChange = viewModel::onTextChange)
         ImportanceDropDown(
             dropDownState,
@@ -105,46 +69,51 @@ fun AddTaskScreen(viewModel: AddTaskViewModel, itemID: String? = null) {
             dateState = dateState
         )
         Divider(modifier = Modifier.padding(vertical = 16.dp))
-        DeleteTaskRow(itemID) { itemID ->
-            viewModel.deleteTodoItem(itemID)
-        }
+        DeleteTaskRow(
+            itemID, delete = { itemID ->
+                viewModel.deleteTodoItem(itemID)
+            }, navigate
+        )
     }
 }
 
 @Composable
 fun Header(
-    viewModel: AddTaskViewModel,
-    itemId: String?
+    viewModel: AddTaskViewModel, itemId: String?, navigate: () -> Unit
 ) {
-    val navController = LocalNavController.current
-
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(
-            modifier = Modifier.padding(top = 16.dp, start = 16.dp),
-            onClick = { navController.navigate(MainScreenNav) }
-        ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.close_icon),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary
-            )
-        }
+        HeaderIconButton(navigate)
+        HeaderTextButton(viewModel, itemId, navigate)
+    }
+}
 
-        Text(
-            text = stringResource(id = R.string.save_task_button).uppercase(),
-            style = MaterialTheme.typography.labelMedium.copy(
-                color = MaterialTheme.colorScheme.inverseOnSurface
-            ),
-            modifier = Modifier.padding(top = 16.dp, end = 16.dp).clickable {
-                viewModel.addOrUpdateTask(itemId)
-                navController.navigate(MainScreenNav)
-            }
+@Composable
+fun HeaderIconButton(navigate: () -> Unit) {
+    IconButton(modifier = Modifier.padding(top = 16.dp, start = 16.dp), onClick = { navigate() }) {
+        Icon(
+            imageVector = ImageVector.vectorResource(id = R.drawable.close_icon),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onPrimary
         )
     }
+}
+
+@Composable
+fun HeaderTextButton(viewModel: AddTaskViewModel, itemId: String?, navigate: () -> Unit) {
+    Text(text = stringResource(id = R.string.save_task_button).uppercase(),
+        style = MaterialTheme.typography.labelMedium.copy(
+            color = MaterialTheme.colorScheme.inverseOnSurface
+        ),
+        modifier = Modifier
+            .padding(top = 16.dp, end = 16.dp)
+            .clickable {
+                viewModel.addOrUpdateTask(itemId)
+                navigate()
+            })
 }
 
 @Composable
@@ -189,49 +158,58 @@ fun ImportanceDropDown(
 ) {
     Box(modifier = Modifier.padding(start = 16.dp, top = 28.dp)) {
         Column {
-            Text(
-                text = stringResource(R.string.importance_drop_down),
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-            )
-
-            Text(
-                modifier = Modifier
-                    .alpha(0.7f)
-                    .padding(top = 4.dp)
-                    .clickable {
-                        onDropDownStateChange(true)
-                    },
-                text = stringResource(selectedImportanceState.displayName),
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    color = MaterialTheme.colorScheme.onTertiary
-                )
+            ImportanceDropDownLabel()
+            ImportanceDropDownMenu(
+                dropDownState, onDropDownStateChange, onDropDownSelected, selectedImportanceState
             )
         }
+    }
+}
 
-        DropdownMenu(
-            offset = DpOffset(0.dp, (-20).dp),
-            modifier = Modifier.background(MaterialTheme.colorScheme.secondary),
-            expanded = dropDownState,
-            onDismissRequest = { onDropDownStateChange(false) }
-        ) {
-            Importance.entries.forEach { importance ->
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = stringResource(importance.displayName),
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                        )
-                    },
-                    onClick = {
-                        onDropDownSelected(importance)
-                        onDropDownStateChange(false)
-                    }
+@Composable
+fun ImportanceDropDownLabel() {
+    Text(
+        text = stringResource(R.string.importance_drop_down),
+        style = MaterialTheme.typography.bodyMedium.copy(
+            color = MaterialTheme.colorScheme.onPrimary
+        )
+    )
+}
+
+@Composable
+fun ImportanceDropDownMenu(
+    dropDownState: Boolean,
+    onDropDownStateChange: (Boolean) -> Unit,
+    onDropDownSelected: (Importance) -> Unit,
+    selectedImportanceState: Importance
+) {
+    Text(
+        modifier = Modifier
+            .alpha(0.7f)
+            .padding(top = 4.dp)
+            .clickable { onDropDownStateChange(true) },
+        text = stringResource(selectedImportanceState.displayName),
+        style = MaterialTheme.typography.headlineSmall.copy(
+            color = MaterialTheme.colorScheme.onTertiary
+        )
+    )
+
+    DropdownMenu(offset = DpOffset(0.dp, (-20).dp),
+        modifier = Modifier.background(MaterialTheme.colorScheme.secondary),
+        expanded = dropDownState,
+        onDismissRequest = { onDropDownStateChange(false) }) {
+        Importance.entries.forEach { importance ->
+            DropdownMenuItem(text = {
+                Text(
+                    text = stringResource(importance.displayName),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
                 )
-            }
+            }, onClick = {
+                onDropDownSelected(importance)
+                onDropDownStateChange(false)
+            })
         }
     }
 }
@@ -259,76 +237,15 @@ fun DeadlineRow(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
-            Text(
-                text = stringResource(R.string.switch_deadline_descr),
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
+            DeadlineLabel()
+            DeadlineDatePicker(
+                switchState,
+                dateTextState,
+                datePickerOnState,
+                onDatePickerOnStateChange,
+                onDateTextStateChange,
+                dateState
             )
-
-            if (switchState) {
-                Text(
-                    modifier = Modifier
-                        .padding(top = 4.dp)
-                        .clickable {
-                            onDatePickerOnStateChange(true)
-                        },
-                    text = dateTextState,
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        color = MaterialTheme.colorScheme.inverseOnSurface
-                    )
-                )
-            }
-
-            if (datePickerOnState) {
-                DatePickerDialog(
-                    colors = DatePickerDefaults.colors(
-                        containerColor = MaterialTheme.colorScheme.secondary
-                    ),
-                    onDismissRequest = { onDatePickerOnStateChange(false) },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            onDateTextStateChange(dateState.selectedDateMillis)
-                            onDatePickerOnStateChange(false)
-                        }) {
-                            Text(
-                                stringResource(android.R.string.ok),
-                                style = MaterialTheme.typography.labelMedium.copy(
-                                    color = MaterialTheme.colorScheme.inverseOnSurface
-                                )
-                            )
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { onDatePickerOnStateChange(false) }) {
-                            Text(
-                                stringResource(android.R.string.cancel),
-                                style = MaterialTheme.typography.labelMedium.copy(
-                                    color = MaterialTheme.colorScheme.inverseOnSurface
-                                )
-                            )
-                        }
-                    }
-                ) {
-                    DatePicker(
-                        state = dateState,
-                        colors = DatePickerDefaults.colors(
-                            titleContentColor = MaterialTheme.colorScheme.inverseOnSurface,
-                            headlineContentColor = MaterialTheme.colorScheme.inverseOnSurface,
-                            weekdayContentColor = MaterialTheme.colorScheme.onTertiary,
-                            subheadContentColor = MaterialTheme.colorScheme.inverseOnSurface,
-                            yearContentColor = MaterialTheme.colorScheme.onPrimary,
-                            currentYearContentColor = MaterialTheme.colorScheme.onPrimary,
-                            selectedYearContentColor = MaterialTheme.colorScheme.onPrimary,
-                            dayContentColor = MaterialTheme.colorScheme.onPrimary,
-                            selectedDayContentColor = Color.White,
-                            todayContentColor = MaterialTheme.colorScheme.onPrimary,
-                            selectedDayContainerColor = MaterialTheme.colorScheme.inverseOnSurface,
-                            todayDateBorderColor = MaterialTheme.colorScheme.inverseOnSurface,
-                        )
-                    )
-                }
-            }
         }
 
         Switch(
@@ -345,9 +262,84 @@ fun DeadlineRow(
 }
 
 @Composable
-fun DeleteTaskRow(itemId: String?, delete: (String) -> Unit) {
-    val navController = LocalNavController.current
+fun DeadlineLabel() {
+    Text(
+        text = stringResource(R.string.switch_deadline_descr),
+        style = MaterialTheme.typography.bodyMedium.copy(
+            color = MaterialTheme.colorScheme.onPrimary
+        )
+    )
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DeadlineDatePicker(
+    switchState: Boolean,
+    dateTextState: String,
+    datePickerOnState: Boolean,
+    onDatePickerOnStateChange: (Boolean) -> Unit,
+    onDateTextStateChange: (Long?) -> Unit,
+    dateState: DatePickerState
+) {
+    if (switchState) {
+        Text(
+            modifier = Modifier
+                .padding(top = 4.dp)
+                .clickable { onDatePickerOnStateChange(true) },
+            text = dateTextState,
+            style = MaterialTheme.typography.headlineSmall.copy(
+                color = MaterialTheme.colorScheme.inverseOnSurface
+            )
+        )
+    }
+
+    if (datePickerOnState) {
+        DatePickerDialog(colors = DatePickerDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.secondary
+        ), onDismissRequest = { onDatePickerOnStateChange(false) }, confirmButton = {
+            TextButton(onClick = {
+                onDateTextStateChange(dateState.selectedDateMillis)
+                onDatePickerOnStateChange(false)
+            }) {
+                Text(
+                    stringResource(android.R.string.ok),
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        color = MaterialTheme.colorScheme.inverseOnSurface
+                    )
+                )
+            }
+        }, dismissButton = {
+            TextButton(onClick = { onDatePickerOnStateChange(false) }) {
+                Text(
+                    stringResource(android.R.string.cancel),
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        color = MaterialTheme.colorScheme.inverseOnSurface
+                    )
+                )
+            }
+        }) {
+            DatePicker(
+                state = dateState, colors = DatePickerDefaults.colors(
+                    titleContentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                    headlineContentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                    weekdayContentColor = MaterialTheme.colorScheme.onTertiary,
+                    subheadContentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                    yearContentColor = MaterialTheme.colorScheme.onPrimary,
+                    currentYearContentColor = MaterialTheme.colorScheme.onPrimary,
+                    selectedYearContentColor = MaterialTheme.colorScheme.onPrimary,
+                    dayContentColor = MaterialTheme.colorScheme.onPrimary,
+                    selectedDayContentColor = Color.White,
+                    todayContentColor = MaterialTheme.colorScheme.onPrimary,
+                    selectedDayContainerColor = MaterialTheme.colorScheme.inverseOnSurface,
+                    todayDateBorderColor = MaterialTheme.colorScheme.inverseOnSurface,
+                )
+            )
+        }
+    }
+}
+
+@Composable
+fun DeleteTaskRow(itemId: String?, delete: (String) -> Unit, navigate: () -> Unit) {
     if (itemId != null) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -361,8 +353,7 @@ fun DeleteTaskRow(itemId: String?, delete: (String) -> Unit) {
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.error
             )
-            Text(
-                text = stringResource(R.string.delete_button),
+            Text(text = stringResource(R.string.delete_button),
                 style = MaterialTheme.typography.bodyMedium.copy(
                     color = MaterialTheme.colorScheme.error
                 ),
@@ -370,9 +361,8 @@ fun DeleteTaskRow(itemId: String?, delete: (String) -> Unit) {
                     .padding(start = 12.dp)
                     .clickable {
                         delete(itemId)
-                        navController.navigate(MainScreenNav)
-                    }
-            )
+                        navigate()
+                    })
         }
     }
 }

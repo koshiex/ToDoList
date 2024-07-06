@@ -40,14 +40,15 @@ fun createHttpClient() = HttpClient {
         header(ContentType, Application.Json)
     }
 
-
-    install(Logging) {
-        logger = object : Logger {
-            override fun log(message: String) {
-                Log.d(CLIENT_LOGGER_TAG, message)
+    if (BuildConfig.DEBUG) {
+        install(Logging) {
+            logger = object : Logger {
+                override fun log(message: String) {
+                    Log.d(CLIENT_LOGGER_TAG, message)
+                }
             }
+            level = LogLevel.ALL
         }
-        level = LogLevel.ALL
     }
 }
 
