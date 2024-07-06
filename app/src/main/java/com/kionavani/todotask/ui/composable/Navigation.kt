@@ -11,6 +11,9 @@ import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
 import kotlinx.serialization.Serializable
 
+/**
+ * Функция для создания навигации между экранами и прокидывания зависимостей
+ */
 @Composable
 fun SetupUI(viewModelFactory: ViewModelProvider.Factory) {
     val navController = rememberNavController()
@@ -43,8 +46,13 @@ fun SetupUI(viewModelFactory: ViewModelProvider.Factory) {
 
 }
 
+/**
+ * Объект главного экрана для навигации
+ */
 @Serializable
 object MainScreenNav
-
+/**
+ * Объект экрана редактирования/создания для навигации
+ */
 @Serializable
 data class AddTaskScreenNav(val itemID: String?)

@@ -1,5 +1,8 @@
 package com.kionavani.todotask.data
 
+/**
+ * Модель таски для работы с UI
+ */
 data class ToDoItem(
     val id: String,
     val taskDescription: String,

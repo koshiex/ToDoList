@@ -14,6 +14,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Singleton
 
+/**
+ * Главный компонент приложения для инжектирования
+ */
 @Singleton
 @Component(modules = [NetworkModule::class, RepositoryModule::class, ResourcesProviderModule::class, ViewModelModule::class])
 interface AppComponent {

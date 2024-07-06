@@ -3,6 +3,9 @@ package com.kionavani.todotask.ui
 import android.content.Context
 import androidx.annotation.IdRes
 
+/**
+ * Позволяет удобно получить доступ к системным ресурсам
+ */
 class ResourcesProvider(
     private val appContext: Context
 ) {

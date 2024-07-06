@@ -4,6 +4,9 @@ import com.kionavani.todotask.data.ToDoItem
 import com.kionavani.todotask.data.remote.NetworkResult
 import kotlinx.coroutines.flow.StateFlow
 
+/**
+ * Интерфейс репозитория для более удобного тестирования и мультиплатформы
+ */
 interface TodoItemsRepository {
     val todoItems: StateFlow<List<ToDoItem>>
 

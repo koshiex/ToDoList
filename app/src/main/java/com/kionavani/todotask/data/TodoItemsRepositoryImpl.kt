@@ -14,6 +14,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/**
+ * Имплементация репозитория для работы с данными
+ */
 class TodoItemsRepositoryImpl(
     private val networkService: TasksService,
     private val tasksMapper: TasksMapper,

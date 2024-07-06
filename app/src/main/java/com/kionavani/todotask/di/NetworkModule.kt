@@ -14,6 +14,9 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
 import javax.inject.Singleton
 
+/**
+ * Модуль для инжектирования всей сетевой части
+ */
 @Module
 class NetworkModule {
     @Provides

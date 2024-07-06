@@ -10,6 +10,9 @@ import dagger.Module
 import dagger.multibindings.IntoMap
 import javax.inject.Singleton
 
+/**
+ * Модуль для инжектирования ViewModel-ей
+ */
 @Module
 interface ViewModelModule {
     @Binds

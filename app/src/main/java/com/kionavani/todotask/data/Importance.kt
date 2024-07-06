@@ -3,6 +3,9 @@ package com.kionavani.todotask.data
 import androidx.annotation.StringRes
 import com.kionavani.todotask.R
 
+/**
+ * Enum класс важности таски
+ */
 enum class Importance(@StringRes val displayName: Int) {
     LOW(R.string.importance_low),
     REGULAR(R.string.importance_regular),

@@ -3,6 +3,9 @@ package com.kionavani.todotask.data.remote
 import com.kionavani.todotask.data.remote.dto.RequestDto.*
 import com.kionavani.todotask.data.remote.dto.ResponseDto.*
 
+/**
+ * Интерфейс сервиса для работы с сетью
+ */
 interface TasksService {
     suspend fun getList(): NetworkResult<ListElementResponseDto>
     suspend fun updateList(

@@ -28,6 +28,9 @@ import kotlinx.serialization.json.Json
 private const val REVISION_HEADER = "X-Last-Known-Revision"
 private const val CLIENT_LOGGER_TAG = "HTTP call"
 
+/**
+ * Функция для создания сетевого клиента
+ */
 fun createHttpClient() = HttpClient {
     install(ContentNegotiation) {
         json(Json {
@@ -59,6 +62,10 @@ fun createHttpClient() = HttpClient {
         }
     }
 }
+
+/**
+ * Имплементация сервиса для работы с сетью
+ */
 
 class TasksServiceImpl(
     private val client: HttpClient

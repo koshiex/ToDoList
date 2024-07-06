@@ -21,6 +21,10 @@ import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
+/**
+ * ViewModel для управления состоянием и операциями, связанными с добавлением или обновлением таски
+ */
+
 class AddTaskViewModel @Inject constructor(
     private val repository: TodoItemsRepository,
     private val resourcesProvider: ResourcesProvider

@@ -10,6 +10,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import javax.inject.Singleton
 
+/**
+ * Модуль для инжектирования репозитория и зависимостей в него
+ */
 @Module
 class RepositoryModule() {
     @Provides

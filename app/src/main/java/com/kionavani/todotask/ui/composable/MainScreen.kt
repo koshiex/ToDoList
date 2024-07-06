@@ -3,12 +3,14 @@ package com.kionavani.todotask.ui.composable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,12 +55,17 @@ import com.kionavani.todotask.ui.ErrorState.UpdatingError
 import com.kionavani.todotask.ui.Util
 import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
 
+/**
+ * UI главного экрана для отображения списка тасок
+ */
 @Composable
 fun MainScreen(viewModel: MainScreenViewModel, navigate: (String?) -> Unit) {
     val tasks by viewModel.todoItems.collectAsState()
     val completedCount by viewModel.completedTaskCounter.collectAsState()
     val isFiltering by viewModel.isFiltering.collectAsState()
     val errorState by viewModel.errorFlow.collectAsState()
+    val loadingState by viewModel.isDataLoading.collectAsState()
+
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val onFetchErrorClick = {
@@ -78,6 +86,7 @@ fun MainScreen(viewModel: MainScreenViewModel, navigate: (String?) -> Unit) {
                 duration = SnackbarDuration.Indefinite,
                 onActionMessage = retryStr
             )
+
             is UpdatingError -> showSnackBar(
                 scope = scope,
                 snackbarHostState = snackbarHostState,
@@ -91,16 +100,39 @@ fun MainScreen(viewModel: MainScreenViewModel, navigate: (String?) -> Unit) {
         snackbarHost = { CustomSnackbarHost(snackbarHostState) },
         floatingActionButton = { AddTaskFab(navigate) }
     ) { paddingValues ->
-        MainScreenContent(
-            tasks = tasks,
-            completedCount = completedCount,
-            isFiltering = isFiltering,
-            paddingValues = paddingValues,
-            changeFiltering = { viewModel.changeFiltering() },
-            changeTaskState = { id, completed -> viewModel.toggleTaskCompletion(id, completed) },
-            navigate
-        )
+        Box(
+            contentAlignment = Alignment.TopCenter
+        ) {
+            MainScreenContent(
+                tasks = tasks,
+                completedCount = completedCount,
+                isFiltering = isFiltering,
+                paddingValues = paddingValues,
+                changeFiltering = { viewModel.changeFiltering() },
+                changeTaskState = { id, completed ->
+                    viewModel.toggleTaskCompletion(
+                        id,
+                        completed
+                    )
+                },
+                navigate
+            )
+            IndeterminateCircularIndicator(isLoading = loadingState)
+        }
     }
+}
+
+@Composable
+fun IndeterminateCircularIndicator(isLoading: Boolean) {
+    if (!isLoading) return
+
+    CircularProgressIndicator(
+        modifier = Modifier
+            .width(32.dp)
+            .padding(top = 60.dp),
+        color = MaterialTheme.colorScheme.inverseOnSurface,
+        trackColor = MaterialTheme.colorScheme.outline,
+    )
 }
 
 @Composable

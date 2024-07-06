@@ -4,6 +4,9 @@ import com.kionavani.todotask.data.remote.dto.ElementDto
 import com.kionavani.todotask.data.remote.dto.ResponseDto.*
 import com.kionavani.todotask.data.remote.dto.RequestDto.*
 
+/**
+ * Мапит данные из DTO сетевых ответов/запросов в модель UI-ая
+ */
 class TasksMapper {
     fun toEntityList(dto: ListElementResponseDto): List<ToDoItem> {
         val mapResult: MutableList<ToDoItem> = mutableListOf()
@@ -37,7 +40,7 @@ class TasksMapper {
         element.changed_at
     )
 
-    // TODO : прокинуть айди
+    // TODO: прокинуть айди
     private fun toElement(item: ToDoItem): ElementDto = ElementDto(
         item.id,
         item.taskDescription,

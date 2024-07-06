@@ -3,6 +3,9 @@ package com.kionavani.todotask.data.remote.dto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * DTO одной таски для работы с сетью
+ */
 // TODO: сделать все nullable
 @Serializable
 data class ElementDto(

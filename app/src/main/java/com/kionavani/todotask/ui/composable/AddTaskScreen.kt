@@ -23,6 +23,9 @@ import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
 import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 
+/**
+ * UI экрана редактирования/создания новой таски
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTaskScreen(viewModel: AddTaskViewModel, itemID: String? = null, navigate: () -> Unit) {

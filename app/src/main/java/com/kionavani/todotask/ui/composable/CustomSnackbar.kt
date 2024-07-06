@@ -1,6 +1,7 @@
 package com.kionavani.todotask.ui.composable
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -13,12 +14,19 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+/**
+ * Кастомный снек-бак
+ */
+
+// TODO: Сделать более красиво
 @Composable
 fun CustomSnackbar(
     snackbarData: SnackbarData,
@@ -31,7 +39,10 @@ fun CustomSnackbar(
         actionContentColor = actionColor,
         containerColor = containerColor
     ) {
-        Column {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.Start
+        ) {
             Text(
                 text = snackbarData.visuals.message,
                 color = contentColor,

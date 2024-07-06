@@ -6,6 +6,9 @@ import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
 
+/**
+ * Модуль для инжектирования ResourcesProvider-а
+ */
 @Module
 class ResourcesProviderModule {
     @Provides

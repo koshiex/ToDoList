@@ -27,6 +27,9 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
+/**
+ * Главное активити приложения
+ */
 class MainActivity : ComponentActivity() {
     private lateinit var provider: ResourcesProvider
     private lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -66,11 +69,14 @@ class MainActivity : ComponentActivity() {
 
     private fun startCoroutines() {
         lifecycleScope.launch {
-            networkMonitor.isConnected.collect { haveConntection ->
-                if (haveConntection) {
+            networkMonitor.isConnected.collect { haveConnection ->
+                if (haveConnection) {
                     addViewModel.dataChanged.collect { isChanged ->
+                        mainViewModel.changeLoadingState()
                         if (!isChanged) mainViewModel.fetchData()
                     }
+                } else {
+                    mainViewModel.changeLoadingState()
                 }
             }
         }

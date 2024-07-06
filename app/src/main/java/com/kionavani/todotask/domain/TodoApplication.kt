@@ -6,6 +6,9 @@ import com.kionavani.todotask.di.DaggerAppComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 
+/**
+ * Класс приложения... приложения
+ */
 class TodoApplication : Application() {
     val appComponent: AppComponent by lazy { setupDi() }
     private val mainScope: CoroutineScope by lazy { CoroutineScope(SupervisorJob()) }

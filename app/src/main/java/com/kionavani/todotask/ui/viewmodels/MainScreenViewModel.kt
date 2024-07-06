@@ -14,6 +14,10 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
+/**
+ * ViewModel для управления состоянием главного экрана и операциями, связанными с отображением тасок
+ */
 class MainScreenViewModel @Inject constructor(
     private val repository: TodoItemsRepository,
     private val provider: ResourcesProvider,
@@ -36,6 +40,9 @@ class MainScreenViewModel @Inject constructor(
     private val _completedTaskCounter = MutableStateFlow(0)
     val completedTaskCounter: StateFlow<Int> = _completedTaskCounter.asStateFlow()
 
+    private val _isDataLoading = MutableStateFlow(false)
+    val isDataLoading = _isDataLoading.asStateFlow()
+
     private val _errorFlow = MutableStateFlow<ErrorState>(ErrorProcessed())
     val errorFlow = _errorFlow.asStateFlow()
 
@@ -51,6 +58,10 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
+    fun changeLoadingState() {
+        _isDataLoading.value = !_isDataLoading.value
+    }
+
     fun errorProcessed() {
         _errorFlow.value = ErrorProcessed()
     }
@@ -62,6 +73,7 @@ class MainScreenViewModel @Inject constructor(
     fun fetchData() {
         viewModelScope.launch(exceptionHandler) {
             repository.fetchData()
+            changeLoadingState()
         }
     }
 
