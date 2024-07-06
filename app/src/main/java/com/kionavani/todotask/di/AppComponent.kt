@@ -3,6 +3,7 @@ package com.kionavani.todotask.di
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.viewModelScope
+import com.kionavani.todotask.domain.DataFetchWorker
 import com.kionavani.todotask.domain.MainActivity
 import com.kionavani.todotask.ui.ResourcesProvider
 import dagger.BindsInstance
@@ -17,6 +18,8 @@ import javax.inject.Singleton
 @Component(modules = [NetworkModule::class, RepositoryModule::class, ResourcesProviderModule::class, ViewModelModule::class])
 interface AppComponent {
     fun inject(activity: MainActivity)
+
+    fun inject(worker: DataFetchWorker)
 
     @Component.Builder
     interface Builder {

@@ -19,6 +19,7 @@ import io.ktor.client.request.setBody
 import io.ktor.client.request.url
 import io.ktor.serialization.kotlinx.json.json
 import com.kionavani.todotask.BuildConfig
+import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.http.ContentType.Application
 import io.ktor.http.HttpHeaders.ContentType
@@ -35,8 +36,15 @@ fun createHttpClient() = HttpClient {
         })
     }
 
+    install(HttpRequestRetry) {
+        retryOnException(maxRetries = 3)
+        retryOnServerErrors(maxRetries = 3)
+        exponentialDelay()
+    }
+
+    // TODO: Я.Паспорт
     defaultRequest {
-        header("Authorization", "OAuth ${BuildConfig.OAUTH_TOKEN}j")
+        header("Authorization", "OAuth ${BuildConfig.OAUTH_TOKEN}")
         header(ContentType, Application.Json)
     }
 

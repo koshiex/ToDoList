@@ -13,6 +13,7 @@ serialization = "1.6.3"
 ktor = "2.3.12"
 dagger = "2.51.1"
 ksp = "1.9.0-1.0.12"
+work-runtime = "2.7.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -40,6 +41,7 @@ ktor-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation",
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor"}
 dagger = { group = "com.google.dagger", name = "dagger", version.ref = "dagger" }
 dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "dagger" }
+work-runtime = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work-runtime" }
 
 
 

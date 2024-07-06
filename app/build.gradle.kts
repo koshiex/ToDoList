@@ -78,6 +78,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.work.runtime)
 
     implementation(libs.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
@@ -92,4 +93,5 @@ dependencies {
 
     implementation(libs.dagger)
     ksp(libs.dagger.compiler)
+
 }

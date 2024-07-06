@@ -10,6 +10,11 @@ import androidx.activity.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.kionavani.todotask.R
 import com.kionavani.todotask.ui.ResourcesProvider
 import com.kionavani.todotask.ui.composable.SetupUI
@@ -19,11 +24,14 @@ import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
 import com.kionavani.todotask.ui.viewmodels.ViewModelFactory
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {
-    private lateinit var provider : ResourcesProvider
+    private lateinit var provider: ResourcesProvider
     private lateinit var viewModelFactory: ViewModelProvider.Factory
+    private lateinit var networkMonitor: NetworkMonitor
+
     private val mainViewModel by viewModels<MainScreenViewModel> { viewModelFactory }
     private val addViewModel by viewModels<AddTaskViewModel> { viewModelFactory }
 
@@ -38,6 +46,8 @@ class MainActivity : ComponentActivity() {
 
         (this.application as TodoApplication).appComponent.inject(this)
 
+        networkMonitor.startMonitoring()
+        setupWorker()
         provider.attachActivityContext(this)
         startCoroutines()
 
@@ -50,13 +60,18 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         provider.detachActivityContext()
+        networkMonitor.stopMonitoring()
         super.onDestroy()
     }
 
     private fun startCoroutines() {
         lifecycleScope.launch {
-            addViewModel.dataChanged.collect {isChanged ->
-                if (!isChanged) mainViewModel.fetchData()
+            networkMonitor.isConnected.collect { haveConntection ->
+                if (haveConntection) {
+                    addViewModel.dataChanged.collect { isChanged ->
+                        if (!isChanged) mainViewModel.fetchData()
+                    }
+                }
             }
         }
         lifecycleScope.launch {
@@ -66,9 +81,31 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun setupWorker() {
+        val fetchWork = PeriodicWorkRequestBuilder<DataFetchWorker>(8, TimeUnit.HOURS)
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
+            )
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "DataFetchWork",
+            ExistingPeriodicWorkPolicy.REPLACE,
+            fetchWork
+        )
+
+    }
+
     @Inject
     fun setProvider(provider: ResourcesProvider) {
         this.provider = provider
+    }
+
+    @Inject
+    fun setMonitor(monitor: NetworkMonitor) {
+        networkMonitor = monitor
     }
 
     @Inject

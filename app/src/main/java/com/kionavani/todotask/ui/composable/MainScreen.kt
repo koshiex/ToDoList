@@ -109,8 +109,8 @@ fun CustomSnackbarHost(snackbarHostState: SnackbarHostState) {
         CustomSnackbar(
             snackbarData = it,
             containerColor = MaterialTheme.colorScheme.error,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
-            actionColor = MaterialTheme.colorScheme.onPrimary
+            contentColor = MaterialTheme.colorScheme.onError,
+            actionColor = MaterialTheme.colorScheme.onError
         )
     }
 }

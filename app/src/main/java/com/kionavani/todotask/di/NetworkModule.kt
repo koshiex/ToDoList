@@ -1,8 +1,10 @@
 package com.kionavani.todotask.di
 
+import android.content.Context
 import com.kionavani.todotask.data.remote.TasksService
 import com.kionavani.todotask.data.remote.TasksServiceImpl
 import com.kionavani.todotask.data.remote.createHttpClient
+import com.kionavani.todotask.domain.NetworkMonitor
 import dagger.Module
 import dagger.Provides
 import io.ktor.client.HttpClient
@@ -25,5 +27,11 @@ class NetworkModule {
     @Singleton
     fun provideTasksService(client: HttpClient): TasksService {
         return TasksServiceImpl(client)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNetworkMonitor(context: Context) : NetworkMonitor {
+        return NetworkMonitor(context)
     }
 }
