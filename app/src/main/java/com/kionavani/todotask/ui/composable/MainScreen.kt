@@ -53,6 +53,7 @@ import com.kionavani.todotask.data.ToDoItem
 import com.kionavani.todotask.ui.ErrorState.FetchingError
 import com.kionavani.todotask.ui.ErrorState.UpdatingError
 import com.kionavani.todotask.ui.Util
+import com.kionavani.todotask.ui.theme.ToDoTaskTheme
 import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
 
 /**
@@ -96,10 +97,8 @@ fun MainScreen(viewModel: MainScreenViewModel, navigate: (String?) -> Unit) {
         }
     }
 
-    Scaffold(
-        snackbarHost = { CustomSnackbarHost(snackbarHostState) },
-        floatingActionButton = { AddTaskFab(navigate) }
-    ) { paddingValues ->
+    Scaffold(snackbarHost = { CustomSnackbarHost(snackbarHostState) },
+        floatingActionButton = { AddTaskFab(navigate) }) { paddingValues ->
         Box(
             contentAlignment = Alignment.TopCenter
         ) {
@@ -111,8 +110,7 @@ fun MainScreen(viewModel: MainScreenViewModel, navigate: (String?) -> Unit) {
                 changeFiltering = { viewModel.changeFiltering() },
                 changeTaskState = { id, completed ->
                     viewModel.toggleTaskCompletion(
-                        id,
-                        completed
+                        id, completed
                     )
                 },
                 navigate
@@ -130,8 +128,8 @@ fun IndeterminateCircularIndicator(isLoading: Boolean) {
         modifier = Modifier
             .width(32.dp)
             .padding(top = 60.dp),
-        color = MaterialTheme.colorScheme.inverseOnSurface,
-        trackColor = MaterialTheme.colorScheme.outline,
+        color = ToDoTaskTheme.colorScheme.colorBlue,
+        trackColor = ToDoTaskTheme.colorScheme.supportSeparator,
     )
 }
 
@@ -140,22 +138,20 @@ fun CustomSnackbarHost(snackbarHostState: SnackbarHostState) {
     SnackbarHost(hostState = snackbarHostState) {
         CustomSnackbar(
             snackbarData = it,
-            containerColor = MaterialTheme.colorScheme.error,
-            contentColor = MaterialTheme.colorScheme.onError,
-            actionColor = MaterialTheme.colorScheme.onError
+            containerColor = ToDoTaskTheme.colorScheme.colorRed,
+            contentColor = ToDoTaskTheme.colorScheme.colorWhite,
+            actionColor = ToDoTaskTheme.colorScheme.colorWhite
         )
     }
 }
 
 @Composable
 fun AddTaskFab(navigate: (String?) -> Unit) {
-    FloatingActionButton(
-        modifier = Modifier.padding(end = 12.dp, bottom = 24.dp),
+    FloatingActionButton(modifier = Modifier.padding(end = 12.dp, bottom = 24.dp),
         shape = CircleShape,
-        containerColor = MaterialTheme.colorScheme.inverseOnSurface,
-        contentColor = Color.White,
-        onClick = { navigate(null) }
-    ) {
+        containerColor = ToDoTaskTheme.colorScheme.colorBlue,
+        contentColor = ToDoTaskTheme.colorScheme.colorWhite,
+        onClick = { navigate(null) }) {
         Icon(Icons.Filled.Add, null)
     }
 }
@@ -172,7 +168,7 @@ fun MainScreenContent(
 ) {
     Column(
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.primary)
+            .background(ToDoTaskTheme.colorScheme.backPrimary)
             .fillMaxSize()
             .padding(paddingValues)
     ) {
@@ -183,14 +179,12 @@ fun MainScreenContent(
 
 @Composable
 fun Header(
-    completedCount: Int,
-    isFiltering: Boolean,
-    changeFiltering: () -> Unit
+    completedCount: Int, isFiltering: Boolean, changeFiltering: () -> Unit
 ) {
     Text(
         text = stringResource(R.string.my_tasks_title),
         style = MaterialTheme.typography.titleLarge.copy(
-            color = MaterialTheme.colorScheme.onPrimary
+            color = ToDoTaskTheme.colorScheme.labelPrimary
         ),
         modifier = Modifier.padding(top = 50.dp, start = 88.dp)
     )
@@ -206,7 +200,7 @@ fun Header(
         Text(
             text = stringResource(R.string.completed_task_title) + " - $completedCount",
             style = MaterialTheme.typography.bodyMedium.copy(
-                color = MaterialTheme.colorScheme.onTertiary
+                color = ToDoTaskTheme.colorScheme.labelTertiary
             ),
             modifier = Modifier.alpha(0.8f)
         )
@@ -217,9 +211,7 @@ fun Header(
                     ImageVector.vectorResource(R.drawable.visibility_on_icon)
                 } else {
                     ImageVector.vectorResource(R.drawable.visibility_off_icon)
-                },
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.inverseOnSurface
+                }, contentDescription = null, tint = ToDoTaskTheme.colorScheme.colorBlue
             )
         }
     }
@@ -227,9 +219,7 @@ fun Header(
 
 @Composable
 fun TaskList(
-    tasks: List<ToDoItem>,
-    changeTaskState: (String, Boolean) -> Unit,
-    navigate: (String?) -> Unit
+    tasks: List<ToDoItem>, changeTaskState: (String, Boolean) -> Unit, navigate: (String?) -> Unit
 ) {
     val getDeadlineDate = { item: ToDoItem ->
         item.deadlineDate?.let { Util.dateToString(it) }
@@ -242,7 +232,7 @@ fun TaskList(
             .wrapContentHeight()
             .shadow(4.dp, shape = RoundedCornerShape(12.dp))
             .background(
-                color = MaterialTheme.colorScheme.secondary, shape = RoundedCornerShape(12.dp)
+                color = ToDoTaskTheme.colorScheme.backSecondary, shape = RoundedCornerShape(12.dp)
             ),
     ) {
         items(tasks) { task ->
@@ -258,7 +248,7 @@ fun TaskList(
                         navigate(null)
                     },
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onTertiary
+                    color = ToDoTaskTheme.colorScheme.labelTertiary
                 )
             )
         }
@@ -292,20 +282,18 @@ fun TaskItem(
                 Text(
                     text = it,
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onTertiary
+                    color = ToDoTaskTheme.colorScheme.labelTertiary
                 )
             }
         }
-        IconButton(
-            modifier = Modifier
-                .padding(end = 16.dp, top = 12.dp)
-                .alpha(0.6f),
-            onClick = { navigate(item.id) }
-        ) {
+        IconButton(modifier = Modifier
+            .padding(end = 16.dp, top = 12.dp)
+            .alpha(0.6f),
+            onClick = { navigate(item.id) }) {
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.info_icon),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onTertiary
+                tint = ToDoTaskTheme.colorScheme.labelTertiary
             )
         }
     }
@@ -318,21 +306,21 @@ fun ItemDescription(description: String, isCompleted: Boolean) {
         maxLines = 3,
         overflow = TextOverflow.Ellipsis,
         style = MaterialTheme.typography.bodyMedium,
-        color = if (isCompleted) MaterialTheme.colorScheme.onTertiary else MaterialTheme.colorScheme.onPrimary,
+        color = if (isCompleted) ToDoTaskTheme.colorScheme.labelTertiary
+            else ToDoTaskTheme.colorScheme.labelPrimary,
         textDecoration = if (isCompleted) TextDecoration.LineThrough else null
     )
 }
 
 @Composable
 fun ItemCheckbox(item: ToDoItem, changeTaskState: (String, Boolean) -> Unit) {
-    Checkbox(
-        modifier = Modifier.padding(start = 16.dp, top = 12.dp),
+    Checkbox(modifier = Modifier.padding(start = 16.dp, top = 12.dp),
         checked = item.isCompleted,
         colors = CheckboxDefaults.colors(
-            uncheckedColor = if (item.importance == Importance.HIGH) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline,
-            checkedColor = MaterialTheme.colorScheme.inversePrimary,
-            checkmarkColor = MaterialTheme.colorScheme.secondary
+            uncheckedColor = if (item.importance == Importance.HIGH) ToDoTaskTheme.colorScheme.colorRed
+                else ToDoTaskTheme.colorScheme.supportSeparator,
+            checkedColor = ToDoTaskTheme.colorScheme.colorGreen,
+            checkmarkColor = ToDoTaskTheme.colorScheme.backSecondary
         ),
-        onCheckedChange = { changeTaskState(item.id, it) }
-    )
+        onCheckedChange = { changeTaskState(item.id, it) })
 }

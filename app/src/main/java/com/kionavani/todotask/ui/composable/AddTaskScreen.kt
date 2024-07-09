@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
+import com.kionavani.todotask.ui.theme.ToDoTaskTheme
 import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 
 /**
@@ -49,7 +50,7 @@ fun AddTaskScreen(viewModel: AddTaskViewModel, itemID: String? = null, navigate:
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.Start,
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.primary)
+            .background(ToDoTaskTheme.colorScheme.backPrimary)
             .fillMaxSize()
             .safeDrawingPadding()
     ) {
@@ -100,7 +101,7 @@ fun HeaderIconButton(navigate: () -> Unit) {
         Icon(
             imageVector = ImageVector.vectorResource(id = R.drawable.close_icon),
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onPrimary
+            tint = ToDoTaskTheme.colorScheme.labelPrimary
         )
     }
 }
@@ -109,7 +110,7 @@ fun HeaderIconButton(navigate: () -> Unit) {
 fun HeaderTextButton(viewModel: AddTaskViewModel, itemId: String?, navigate: () -> Unit) {
     Text(text = stringResource(id = R.string.save_task_button).uppercase(),
         style = MaterialTheme.typography.labelMedium.copy(
-            color = MaterialTheme.colorScheme.inverseOnSurface
+            color = ToDoTaskTheme.colorScheme.colorBlue
         ),
         modifier = Modifier
             .padding(top = 16.dp, end = 16.dp)
@@ -129,22 +130,22 @@ fun TaskTextField(textFiledState: String, onTextChange: (String) -> Unit) {
             .shadow(1.dp, RoundedCornerShape(12.dp)),
         shape = RoundedCornerShape(8.dp),
         textStyle = MaterialTheme.typography.bodyMedium.copy(
-            color = MaterialTheme.colorScheme.onPrimary
+            color = ToDoTaskTheme.colorScheme.labelPrimary
         ),
         placeholder = {
             Text(
                 stringResource(R.string.text_field_hint),
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onTertiary
+                    color = ToDoTaskTheme.colorScheme.labelTertiary
                 )
             )
         },
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.secondary,
-            unfocusedContainerColor = MaterialTheme.colorScheme.secondary,
+            focusedContainerColor = ToDoTaskTheme.colorScheme.backSecondary,
+            unfocusedContainerColor = ToDoTaskTheme.colorScheme.backSecondary,
             focusedBorderColor = Color.Transparent,
             unfocusedBorderColor = Color.Transparent,
-            cursorColor = MaterialTheme.colorScheme.onPrimary
+            cursorColor = ToDoTaskTheme.colorScheme.labelPrimary
 
         ),
         value = textFiledState,
@@ -174,7 +175,7 @@ fun ImportanceDropDownLabel() {
     Text(
         text = stringResource(R.string.importance_drop_down),
         style = MaterialTheme.typography.bodyMedium.copy(
-            color = MaterialTheme.colorScheme.onPrimary
+            color = ToDoTaskTheme.colorScheme.labelPrimary
         )
     )
 }
@@ -193,12 +194,12 @@ fun ImportanceDropDownMenu(
             .clickable { onDropDownStateChange(true) },
         text = stringResource(selectedImportanceState.displayName),
         style = MaterialTheme.typography.headlineSmall.copy(
-            color = MaterialTheme.colorScheme.onTertiary
+            color = ToDoTaskTheme.colorScheme.labelTertiary
         )
     )
 
     DropdownMenu(offset = DpOffset(0.dp, (-20).dp),
-        modifier = Modifier.background(MaterialTheme.colorScheme.secondary),
+        modifier = Modifier.background(ToDoTaskTheme.colorScheme.backSecondary),
         expanded = dropDownState,
         onDismissRequest = { onDropDownStateChange(false) }) {
         Importance.entries.forEach { importance ->
@@ -206,7 +207,7 @@ fun ImportanceDropDownMenu(
                 Text(
                     text = stringResource(importance.displayName),
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = ToDoTaskTheme.colorScheme.labelPrimary
                     )
                 )
             }, onClick = {
@@ -255,10 +256,10 @@ fun DeadlineRow(
             checked = switchState,
             onCheckedChange = onSwitchStateChange,
             colors = SwitchDefaults.colors(
-                checkedTrackColor = MaterialTheme.colorScheme.inverseSurface,
-                checkedThumbColor = MaterialTheme.colorScheme.inverseOnSurface,
-                uncheckedTrackColor = MaterialTheme.colorScheme.surface,
-                uncheckedThumbColor = MaterialTheme.colorScheme.onSurface,
+                checkedTrackColor = ToDoTaskTheme.colorScheme.transparentBlue,
+                checkedThumbColor = ToDoTaskTheme.colorScheme.colorBlue,
+                uncheckedTrackColor = ToDoTaskTheme.colorScheme.supportOverlay,
+                uncheckedThumbColor = ToDoTaskTheme.colorScheme.backElevated,
             )
         )
     }
@@ -269,7 +270,7 @@ fun DeadlineLabel() {
     Text(
         text = stringResource(R.string.switch_deadline_descr),
         style = MaterialTheme.typography.bodyMedium.copy(
-            color = MaterialTheme.colorScheme.onPrimary
+            color = ToDoTaskTheme.colorScheme.labelPrimary
         )
     )
 }
@@ -291,14 +292,14 @@ fun DeadlineDatePicker(
                 .clickable { onDatePickerOnStateChange(true) },
             text = dateTextState,
             style = MaterialTheme.typography.headlineSmall.copy(
-                color = MaterialTheme.colorScheme.inverseOnSurface
+                color = ToDoTaskTheme.colorScheme.colorBlue
             )
         )
     }
 
     if (datePickerOnState) {
         DatePickerDialog(colors = DatePickerDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.secondary
+            containerColor = ToDoTaskTheme.colorScheme.backSecondary
         ), onDismissRequest = { onDatePickerOnStateChange(false) }, confirmButton = {
             TextButton(onClick = {
                 onDateTextStateChange(dateState.selectedDateMillis)
@@ -307,7 +308,7 @@ fun DeadlineDatePicker(
                 Text(
                     stringResource(android.R.string.ok),
                     style = MaterialTheme.typography.labelMedium.copy(
-                        color = MaterialTheme.colorScheme.inverseOnSurface
+                        color = ToDoTaskTheme.colorScheme.colorBlue
                     )
                 )
             }
@@ -316,25 +317,25 @@ fun DeadlineDatePicker(
                 Text(
                     stringResource(android.R.string.cancel),
                     style = MaterialTheme.typography.labelMedium.copy(
-                        color = MaterialTheme.colorScheme.inverseOnSurface
+                        color = ToDoTaskTheme.colorScheme.colorBlue
                     )
                 )
             }
         }) {
             DatePicker(
                 state = dateState, colors = DatePickerDefaults.colors(
-                    titleContentColor = MaterialTheme.colorScheme.inverseOnSurface,
-                    headlineContentColor = MaterialTheme.colorScheme.inverseOnSurface,
-                    weekdayContentColor = MaterialTheme.colorScheme.onTertiary,
-                    subheadContentColor = MaterialTheme.colorScheme.inverseOnSurface,
-                    yearContentColor = MaterialTheme.colorScheme.onPrimary,
-                    currentYearContentColor = MaterialTheme.colorScheme.onPrimary,
-                    selectedYearContentColor = MaterialTheme.colorScheme.onPrimary,
-                    dayContentColor = MaterialTheme.colorScheme.onPrimary,
-                    selectedDayContentColor = Color.White,
-                    todayContentColor = MaterialTheme.colorScheme.onPrimary,
-                    selectedDayContainerColor = MaterialTheme.colorScheme.inverseOnSurface,
-                    todayDateBorderColor = MaterialTheme.colorScheme.inverseOnSurface,
+                    titleContentColor = ToDoTaskTheme.colorScheme.colorBlue,
+                    headlineContentColor = ToDoTaskTheme.colorScheme.colorBlue,
+                    weekdayContentColor = ToDoTaskTheme.colorScheme.labelTertiary,
+                    subheadContentColor = ToDoTaskTheme.colorScheme.colorBlue,
+                    yearContentColor = ToDoTaskTheme.colorScheme.labelPrimary,
+                    currentYearContentColor = ToDoTaskTheme.colorScheme.labelPrimary,
+                    selectedYearContentColor = ToDoTaskTheme.colorScheme.labelPrimary,
+                    dayContentColor = ToDoTaskTheme.colorScheme.labelPrimary,
+                    selectedDayContentColor = ToDoTaskTheme.colorScheme.colorWhite,
+                    todayContentColor = ToDoTaskTheme.colorScheme.labelPrimary,
+                    selectedDayContainerColor = ToDoTaskTheme.colorScheme.colorBlue,
+                    todayDateBorderColor = ToDoTaskTheme.colorScheme.colorBlue,
                 )
             )
         }
@@ -354,18 +355,19 @@ fun DeleteTaskRow(itemId: String?, delete: (String) -> Unit, navigate: () -> Uni
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.delete_icon),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.error
+                tint = ToDoTaskTheme.colorScheme.colorRed
             )
             Text(text = stringResource(R.string.delete_button),
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.error
+                    color = ToDoTaskTheme.colorScheme.colorRed
                 ),
                 modifier = Modifier
                     .padding(start = 12.dp)
                     .clickable {
                         delete(itemId)
                         navigate()
-                    })
+                    }
+            )
         }
     }
 }

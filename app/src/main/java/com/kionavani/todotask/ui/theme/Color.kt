@@ -1,6 +1,8 @@
 package com.kionavani.todotask.ui.theme
 
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorMatrix
 
 // Light theme colors
 val LightSeparator = Color(0x33000000)
@@ -37,3 +39,44 @@ val DarkWhite = Color(0xFFFFFFFF)
 val DarkBackPrimary = Color(0xFF161618)
 val DarkBackSecondary = Color(0xFF252528)
 val DarkBackElevated = Color(0xFF3C3C3F)
+
+
+data class ColorScheme(
+    val supportSeparator: Color,
+    val supportOverlay: Color,
+    val labelPrimary: Color,
+    val labelSecondary: Color,
+    val labelTertiary: Color,
+    val labelDisable: Color,
+    val colorRed: Color,
+    val colorGreen: Color,
+    val colorBlue: Color,
+    val transparentBlue: Color,
+    val colorGray: Color,
+    val colorGrayLight: Color,
+    val colorWhite: Color,
+    val backPrimary: Color,
+    val backSecondary: Color,
+    val backElevated: Color
+)
+
+val LocalColorScheme = staticCompositionLocalOf {
+    ColorScheme(
+        supportSeparator = Color.Unspecified,
+        supportOverlay = Color.Unspecified,
+        labelPrimary = Color.Unspecified,
+        labelSecondary = Color.Unspecified,
+        labelTertiary = Color.Unspecified,
+        labelDisable = Color.Unspecified,
+        colorRed = Color.Unspecified,
+        colorGreen = Color.Unspecified,
+        colorBlue = Color.Unspecified,
+        transparentBlue = Color.Unspecified,
+        colorGray = Color.Unspecified,
+        colorGrayLight = Color.Unspecified,
+        colorWhite = Color.Unspecified,
+        backPrimary = Color.Unspecified,
+        backSecondary = Color.Unspecified,
+        backElevated = Color.Unspecified
+    )
+}

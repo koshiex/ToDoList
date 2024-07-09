@@ -55,7 +55,7 @@ private fun PreviewDarkMainScreen() {
 private fun PreviewMainScreen(darkTheme: Boolean) {
     val viewModel = createMainScreenViewModel()
     val addViewModel = createAddTaskViewModel()
-    ToDoTaskTheme(darkTheme = darkTheme, dynamicColor = false) {
+    ToDoTaskTheme(darkTheme = darkTheme) {
         PreviewNavHost(viewModel, addViewModel)
     }
 }
@@ -75,7 +75,7 @@ private fun PreviewDarkAddTaskScreen() {
 @Composable
 private fun PreviewAddTaskScreen(darkTheme: Boolean) {
     val viewModel = createAddTaskViewModel()
-    ToDoTaskTheme(darkTheme = darkTheme, dynamicColor = false) {
+    ToDoTaskTheme(darkTheme = darkTheme) {
         val navController = rememberNavController()
         val navigate = { navController.navigate(MainScreenNav) }
         AddTaskScreen(viewModel, "123", navigate)

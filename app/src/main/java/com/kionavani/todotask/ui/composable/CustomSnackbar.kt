@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.unit.dp
+import com.kionavani.todotask.ui.theme.ToDoTaskTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -30,9 +31,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun CustomSnackbar(
     snackbarData: SnackbarData,
-    containerColor: Color = MaterialTheme.colorScheme.error,
-    contentColor: Color = MaterialTheme.colorScheme.onError,
-    actionColor: Color = MaterialTheme.colorScheme.primary
+    containerColor: Color = ToDoTaskTheme.colorScheme.colorRed,
+    contentColor: Color = ToDoTaskTheme.colorScheme.colorWhite,
+    actionColor: Color = ToDoTaskTheme.colorScheme.backPrimary
 ) {
     Snackbar(
         modifier = Modifier.padding(16.dp),

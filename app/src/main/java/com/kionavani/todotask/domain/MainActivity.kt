@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
         startCoroutines()
 
         setContent {
-            ToDoTaskTheme(dynamicColor = false) {
+            ToDoTaskTheme {
                 SetupUI(viewModelFactory)
             }
         }
