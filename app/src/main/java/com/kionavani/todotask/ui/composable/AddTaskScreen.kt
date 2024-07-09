@@ -3,7 +3,10 @@ package com.kionavani.todotask.ui.composable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -122,36 +125,40 @@ fun HeaderTextButton(viewModel: AddTaskViewModel, itemId: String?, navigate: () 
 
 @Composable
 fun TaskTextField(textFiledState: String, onTextChange: (String) -> Unit) {
-    TextField(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.3f)
+            .height(250.dp)
             .padding(horizontal = 16.dp, vertical = 12.dp)
-            .shadow(1.dp, RoundedCornerShape(12.dp)),
-        shape = RoundedCornerShape(8.dp),
-        textStyle = MaterialTheme.typography.bodyMedium.copy(
-            color = ToDoTaskTheme.colorScheme.labelPrimary
-        ),
-        placeholder = {
-            Text(
-                stringResource(R.string.text_field_hint),
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = ToDoTaskTheme.colorScheme.labelTertiary
-                )
-            )
-        },
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = ToDoTaskTheme.colorScheme.backSecondary,
-            unfocusedContainerColor = ToDoTaskTheme.colorScheme.backSecondary,
-            focusedBorderColor = Color.Transparent,
-            unfocusedBorderColor = Color.Transparent,
-            cursorColor = ToDoTaskTheme.colorScheme.labelPrimary
-
-        ),
-        value = textFiledState,
-        onValueChange = onTextChange,
-    )
+            .shadow(1.dp, RoundedCornerShape(12.dp))
+            .background(ToDoTaskTheme.colorScheme.backSecondary, RoundedCornerShape(8.dp))
+    ) {
+        BasicTextField(
+            value = textFiledState,
+            onValueChange = onTextChange,
+            textStyle = MaterialTheme.typography.bodyMedium.copy(
+                color = ToDoTaskTheme.colorScheme.labelPrimary
+            ),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            decorationBox = { innerTextField ->
+                if (textFiledState.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.text_field_hint),
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = ToDoTaskTheme.colorScheme.labelTertiary
+                        )
+                    )
+                }
+                innerTextField()
+            }
+        )
+    }
 }
+
+
 
 @Composable
 fun ImportanceDropDown(
