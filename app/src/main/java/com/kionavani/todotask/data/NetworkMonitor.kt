@@ -1,4 +1,4 @@
-package com.kionavani.todotask.domain
+package com.kionavani.todotask.data
 
 import android.content.Context
 import android.net.ConnectivityManager

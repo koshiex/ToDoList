@@ -159,7 +159,6 @@ fun TaskTextField(textFiledState: String, onTextChange: (String) -> Unit) {
 }
 
 
-
 @Composable
 fun ImportanceDropDown(
     dropDownState: Boolean,
@@ -167,7 +166,11 @@ fun ImportanceDropDown(
     onDropDownSelected: (Importance) -> Unit,
     selectedImportanceState: Importance
 ) {
-    Box(modifier = Modifier.padding(start = 16.dp, top = 28.dp)) {
+    Box(modifier = Modifier
+        .padding(start = 16.dp, top = 28.dp)
+        .clickable {
+            onDropDownStateChange(true)
+        }) {
         Column {
             ImportanceDropDownLabel()
             ImportanceDropDownMenu(
@@ -197,8 +200,7 @@ fun ImportanceDropDownMenu(
     Text(
         modifier = Modifier
             .alpha(0.7f)
-            .padding(top = 4.dp)
-            .clickable { onDropDownStateChange(true) },
+            .padding(top = 4.dp),
         text = stringResource(selectedImportanceState.displayName),
         style = MaterialTheme.typography.headlineSmall.copy(
             color = ToDoTaskTheme.colorScheme.labelTertiary
@@ -244,7 +246,11 @@ fun DeadlineRow(
             .padding(top = 27.dp, start = 16.dp, end = 16.dp)
     ) {
         Column(
-            modifier = Modifier.height(50.dp),
+            modifier = Modifier
+                .height(50.dp)
+                .clickable(enabled = switchState) {
+                        onDatePickerOnStateChange(true)
+                },
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
@@ -295,8 +301,7 @@ fun DeadlineDatePicker(
     if (switchState) {
         Text(
             modifier = Modifier
-                .padding(top = 4.dp)
-                .clickable { onDatePickerOnStateChange(true) },
+                .padding(top = 4.dp),
             text = dateTextState,
             style = MaterialTheme.typography.headlineSmall.copy(
                 color = ToDoTaskTheme.colorScheme.colorBlue

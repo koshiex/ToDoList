@@ -1,4 +1,4 @@
-package com.kionavani.todotask.domain
+package com.kionavani.todotask.ui
 
 import android.app.Application
 import com.kionavani.todotask.di.AppComponent

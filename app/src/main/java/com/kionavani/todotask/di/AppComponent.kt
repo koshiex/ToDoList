@@ -1,17 +1,11 @@
 package com.kionavani.todotask.di
 
-import android.app.Application
 import android.content.Context
-import androidx.lifecycle.viewModelScope
-import com.kionavani.todotask.domain.DataFetchWorker
-import com.kionavani.todotask.domain.MainActivity
-import com.kionavani.todotask.ui.ResourcesProvider
+import com.kionavani.todotask.data.remote.DataFetchWorker
+import com.kionavani.todotask.ui.MainActivity
 import dagger.BindsInstance
 import dagger.Component
-import dagger.Module
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import javax.inject.Singleton
 
 /**

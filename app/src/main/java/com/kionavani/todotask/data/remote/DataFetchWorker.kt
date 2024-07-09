@@ -1,8 +1,9 @@
-package com.kionavani.todotask.domain
+package com.kionavani.todotask.data.remote
 
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.kionavani.todotask.domain.TodoItemsRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
