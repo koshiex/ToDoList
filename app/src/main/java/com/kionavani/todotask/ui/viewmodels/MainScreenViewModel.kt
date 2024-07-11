@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
 import com.kionavani.todotask.data.NetworkMonitor
-import com.kionavani.todotask.data.ToDoItem
+import com.kionavani.todotask.domain.ToDoItem
 import com.kionavani.todotask.domain.TodoItemsRepository
 import com.kionavani.todotask.ui.ErrorState
 import com.kionavani.todotask.ui.ErrorState.*

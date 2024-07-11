@@ -67,7 +67,7 @@ import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.zIndex
 import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
-import com.kionavani.todotask.data.ToDoItem
+import com.kionavani.todotask.domain.ToDoItem
 import com.kionavani.todotask.ui.ErrorState.FetchingError
 import com.kionavani.todotask.ui.ErrorState.UpdatingError
 import com.kionavani.todotask.ui.Util

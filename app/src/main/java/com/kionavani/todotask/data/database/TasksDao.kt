@@ -8,9 +8,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.Upsert
-import com.kionavani.todotask.data.ToDoItem
 import kotlinx.coroutines.flow.Flow
-import okhttp3.internal.concurrent.Task
 
 @Dao
 interface TasksDao {

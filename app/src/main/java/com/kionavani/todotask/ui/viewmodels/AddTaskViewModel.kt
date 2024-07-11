@@ -4,21 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
-import com.kionavani.todotask.data.ToDoItem
+import com.kionavani.todotask.domain.ToDoItem
 import com.kionavani.todotask.domain.TodoItemsRepository
 import com.kionavani.todotask.ui.ResourcesProvider
 import com.kionavani.todotask.ui.Util
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import javax.inject.Inject
 
 /**

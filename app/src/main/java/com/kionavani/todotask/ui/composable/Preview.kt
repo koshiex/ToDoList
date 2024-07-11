@@ -7,20 +7,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import androidx.room.RoomDatabase
-import com.kionavani.todotask.data.TasksMapper
-import com.kionavani.todotask.data.ToDoItem
-import com.kionavani.todotask.data.TodoItemsRepositoryImpl
-import com.kionavani.todotask.data.remote.TasksServiceImpl
-import com.kionavani.todotask.data.remote.createHttpClient
+import com.kionavani.todotask.domain.ToDoItem
 import com.kionavani.todotask.domain.TodoItemsRepository
 import com.kionavani.todotask.ui.ResourcesProvider
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
 import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 

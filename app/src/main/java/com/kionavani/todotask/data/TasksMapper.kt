@@ -4,6 +4,7 @@ import com.kionavani.todotask.data.database.TasksDb
 import com.kionavani.todotask.data.remote.dto.ElementDto
 import com.kionavani.todotask.data.remote.dto.ResponseDto.*
 import com.kionavani.todotask.data.remote.dto.RequestDto.*
+import com.kionavani.todotask.domain.ToDoItem
 
 /**
  * Мапит данные из DTO сетевых ответов/запросов в модель UI-ая
