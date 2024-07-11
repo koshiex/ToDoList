@@ -98,7 +98,6 @@ class MainActivity : ComponentActivity() {
             ExistingPeriodicWorkPolicy.REPLACE,
             fetchWork
         )
-
     }
 
     @Inject

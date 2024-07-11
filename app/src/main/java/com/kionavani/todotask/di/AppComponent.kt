@@ -1,10 +1,15 @@
 package com.kionavani.todotask.di
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import com.kionavani.todotask.data.DataStoreContract
 import com.kionavani.todotask.data.remote.DataFetchWorker
 import com.kionavani.todotask.ui.MainActivity
+import com.kionavani.todotask.ui.dataStore
 import dagger.BindsInstance
 import dagger.Component
+import dagger.Provides
 import kotlinx.coroutines.CoroutineScope
 import javax.inject.Singleton
 
@@ -17,6 +22,12 @@ interface AppComponent {
     fun inject(activity: MainActivity)
 
     fun inject(worker: DataFetchWorker)
+
+    @Provides
+    @Singleton
+    fun provideDataStore(context: Context): DataStore<Preferences> {
+        return context.dataStore
+    }
 
     @Component.Builder
     interface Builder {
