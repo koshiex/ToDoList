@@ -1,5 +1,7 @@
 package com.kionavani.todotask.di
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import com.kionavani.todotask.data.TasksMapper
 import com.kionavani.todotask.data.TodoItemsRepositoryImpl
 import com.kionavani.todotask.data.database.AppDatabase
@@ -21,11 +23,12 @@ class RepositoryModule() {
     fun provideTasksRepository(
         tasksService: TasksService,
         database: AppDatabase,
+        dataStore: DataStore<Preferences>,
         tasksMapper: TasksMapper,
         mainScope: CoroutineScope
     ): TodoItemsRepository {
         return TodoItemsRepositoryImpl(
-            tasksService, database, tasksMapper, mainScope, Dispatchers.IO
+            tasksService, database, dataStore, tasksMapper, mainScope, Dispatchers.IO
         )
     }
 

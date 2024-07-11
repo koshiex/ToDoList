@@ -33,9 +33,6 @@ class AddTaskViewModel @Inject constructor(
     private val _isErrorHappened = MutableStateFlow(false)
     val isErrorHappened = _isErrorHappened.asStateFlow()
 
-    private val _dataChanged = MutableStateFlow(false)
-    var dataChanged = _dataChanged.asStateFlow()
-
     private val _textFieldState = MutableStateFlow("")
     val textFieldState = _textFieldState.asStateFlow()
 

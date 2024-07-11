@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
+import com.kionavani.todotask.data.NetworkMonitor
 import com.kionavani.todotask.data.ToDoItem
 import com.kionavani.todotask.domain.TodoItemsRepository
 import com.kionavani.todotask.ui.ErrorState
@@ -21,6 +22,7 @@ import javax.inject.Inject
 class MainScreenViewModel @Inject constructor(
     private val repository: TodoItemsRepository,
     private val provider: ResourcesProvider,
+    private val networkMonitor: NetworkMonitor
 ) : ViewModel() {
     private val _todoItems = repository.todoItems
         .map { list -> list.map { it.copy(taskDescription = getDescWithEmoji(it)) } }
@@ -50,10 +52,15 @@ class MainScreenViewModel @Inject constructor(
             _errorFlow.value = FetchingError()
     }
 
+    private var isInitedOnce = false
+
     init {
         viewModelScope.launch(exceptionHandler) {
             _todoItems.collectLatest {
                 updateCompletedCount(it)
+            }
+            networkMonitor.isConnected.collectLatest {
+                repository.changeNetworkStatus(it)
             }
         }
     }
@@ -71,9 +78,13 @@ class MainScreenViewModel @Inject constructor(
     }
 
     fun fetchData() {
-        viewModelScope.launch(exceptionHandler) {
-            repository.fetchData()
+        if (!isInitedOnce) {
+            isInitedOnce = true
             changeLoadingState()
+            viewModelScope.launch(exceptionHandler) {
+                repository.fetchData()
+                changeLoadingState()
+            }
         }
     }
 

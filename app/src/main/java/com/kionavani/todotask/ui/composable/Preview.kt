@@ -7,10 +7,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import androidx.room.RoomDatabase
 import com.kionavani.todotask.data.TasksMapper
+import com.kionavani.todotask.data.ToDoItem
 import com.kionavani.todotask.data.TodoItemsRepositoryImpl
 import com.kionavani.todotask.data.remote.TasksServiceImpl
 import com.kionavani.todotask.data.remote.createHttpClient
+import com.kionavani.todotask.domain.TodoItemsRepository
 import com.kionavani.todotask.ui.ResourcesProvider
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
 import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
@@ -18,24 +21,31 @@ import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+
+private class MockTodoItemsRepository : TodoItemsRepository {
+    override val todoItems: StateFlow<List<ToDoItem>> = MutableStateFlow(emptyList())
+    override suspend fun fetchData(withNetwork: Boolean) {}
+
+    override suspend fun addTodoItem(item: ToDoItem) {}
+    override suspend fun updateTodoItem(newItem: ToDoItem) {}
+    override suspend fun deleteTodoItem(itemId: String) {}
+    override suspend fun toggleTaskCompletion(itemId: String, isCompleted: Boolean) {}
+    override suspend fun getTaskById(itemId: String): ToDoItem? = null
+    override suspend fun getNextId(): String = "null"
+}
 
 @Composable
 private fun createMainScreenViewModel(): MainScreenViewModel {
-    val service = TasksServiceImpl(createHttpClient())
-    return MainScreenViewModel(
-        TodoItemsRepositoryImpl(
-            service, TasksMapper(), CoroutineScope(SupervisorJob()), Dispatchers.IO
-        ), ResourcesProvider(LocalContext.current)
+    return MainScreenViewModel(MockTodoItemsRepository(), ResourcesProvider(LocalContext.current)
     )
 }
 
 @Composable
 private fun createAddTaskViewModel(): AddTaskViewModel {
-    val service = TasksServiceImpl(createHttpClient())
     return AddTaskViewModel(
-        TodoItemsRepositoryImpl(
-            service, TasksMapper(), CoroutineScope(SupervisorJob()), Dispatchers.IO
-        ), ResourcesProvider(LocalContext.current)
+        MockTodoItemsRepository(), ResourcesProvider(LocalContext.current)
     )
 }
 

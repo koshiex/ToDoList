@@ -36,6 +36,8 @@ class TodoItemsRepositoryImpl(
     private val REVISION_KEY = intPreferencesKey(DataStoreContract.REVISION_KEY)
     private var currentRevision = 0
 
+    private var isOnline = true
+
     private suspend fun saveCurrentRevision(revision: Int) {
         dataStore.edit { preferences ->
             preferences[REVISION_KEY] = revision
@@ -47,15 +49,21 @@ class TodoItemsRepositoryImpl(
             preferences[REVISION_KEY] ?: 0
         }
 
+    override suspend fun changeNetworkStatus(isOnline: Boolean) {
+        this.isOnline = isOnline
+    }
+
     override suspend fun fetchData() {
         withContext(dispatcher) {
             currentRevision = currentRevisionFlow.first()
             val localTasks = tasksMapper.fromDatabaseList(database.tasksDao().getAll())
 
-            if (currentRevision == 0 && localTasks.isEmpty()) {
+            if (currentRevision == 0 && localTasks.isEmpty() && isOnline) {
                 processFirstLaunch()
-            } else {
+            } else if (isOnline) {
                 fetchAndSyncData(localTasks)
+            } else {
+                _todoItems.value = localTasks
             }
         }
     }
@@ -112,11 +120,13 @@ class TodoItemsRepositoryImpl(
         coroutineScope.async(dispatcher) {
             _todoItems.value += item
             database.tasksDao().insertTask(tasksMapper.toDatabaseElement(item))
-            val response =
-                networkService.addTask(tasksMapper.toRequestElement(item), currentRevision)
-            when (response) {
-                is NetworkResult.Error -> throw response.exception
-                is NetworkResult.Success -> currentRevision = response.data.revision
+            if (isOnline) {
+                val response =
+                    networkService.addTask(tasksMapper.toRequestElement(item), currentRevision)
+                when (response) {
+                    is NetworkResult.Error -> throw response.exception
+                    is NetworkResult.Success -> currentRevision = response.data.revision
+                }
             }
         }.await()
     }
@@ -136,13 +146,16 @@ class TodoItemsRepositoryImpl(
                 }
 
                 database.tasksDao().updateTask(tasksMapper.toDatabaseElement(itemToAdd))
-                val response = networkService.updateTask(
-                    tasksMapper.toRequestElement(itemToAdd), currentRevision
-                )
 
-                when (response) {
-                    is NetworkResult.Error -> throw response.exception
-                    is NetworkResult.Success -> currentRevision = response.data.revision
+                if (isOnline) {
+                    val response = networkService.updateTask(
+                        tasksMapper.toRequestElement(itemToAdd), currentRevision
+                    )
+
+                    when (response) {
+                        is NetworkResult.Error -> throw response.exception
+                        is NetworkResult.Success -> currentRevision = response.data.revision
+                    }
                 }
             }
         }.await()
@@ -153,11 +166,14 @@ class TodoItemsRepositoryImpl(
             _todoItems.value = _todoItems.value.filter { it.id != itemId }
 
             database.tasksDao().deleteById(itemId)
-            val response = networkService.deleteTask(itemId, currentRevision)
 
-            when (response) {
-                is NetworkResult.Error -> throw response.exception
-                is NetworkResult.Success -> currentRevision = response.data.revision
+            if (isOnline) {
+                val response = networkService.deleteTask(itemId, currentRevision)
+
+                when (response) {
+                    is NetworkResult.Error -> throw response.exception
+                    is NetworkResult.Success -> currentRevision = response.data.revision
+                }
             }
         }.await()
     }
@@ -173,13 +189,15 @@ class TodoItemsRepositoryImpl(
             }
             if (item != null) {
                 database.tasksDao().updateTask(tasksMapper.toDatabaseElement(item!!))
-                val response = networkService.updateTask(
-                    tasksMapper.toRequestElement(item!!), currentRevision
-                )
+                if (isOnline) {
+                    val response = networkService.updateTask(
+                        tasksMapper.toRequestElement(item!!), currentRevision
+                    )
 
-                when (response) {
-                    is NetworkResult.Error -> throw response.exception
-                    is NetworkResult.Success -> currentRevision = response.data.revision
+                    when (response) {
+                        is NetworkResult.Error -> throw response.exception
+                        is NetworkResult.Success -> currentRevision = response.data.revision
+                    }
                 }
             }
         }.await()

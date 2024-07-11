@@ -99,7 +99,7 @@ fun MainScreen(viewModel: MainScreenViewModel, navigate: (String?) -> Unit) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val onFetchErrorClick = {
-        viewModel.fetchData()
+        viewModel.fetchData(true)
         viewModel.errorProcessed()
     }
     val fetchingErrorMessage = stringResource(R.string.fetching_error)

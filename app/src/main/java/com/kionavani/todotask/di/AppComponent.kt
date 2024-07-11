@@ -17,17 +17,17 @@ import javax.inject.Singleton
  * Главный компонент приложения для инжектирования
  */
 @Singleton
-@Component(modules = [NetworkModule::class, RepositoryModule::class, ResourcesProviderModule::class, ViewModelModule::class])
+@Component(modules = [
+    NetworkModule::class,
+    RepositoryModule::class,
+    ResourcesProviderModule::class,
+    ViewModelModule::class,
+    PersistencyModule::class
+])
 interface AppComponent {
     fun inject(activity: MainActivity)
 
     fun inject(worker: DataFetchWorker)
-
-    @Provides
-    @Singleton
-    fun provideDataStore(context: Context): DataStore<Preferences> {
-        return context.dataStore
-    }
 
     @Component.Builder
     interface Builder {

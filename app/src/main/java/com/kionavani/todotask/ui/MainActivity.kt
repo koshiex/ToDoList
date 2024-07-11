@@ -66,17 +66,9 @@ class MainActivity : ComponentActivity() {
 
     private fun startCoroutines() {
         lifecycleScope.launch {
-            networkMonitor.isConnected.collect { haveConnection ->
-                if (haveConnection) {
-                    addViewModel.dataChanged.collect { isChanged ->
-                        mainViewModel.changeLoadingState()
-                        if (!isChanged) mainViewModel.fetchData()
-                    }
-                } else {
-                    mainViewModel.changeLoadingState()
-                }
-            }
+            mainViewModel.fetchData()
         }
+
         lifecycleScope.launch {
             addViewModel.isErrorHappened.collect {
                 if (it) mainViewModel.setUpdatingError()

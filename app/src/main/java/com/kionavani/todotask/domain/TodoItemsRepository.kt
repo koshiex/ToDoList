@@ -23,4 +23,6 @@ interface TodoItemsRepository {
     suspend fun getTaskById(itemId: String): ToDoItem?
 
     suspend fun getNextId(): String
+
+    suspend fun changeNetworkStatus(isOnline: Boolean)
 }
