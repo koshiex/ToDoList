@@ -127,16 +127,16 @@ fun MainScreen(viewModel: MainScreenViewModel, navigate: (String?) -> Unit) {
     }
 
 
-
-
-    Scaffold(modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+    Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 scrollBehavior, isCollapsing, completedCount, isFiltering, changeFiltering
             )
         },
         snackbarHost = { CustomSnackbarHost(snackbarHostState) },
-        floatingActionButton = { AddTaskFab(navigate) }) { paddingValues ->
+        floatingActionButton = { AddTaskFab(navigate) }
+    ) { paddingValues ->
         MainScreenContent(
             tasks = tasks,
             paddingValues = paddingValues,
@@ -147,7 +147,6 @@ fun MainScreen(viewModel: MainScreenViewModel, navigate: (String?) -> Unit) {
                 )
             },
         )
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -243,41 +242,42 @@ fun TopAppBar(
     )
 
 
-    LargeTopAppBar(title = {
-        Column(
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.Start,
-            modifier = Modifier
-                .wrapContentSize()
-                .padding(
-                    start = animatedStartPadding, top = animatedTopPadding
-                )
-                .animateContentSize()
+    LargeTopAppBar(
+        title = {
+            Column(
+                verticalArrangement = Arrangement.Bottom,
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier
+                    .wrapContentSize()
+                    .padding(
+                        start = animatedStartPadding, top = animatedTopPadding
+                    )
+                    .animateContentSize()
 
-        ) {
-            Text(
-                text = stringResource(R.string.my_tasks_title),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    color = ToDoTaskTheme.colorScheme.labelPrimary
-                )
-            )
-            AnimatedVisibility(
-                visible = !isCollapsed,
-                enter = fadeIn(animationSpec = tween(durationMillis = 100)),
-                exit = fadeOut(spring(stiffness = Spring.StiffnessLow))
             ) {
                 Text(
-                    modifier = Modifier
-                        .alpha(0.8f)
-                        .padding(top = 8.dp),
-                    text = stringResource(R.string.completed_task_title) + " - $completedCount",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = ToDoTaskTheme.colorScheme.labelTertiary
-                    ),
+                    text = stringResource(R.string.my_tasks_title),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        color = ToDoTaskTheme.colorScheme.labelPrimary
+                    )
                 )
+                AnimatedVisibility(
+                    visible = !isCollapsed,
+                    enter = fadeIn(animationSpec = tween(durationMillis = 100)),
+                    exit = fadeOut(spring(stiffness = Spring.StiffnessLow))
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .alpha(0.8f)
+                            .padding(top = 8.dp),
+                        text = stringResource(R.string.completed_task_title) + " - $completedCount",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = ToDoTaskTheme.colorScheme.labelTertiary
+                        ),
+                    )
+                }
             }
-        }
-    },
+        },
         actions = { FilteringIcon(isFiltering, changeFiltering) },
         scrollBehavior = scrollBehavior,
         colors = TopAppBarDefaults.largeTopAppBarColors(

@@ -94,4 +94,7 @@ dependencies {
     implementation(libs.dagger)
     ksp(libs.dagger.compiler)
 
+    ksp(libs.room.compiler)
+    implementation(libs.room.ktx)
+    implementation(libs.room.runtime)
 }

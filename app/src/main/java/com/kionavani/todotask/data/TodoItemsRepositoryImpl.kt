@@ -1,6 +1,7 @@
 package com.kionavani.todotask.data
 
 import android.util.Log
+import com.kionavani.todotask.data.database.AppDatabase
 import com.kionavani.todotask.data.remote.NetworkResult
 import com.kionavani.todotask.data.remote.TasksService
 import com.kionavani.todotask.data.remote.dto.ResponseDto
@@ -19,6 +20,7 @@ import kotlinx.coroutines.withContext
  */
 class TodoItemsRepositoryImpl(
     private val networkService: TasksService,
+    private val database: AppDatabase,
     private val tasksMapper: TasksMapper,
     private val coroutineScope: CoroutineScope,
     private val dispatcher: CoroutineDispatcher
