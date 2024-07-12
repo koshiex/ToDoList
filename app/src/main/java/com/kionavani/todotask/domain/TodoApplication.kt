@@ -1,11 +1,20 @@
 package com.kionavani.todotask.domain
 
 import android.app.Application
-import com.kionavani.todotask.data.TodoItemsRepository
-import com.kionavani.todotask.ui.ResourcesProvider
+import com.kionavani.todotask.di.AppComponent
+import com.kionavani.todotask.di.DaggerAppComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 
+/**
+ * Класс приложения... приложения
+ */
 class TodoApplication : Application() {
-    val resourcesProvider by lazy { ResourcesProvider(this) }
-    val todoItemsRepository by lazy { TodoItemsRepository() }
+    val appComponent: AppComponent by lazy { setupDi() }
+    private val mainScope: CoroutineScope by lazy { CoroutineScope(SupervisorJob()) }
 
+    private fun setupDi() = DaggerAppComponent.builder()
+        .context(this)
+        .mainScope(mainScope)
+        .build()
 }

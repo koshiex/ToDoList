@@ -7,36 +7,36 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
-import com.kionavani.todotask.data.TodoItemsRepository
-import com.kionavani.todotask.ui.composable.AddTaskScreen
-import com.kionavani.todotask.ui.composable.AddTaskScreenNav
-import com.kionavani.todotask.ui.composable.MainScreen
-import com.kionavani.todotask.ui.composable.MainScreenNav
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import com.kionavani.todotask.R
+import com.kionavani.todotask.ui.ResourcesProvider
 import com.kionavani.todotask.ui.composable.SetupUI
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
-import com.kionavani.todotask.ui.viewmodels.TodoViewModel
-import com.kionavani.todotask.ui.viewmodels.TodoViewModelFactory
+import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
+import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
+import com.kionavani.todotask.ui.viewmodels.ViewModelFactory
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-val LocalNavController = compositionLocalOf<NavController> { error("No NavController provided") }
-
+/**
+ * Главное активити приложения
+ */
 class MainActivity : ComponentActivity() {
-    private val repository by lazy { setupRepository() }
-    private val provider by lazy { setupProvider() }
-    private val viewModelFactory by lazy { TodoViewModelFactory(repository, provider) }
-    private val viewModel: TodoViewModel by viewModels { viewModelFactory }
+    private lateinit var provider: ResourcesProvider
+    private lateinit var viewModelFactory: ViewModelProvider.Factory
+    private lateinit var networkMonitor: NetworkMonitor
+
+    private val mainViewModel by viewModels<MainScreenViewModel> { viewModelFactory }
+    private val addViewModel by viewModels<AddTaskViewModel> { viewModelFactory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -47,32 +47,77 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
 
+        (this.application as TodoApplication).appComponent.inject(this)
+
+        networkMonitor.startMonitoring()
+        setupWorker()
         provider.attachActivityContext(this)
+        startCoroutines()
 
         setContent {
             ToDoTaskTheme(dynamicColor = false) {
-                SetupUI(viewModel)
-            }
-        }
-
-        lifecycleScope.launch {
-            viewModel.errorFlow.collect { errorMessage ->
-                Toast.makeText(this@MainActivity, errorMessage, Toast.LENGTH_SHORT).show()
+                SetupUI(viewModelFactory)
             }
         }
     }
 
     override fun onDestroy() {
         provider.detachActivityContext()
+        networkMonitor.stopMonitoring()
         super.onDestroy()
     }
 
-    private fun createViewModel() : TodoViewModel {
-        val viewModelFactory = TodoViewModelFactory(TodoItemsRepository(), provider)
-        return ViewModelProvider(this, viewModelFactory) [TodoViewModel::class.java]
+    private fun startCoroutines() {
+        lifecycleScope.launch {
+            networkMonitor.isConnected.collect { haveConnection ->
+                if (haveConnection) {
+                    addViewModel.dataChanged.collect { isChanged ->
+                        mainViewModel.changeLoadingState()
+                        if (!isChanged) mainViewModel.fetchData()
+                    }
+                } else {
+                    mainViewModel.changeLoadingState()
+                }
+            }
+        }
+        lifecycleScope.launch {
+            addViewModel.isErrorHappened.collect {
+                if (it) mainViewModel.setUpdatingError()
+            }
+        }
     }
-    private fun setupProvider() = (this.application as TodoApplication).resourcesProvider
-    private fun setupRepository() = (this.application as TodoApplication).todoItemsRepository
+
+    private fun setupWorker() {
+        val fetchWork = PeriodicWorkRequestBuilder<DataFetchWorker>(8, TimeUnit.HOURS)
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
+            )
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "DataFetchWork",
+            ExistingPeriodicWorkPolicy.REPLACE,
+            fetchWork
+        )
+
+    }
+
+    @Inject
+    fun setProvider(provider: ResourcesProvider) {
+        this.provider = provider
+    }
+
+    @Inject
+    fun setMonitor(monitor: NetworkMonitor) {
+        networkMonitor = monitor
+    }
+
+    @Inject
+    fun setFactory(factory: ViewModelFactory) {
+        viewModelFactory = factory
+    }
 }
 
 

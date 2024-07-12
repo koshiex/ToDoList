@@ -16,6 +16,11 @@
   <string name="switch_deadline_descr">Сделать до</string>
   <string name="deadline_selector">Выберитe дату</string>
   <string name="delete_button">Удалить</string>
+  <string name="smth_error">Что-то пошло не так…</string>
+  <string name="fetching_error">Произошла ошибка при получении данных</string>
+  <string name="updating_error">Произошла ошибка при обновлении данных</string>
+  <string name="retry">Повторить</string>
+
 
   <string name="high_importance_emoji">&#10071;</string>
   <string name="low_importance_emoji">&#128164;</string>

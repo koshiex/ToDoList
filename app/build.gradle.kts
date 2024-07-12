@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -19,6 +20,15 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        val clientId: String = project.findProperty("YANDEX_CLIENT_ID") as String
+        manifestPlaceholders["YANDEX_CLIENT_ID"] = clientId
+
+        val baseUrl: String = project.findProperty("BASE_URL") as String
+        buildConfigField("String", "BASE_URL", baseUrl)
+
+        val oAuthToken: String = project.findProperty("OAUTH_TOKEN") as String
+        buildConfigField("String", "OAUTH_TOKEN", oAuthToken)
     }
 
     buildTypes {
@@ -38,6 +48,7 @@ android {
         jvmTarget = "1.8"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     composeOptions {
@@ -67,7 +78,20 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.work.runtime)
 
     implementation(libs.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
+
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.serialization)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+
+    implementation(libs.dagger)
+    ksp(libs.dagger.compiler)
+
 }

@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:tools="http://schemas.android.com/tools">
 
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <uses-permission android:name="android.permission.INTERNET"/>
+
   <application
     android:allowBackup="true"
     android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,6 +16,11 @@
     android:theme="@style/Theme.ToDoTask"
     android:name=".domain.TodoApplication"
     tools:targetApi="31">
+
+    <meta-data
+      android:name="YANDEX_CLIENT_ID"
+      android:value="${YANDEX_CLIENT_ID}" />
+
     <activity
       android:exported="true"
       android:windowSoftInputMode="adjustResize"
