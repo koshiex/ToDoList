@@ -4,7 +4,7 @@ import android.content.Context
 import com.kionavani.todotask.data.remote.TasksService
 import com.kionavani.todotask.data.remote.TasksServiceImpl
 import com.kionavani.todotask.data.remote.createHttpClient
-import com.kionavani.todotask.data.NetworkMonitor
+import com.kionavani.todotask.ui.NetworkMonitor
 import com.kionavani.todotask.di.AppScope
 import dagger.Module
 import dagger.Provides

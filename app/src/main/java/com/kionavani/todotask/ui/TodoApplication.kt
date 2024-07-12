@@ -11,7 +11,6 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.kionavani.todotask.data.DataStoreContract
-import com.kionavani.todotask.data.remote.DataFetchWorker
 import com.kionavani.todotask.di.appComponent.AppComponent
 import com.kionavani.todotask.di.appComponent.DaggerAppComponent
 import com.kionavani.todotask.di.screensComponent.ScreenComponent
