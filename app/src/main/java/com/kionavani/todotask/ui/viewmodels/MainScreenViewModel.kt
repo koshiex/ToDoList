@@ -49,24 +49,39 @@ class MainScreenViewModel @Inject constructor(
     val errorFlow = _errorFlow.asStateFlow()
 
     private val exceptionHandler = CoroutineExceptionHandler { _, _ ->
+        viewModelScope.launch {
             _errorFlow.value = FetchingError()
+            needToFetch = true
+            changeLoadingState()
+        }
     }
 
-    private var isInitedOnce = false
+    private var needToFetch = true
 
     init {
         viewModelScope.launch(exceptionHandler) {
-            _todoItems.collectLatest {
-                updateCompletedCount(it)
+            launch {
+                _todoItems.collectLatest {
+                    updateCompletedCount(it)
+                }
             }
-            networkMonitor.isConnected.collectLatest {
-                repository.changeNetworkStatus(it)
+            launch {
+                networkMonitor.isConnected.collectLatest {
+                    repository.changeNetworkStatus(it)
+                }
             }
         }
     }
 
     fun changeLoadingState() {
         _isDataLoading.value = !_isDataLoading.value
+    }
+
+    fun continueOffline() {
+        viewModelScope.launch(exceptionHandler) {
+            repository.changeNetworkStatus(false)
+            fetchData()
+        }
     }
 
     fun errorProcessed() {
@@ -78,8 +93,8 @@ class MainScreenViewModel @Inject constructor(
     }
 
     fun fetchData() {
-        if (!isInitedOnce) {
-            isInitedOnce = true
+        if (needToFetch) {
+            needToFetch = false
             changeLoadingState()
             viewModelScope.launch(exceptionHandler) {
                 repository.fetchData()

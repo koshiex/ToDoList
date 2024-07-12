@@ -27,7 +27,8 @@ class DataFetchWorker @AssistedInject constructor(
             val haveConnection = networkMonitor.isConnected.first()
             networkMonitor.stopMonitoring()
 
-            repository.fetchData(haveConnection)
+            repository.changeNetworkStatus(haveConnection)
+            repository.fetchData()
             Result.success()
         } catch (e: Exception) {
             Result.retry()

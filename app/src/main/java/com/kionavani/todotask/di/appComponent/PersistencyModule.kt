@@ -1,21 +1,20 @@
-package com.kionavani.todotask.di
+package com.kionavani.todotask.di.appComponent
 
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.room.Room
 import com.kionavani.todotask.data.database.AppDatabase
-import com.kionavani.todotask.data.database.Converters
 import com.kionavani.todotask.data.database.TasksDbContract
+import com.kionavani.todotask.di.AppScope
 import com.kionavani.todotask.ui.dataStore
 import dagger.Module
 import dagger.Provides
-import javax.inject.Singleton
 
 @Module
 class PersistencyModule {
     @Provides
-    @Singleton
+    @AppScope
     fun provideRoomDatabase(context: Context): AppDatabase {
         return Room.databaseBuilder(
             context = context,
@@ -25,7 +24,7 @@ class PersistencyModule {
     }
 
     @Provides
-    @Singleton
+    @AppScope
     fun provideDataStore(context: Context): DataStore<Preferences> {
         return context.dataStore
     }

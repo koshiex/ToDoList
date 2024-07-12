@@ -1,5 +1,6 @@
 package com.kionavani.todotask.data
 
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 /**
  * Имплементация репозитория для работы с данными
@@ -45,7 +47,7 @@ class TodoItemsRepositoryImpl(
         }
     }
 
-    private val currentRevisionFlow: Flow<Int> = dataStore.data
+    private val localRevisionFlow: Flow<Int> = dataStore.data
         .map { preferences ->
             preferences[REVISION_KEY] ?: 0
         }
@@ -56,20 +58,24 @@ class TodoItemsRepositoryImpl(
 
     override suspend fun fetchData() {
         withContext(dispatcher) {
-            currentRevision = currentRevisionFlow.first()
+            currentRevision = localRevisionFlow.first()
             val localTasks = tasksMapper.fromDatabaseList(database.tasksDao().getAll())
+            Log.i("Fetching", "local - $currentRevision")
 
-            if (currentRevision == 0 && localTasks.isEmpty() && isOnline) {
-                processFirstLaunch()
+            if (isOnline && currentRevision == 0 && localTasks.isEmpty()) {
+                getFromServerOnly()
+                Log.i("Fetching", "Server only")
             } else if (isOnline) {
                 fetchAndSyncData(localTasks)
+                Log.i("Fetching", "Syncing data")
             } else {
                 _todoItems.value = localTasks
+                Log.i("Fetching", "Db only")
             }
         }
     }
 
-    private suspend fun processFirstLaunch() {
+    private suspend fun getFromServerOnly() {
         when (val response = networkService.getList()) {
             is NetworkResult.Error -> throw response.exception
             is NetworkResult.Success -> {
@@ -88,11 +94,19 @@ class TodoItemsRepositoryImpl(
             is NetworkResult.Error -> throw response.exception
             is NetworkResult.Success -> {
                 val serverRevision = response.data.revision
+                Log.i("Fetching", "$serverRevision")
 
                 if (serverRevision == currentRevision) {
+                    Log.i("Fetching", "Revision not changed")
                     _todoItems.value = localTasks
-                } else {
                     syncLocalChangesWithServer(localTasks)
+                } else {
+                    val mappedList = tasksMapper.fromNetworkList(response.data)
+                    _todoItems.value = mappedList
+                    database.tasksDao().updateTasks(tasksMapper.toDatabaseList(mappedList))
+                    Log.i("Fetching", "Revisions changed")
+                    currentRevision = serverRevision
+                    saveCurrentRevision(currentRevision)
                 }
             }
         }
@@ -107,10 +121,12 @@ class TodoItemsRepositoryImpl(
                 is NetworkResult.Error -> throw patchResponse.exception
                 is NetworkResult.Success -> {
                     val updatedTasks = tasksMapper.fromNetworkList(patchResponse.data)
-                    currentRevision = patchResponse.data.revision
-                    saveCurrentRevision(currentRevision)
+
                     database.tasksDao().updateTasks(tasksMapper.toDatabaseList(updatedTasks))
                     _todoItems.value = updatedTasks
+
+                    currentRevision = patchResponse.data.revision
+                    saveCurrentRevision(currentRevision)
                 }
             }
         }.await()
@@ -210,11 +226,7 @@ class TodoItemsRepositoryImpl(
 
 
     override suspend fun getNextId(): String = withContext(dispatcher) {
-        if (_todoItems.value.isNotEmpty()) {
-            (_todoItems.value.last().id.toInt() + 1).toString()
-        } else {
-            "0"
-        }
+        UUID.randomUUID().toString()
     }
 }
 

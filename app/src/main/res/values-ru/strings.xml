@@ -24,6 +24,7 @@
 
   <string name="high_importance_emoji">&#10071;</string>
   <string name="low_importance_emoji">&#128164;</string>
+  <string name="offline_mode">Продолжить оффлайн</string>
 
 </resources>
 

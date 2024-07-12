@@ -28,9 +28,12 @@ import javax.inject.Inject
  * Главное активити приложения
  */
 class MainActivity : ComponentActivity() {
-    private lateinit var provider: ResourcesProvider
-    private lateinit var viewModelFactory: ViewModelProvider.Factory
-    private lateinit var networkMonitor: NetworkMonitor
+    @Inject
+    lateinit var provider: ResourcesProvider
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    @Inject
+    lateinit var networkMonitor: NetworkMonitor
 
     private val mainViewModel by viewModels<MainScreenViewModel> { viewModelFactory }
     private val addViewModel by viewModels<AddTaskViewModel> { viewModelFactory }
@@ -44,10 +47,9 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
 
-        (this.application as TodoApplication).appComponent.inject(this)
+        (this.application as TodoApplication).screenComponent.inject(this)
 
         networkMonitor.startMonitoring()
-        setupWorker()
         provider.attachActivityContext(this)
         startCoroutines()
 
@@ -74,37 +76,6 @@ class MainActivity : ComponentActivity() {
                 if (it) mainViewModel.setUpdatingError()
             }
         }
-    }
-
-    private fun setupWorker() {
-        val fetchWork = PeriodicWorkRequestBuilder<DataFetchWorker>(8, TimeUnit.HOURS)
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .build()
-            )
-            .build()
-
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            "DataFetchWork",
-            ExistingPeriodicWorkPolicy.REPLACE,
-            fetchWork
-        )
-    }
-
-    @Inject
-    fun setProvider(provider: ResourcesProvider) {
-        this.provider = provider
-    }
-
-    @Inject
-    fun setMonitor(monitor: NetworkMonitor) {
-        networkMonitor = monitor
-    }
-
-    @Inject
-    fun setFactory(factory: ViewModelFactory) {
-        viewModelFactory = factory
     }
 }
 

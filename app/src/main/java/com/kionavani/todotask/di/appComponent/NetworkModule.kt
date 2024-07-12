@@ -1,14 +1,14 @@
-package com.kionavani.todotask.di
+package com.kionavani.todotask.di.appComponent
 
 import android.content.Context
 import com.kionavani.todotask.data.remote.TasksService
 import com.kionavani.todotask.data.remote.TasksServiceImpl
 import com.kionavani.todotask.data.remote.createHttpClient
 import com.kionavani.todotask.data.NetworkMonitor
+import com.kionavani.todotask.di.AppScope
 import dagger.Module
 import dagger.Provides
 import io.ktor.client.HttpClient
-import javax.inject.Singleton
 
 /**
  * Модуль для инжектирования всей сетевой части
@@ -16,20 +16,20 @@ import javax.inject.Singleton
 @Module
 class NetworkModule {
     @Provides
-    @Singleton
+    @AppScope
     fun provideHttpClient(): HttpClient {
         return createHttpClient()
     }
 
 
     @Provides
-    @Singleton
+    @AppScope
     fun provideTasksService(client: HttpClient): TasksService {
         return TasksServiceImpl(client)
     }
 
     @Provides
-    @Singleton
+    @AppScope
     fun provideNetworkMonitor(context: Context) : NetworkMonitor {
         return NetworkMonitor(context)
     }

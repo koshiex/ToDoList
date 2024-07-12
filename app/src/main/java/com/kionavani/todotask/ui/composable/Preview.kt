@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.kionavani.todotask.data.NetworkMonitor
 import com.kionavani.todotask.domain.ToDoItem
 import com.kionavani.todotask.domain.TodoItemsRepository
 import com.kionavani.todotask.ui.ResourcesProvider
@@ -18,19 +19,22 @@ import kotlinx.coroutines.flow.StateFlow
 
 private class MockTodoItemsRepository : TodoItemsRepository {
     override val todoItems: StateFlow<List<ToDoItem>> = MutableStateFlow(emptyList())
-    override suspend fun fetchData(withNetwork: Boolean) {}
-
+    override suspend fun fetchData() {}
     override suspend fun addTodoItem(item: ToDoItem) {}
     override suspend fun updateTodoItem(newItem: ToDoItem) {}
     override suspend fun deleteTodoItem(itemId: String) {}
     override suspend fun toggleTaskCompletion(itemId: String, isCompleted: Boolean) {}
     override suspend fun getTaskById(itemId: String): ToDoItem? = null
     override suspend fun getNextId(): String = "null"
+    override suspend fun changeNetworkStatus(isOnline: Boolean) {}
 }
 
 @Composable
 private fun createMainScreenViewModel(): MainScreenViewModel {
-    return MainScreenViewModel(MockTodoItemsRepository(), ResourcesProvider(LocalContext.current)
+    return MainScreenViewModel(
+        MockTodoItemsRepository(),
+        ResourcesProvider(LocalContext.current),
+        NetworkMonitor(LocalContext.current)
     )
 }
 

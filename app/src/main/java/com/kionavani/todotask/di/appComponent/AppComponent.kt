@@ -1,33 +1,28 @@
-package com.kionavani.todotask.di
+package com.kionavani.todotask.di.appComponent
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import com.kionavani.todotask.data.DataStoreContract
 import com.kionavani.todotask.data.remote.DataFetchWorker
-import com.kionavani.todotask.ui.MainActivity
-import com.kionavani.todotask.ui.dataStore
+import com.kionavani.todotask.di.AppScope
+import com.kionavani.todotask.di.screensComponent.ScreenComponent
+import com.kionavani.todotask.di.screensComponent.ViewModelModule
 import dagger.BindsInstance
 import dagger.Component
-import dagger.Provides
 import kotlinx.coroutines.CoroutineScope
-import javax.inject.Singleton
 
 /**
  * Главный компонент приложения для инжектирования
  */
-@Singleton
+@AppScope
 @Component(modules = [
     NetworkModule::class,
     RepositoryModule::class,
     ResourcesProviderModule::class,
-    ViewModelModule::class,
     PersistencyModule::class
 ])
 interface AppComponent {
-    fun inject(activity: MainActivity)
-
     fun inject(worker: DataFetchWorker)
+
+    fun screenComponent(): ScreenComponent.Factory
 
     @Component.Builder
     interface Builder {

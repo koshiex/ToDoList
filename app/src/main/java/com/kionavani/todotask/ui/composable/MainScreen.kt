@@ -99,8 +99,11 @@ fun MainScreen(viewModel: MainScreenViewModel, navigate: (String?) -> Unit) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val onFetchErrorClick = {
-        viewModel.fetchData(true)
+        viewModel.fetchData()
         viewModel.errorProcessed()
+    }
+    val onDismissClick = {
+        viewModel.continueOffline()
     }
     val fetchingErrorMessage = stringResource(R.string.fetching_error)
     val updatingErrorMessage = stringResource(R.string.updating_error)
@@ -111,10 +114,11 @@ fun MainScreen(viewModel: MainScreenViewModel, navigate: (String?) -> Unit) {
             is FetchingError -> showSnackBar(
                 scope = scope,
                 snackbarHostState = snackbarHostState,
-                onClick = onFetchErrorClick,
+                onActionClick = onFetchErrorClick,
                 message = fetchingErrorMessage,
                 duration = SnackbarDuration.Indefinite,
-                onActionMessage = retryStr
+                onActionMessage = retryStr,
+                onDismissClick = onDismissClick,
             )
 
             is UpdatingError -> showSnackBar(
@@ -134,7 +138,7 @@ fun MainScreen(viewModel: MainScreenViewModel, navigate: (String?) -> Unit) {
                 scrollBehavior, isCollapsing, completedCount, isFiltering, changeFiltering
             )
         },
-        snackbarHost = { CustomSnackbarHost(snackbarHostState) },
+        snackbarHost = { CustomSnackbarHost(snackbarHostState, stringResource(R.string.offline_mode)) },
         floatingActionButton = { AddTaskFab(navigate) }
     ) { paddingValues ->
         MainScreenContent(
@@ -172,13 +176,14 @@ fun IndeterminateCircularIndicator(isLoading: Boolean) {
 }
 
 @Composable
-fun CustomSnackbarHost(snackbarHostState: SnackbarHostState) {
+fun CustomSnackbarHost(snackbarHostState: SnackbarHostState, dismissMassage: String = "") {
     SnackbarHost(hostState = snackbarHostState) {
         CustomSnackbar(
             snackbarData = it,
             containerColor = ToDoTaskTheme.colorScheme.colorRed,
             contentColor = ToDoTaskTheme.colorScheme.colorWhite,
-            actionColor = ToDoTaskTheme.colorScheme.colorWhite
+            actionColor = ToDoTaskTheme.colorScheme.colorWhite,
+            dismissMessage = dismissMassage
         )
     }
 }
