@@ -1,6 +1,7 @@
 package com.kionavani.todotask.ui
 
 import android.content.Context
+import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.kionavani.todotask.domain.TodoItemsRepository
@@ -25,6 +26,7 @@ class DataFetchWorker (
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
+            (applicationContext as TodoApplication).appComponent.inject(this@DataFetchWorker)
             networkMonitor.startMonitoring()
             val haveConnection = networkMonitor.isConnected.first()
             networkMonitor.stopMonitoring()
@@ -33,6 +35,7 @@ class DataFetchWorker (
             repository.fetchData()
             Result.success()
         } catch (e: Exception) {
+            Log.e("Worker", e.message!!)
             Result.retry()
         }
     }

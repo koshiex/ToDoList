@@ -60,17 +60,13 @@ class TodoItemsRepositoryImpl(
         withContext(dispatcher) {
             currentRevision = localRevisionFlow.first()
             val localTasks = tasksMapper.fromDatabaseList(database.tasksDao().getAll())
-            Log.i("Fetching", "local - $currentRevision")
 
             if (isOnline && currentRevision == 0 && localTasks.isEmpty()) {
                 getFromServerOnly()
-                Log.i("Fetching", "Server only")
             } else if (isOnline) {
                 fetchAndSyncData(localTasks)
-                Log.i("Fetching", "Syncing data")
             } else {
                 _todoItems.value = localTasks
-                Log.i("Fetching", "Db only")
             }
         }
     }
@@ -94,17 +90,14 @@ class TodoItemsRepositoryImpl(
             is NetworkResult.Error -> throw response.exception
             is NetworkResult.Success -> {
                 val serverRevision = response.data.revision
-                Log.i("Fetching", "$serverRevision")
 
                 if (serverRevision == currentRevision) {
-                    Log.i("Fetching", "Revision not changed")
                     _todoItems.value = localTasks
                     syncLocalChangesWithServer(localTasks)
                 } else {
                     val mappedList = tasksMapper.fromNetworkList(response.data)
                     _todoItems.value = mappedList
                     database.tasksDao().updateTasks(tasksMapper.toDatabaseList(mappedList))
-                    Log.i("Fetching", "Revisions changed")
                     currentRevision = serverRevision
                     saveCurrentRevision(currentRevision)
                 }
