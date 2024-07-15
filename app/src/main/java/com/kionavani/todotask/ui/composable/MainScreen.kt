@@ -1,5 +1,13 @@
 package com.kionavani.todotask.ui.composable
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,8 +20,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -21,18 +31,24 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -40,24 +56,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
+import androidx.compose.ui.zIndex
 import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
-import com.kionavani.todotask.data.ToDoItem
+import com.kionavani.todotask.domain.ToDoItem
 import com.kionavani.todotask.ui.ErrorState.FetchingError
 import com.kionavani.todotask.ui.ErrorState.UpdatingError
 import com.kionavani.todotask.ui.Util
+import com.kionavani.todotask.ui.theme.ToDoTaskTheme
 import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
 
 /**
  * UI главного экрана для отображения списка тасок
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(viewModel: MainScreenViewModel, navigate: (String?) -> Unit) {
     val tasks by viewModel.todoItems.collectAsState()
@@ -66,11 +86,24 @@ fun MainScreen(viewModel: MainScreenViewModel, navigate: (String?) -> Unit) {
     val errorState by viewModel.errorFlow.collectAsState()
     val loadingState by viewModel.isDataLoading.collectAsState()
 
+    val scrollBehavior =
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    val changeFiltering = { viewModel.changeFiltering() }
+    val isCollapsing: Boolean by remember {
+        derivedStateOf {
+            scrollBehavior.state.collapsedFraction == 1f
+        }
+    }
+
+
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val onFetchErrorClick = {
         viewModel.fetchData()
         viewModel.errorProcessed()
+    }
+    val onDismissClick = {
+        viewModel.continueOffline()
     }
     val fetchingErrorMessage = stringResource(R.string.fetching_error)
     val updatingErrorMessage = stringResource(R.string.updating_error)
@@ -81,10 +114,11 @@ fun MainScreen(viewModel: MainScreenViewModel, navigate: (String?) -> Unit) {
             is FetchingError -> showSnackBar(
                 scope = scope,
                 snackbarHostState = snackbarHostState,
-                onClick = onFetchErrorClick,
+                onActionClick = onFetchErrorClick,
                 message = fetchingErrorMessage,
                 duration = SnackbarDuration.Indefinite,
-                onActionMessage = retryStr
+                onActionMessage = retryStr,
+                onDismissClick = onDismissClick,
             )
 
             is UpdatingError -> showSnackBar(
@@ -96,31 +130,37 @@ fun MainScreen(viewModel: MainScreenViewModel, navigate: (String?) -> Unit) {
         }
     }
 
+
     Scaffold(
-        snackbarHost = { CustomSnackbarHost(snackbarHostState) },
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            TopAppBar(
+                scrollBehavior, isCollapsing, completedCount, isFiltering, changeFiltering
+            )
+        },
+        snackbarHost = { CustomSnackbarHost(snackbarHostState, stringResource(R.string.offline_mode)) },
         floatingActionButton = { AddTaskFab(navigate) }
     ) { paddingValues ->
+        MainScreenContent(
+            tasks = tasks,
+            paddingValues = paddingValues,
+            navigate = navigate,
+            changeTaskState = { id, completed ->
+                viewModel.toggleTaskCompletion(
+                    id, completed
+                )
+            },
+        )
         Box(
-            contentAlignment = Alignment.TopCenter
+            modifier = Modifier
+                .fillMaxWidth()
+                .zIndex(1f), contentAlignment = Alignment.TopCenter
         ) {
-            MainScreenContent(
-                tasks = tasks,
-                completedCount = completedCount,
-                isFiltering = isFiltering,
-                paddingValues = paddingValues,
-                changeFiltering = { viewModel.changeFiltering() },
-                changeTaskState = { id, completed ->
-                    viewModel.toggleTaskCompletion(
-                        id,
-                        completed
-                    )
-                },
-                navigate
-            )
-            IndeterminateCircularIndicator(isLoading = loadingState)
+            IndeterminateCircularIndicator(loadingState)
         }
     }
 }
+
 
 @Composable
 fun IndeterminateCircularIndicator(isLoading: Boolean) {
@@ -130,32 +170,31 @@ fun IndeterminateCircularIndicator(isLoading: Boolean) {
         modifier = Modifier
             .width(32.dp)
             .padding(top = 60.dp),
-        color = MaterialTheme.colorScheme.inverseOnSurface,
-        trackColor = MaterialTheme.colorScheme.outline,
+        color = ToDoTaskTheme.colorScheme.colorBlue,
+        trackColor = ToDoTaskTheme.colorScheme.supportSeparator,
     )
 }
 
 @Composable
-fun CustomSnackbarHost(snackbarHostState: SnackbarHostState) {
+fun CustomSnackbarHost(snackbarHostState: SnackbarHostState, dismissMassage: String = "") {
     SnackbarHost(hostState = snackbarHostState) {
         CustomSnackbar(
             snackbarData = it,
-            containerColor = MaterialTheme.colorScheme.error,
-            contentColor = MaterialTheme.colorScheme.onError,
-            actionColor = MaterialTheme.colorScheme.onError
+            containerColor = ToDoTaskTheme.colorScheme.colorRed,
+            contentColor = ToDoTaskTheme.colorScheme.colorWhite,
+            actionColor = ToDoTaskTheme.colorScheme.colorWhite,
+            dismissMessage = dismissMassage
         )
     }
 }
 
 @Composable
 fun AddTaskFab(navigate: (String?) -> Unit) {
-    FloatingActionButton(
-        modifier = Modifier.padding(end = 12.dp, bottom = 24.dp),
+    FloatingActionButton(modifier = Modifier.padding(end = 12.dp, bottom = 24.dp),
         shape = CircleShape,
-        containerColor = MaterialTheme.colorScheme.inverseOnSurface,
-        contentColor = Color.White,
-        onClick = { navigate(null) }
-    ) {
+        containerColor = ToDoTaskTheme.colorScheme.colorBlue,
+        contentColor = ToDoTaskTheme.colorScheme.colorWhite,
+        onClick = { navigate(null) }) {
         Icon(Icons.Filled.Add, null)
     }
 }
@@ -163,77 +202,121 @@ fun AddTaskFab(navigate: (String?) -> Unit) {
 @Composable
 fun MainScreenContent(
     tasks: List<ToDoItem>,
-    completedCount: Int,
-    isFiltering: Boolean,
     paddingValues: PaddingValues,
-    changeFiltering: () -> Unit,
     changeTaskState: (String, Boolean) -> Unit,
     navigate: (String?) -> Unit
 ) {
     Column(
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.primary)
+            .background(ToDoTaskTheme.colorScheme.backPrimary)
             .fillMaxSize()
             .padding(paddingValues)
     ) {
-        Header(completedCount, isFiltering, changeFiltering)
         TaskList(tasks, changeTaskState, navigate)
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Header(
+fun TopAppBar(
+    scrollBehavior: TopAppBarScrollBehavior,
+    isCollapsed: Boolean,
     completedCount: Int,
     isFiltering: Boolean,
     changeFiltering: () -> Unit
 ) {
-    Text(
-        text = stringResource(R.string.my_tasks_title),
-        style = MaterialTheme.typography.titleLarge.copy(
-            color = MaterialTheme.colorScheme.onPrimary
-        ),
-        modifier = Modifier.padding(top = 50.dp, start = 88.dp)
+    val scrollFraction by remember {
+        derivedStateOf {
+            scrollBehavior.state.collapsedFraction
+        }
+    }
+
+    val animatedStartPadding by animateDpAsState(
+        targetValue = lerp(88.dp, 16.dp, scrollFraction),
+        animationSpec = spring(stiffness = Spring.StiffnessLow)
     )
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(end = 24.dp, start = 88.dp, bottom = 18.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.completed_task_title) + " - $completedCount",
-            style = MaterialTheme.typography.bodyMedium.copy(
-                color = MaterialTheme.colorScheme.onTertiary
-            ),
-            modifier = Modifier.alpha(0.8f)
-        )
+    val animatedTopPadding by animateDpAsState(
+        targetValue = lerp(50.dp, 0.dp, scrollFraction),
+        animationSpec = spring(stiffness = Spring.StiffnessLow)
+    )
 
-        IconButton(onClick = changeFiltering) {
-            Icon(
-                imageVector = if (isFiltering) {
-                    ImageVector.vectorResource(R.drawable.visibility_on_icon)
-                } else {
-                    ImageVector.vectorResource(R.drawable.visibility_off_icon)
-                },
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.inverseOnSurface
-            )
-        }
+    val animatedShadow by animateDpAsState(
+        targetValue = lerp(0.dp, 4.dp, scrollFraction),
+        animationSpec = spring(stiffness = Spring.StiffnessLow)
+    )
+
+
+    LargeTopAppBar(
+        title = {
+            Column(
+                verticalArrangement = Arrangement.Bottom,
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier
+                    .wrapContentSize()
+                    .padding(
+                        start = animatedStartPadding, top = animatedTopPadding
+                    )
+                    .animateContentSize()
+
+            ) {
+                Text(
+                    text = stringResource(R.string.my_tasks_title),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        color = ToDoTaskTheme.colorScheme.labelPrimary
+                    )
+                )
+                AnimatedVisibility(
+                    visible = !isCollapsed,
+                    enter = fadeIn(animationSpec = tween(durationMillis = 100)),
+                    exit = fadeOut(spring(stiffness = Spring.StiffnessLow))
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .alpha(0.8f)
+                            .padding(top = 8.dp),
+                        text = stringResource(R.string.completed_task_title) + " - $completedCount",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = ToDoTaskTheme.colorScheme.labelTertiary
+                        ),
+                    )
+                }
+            }
+        },
+        actions = { FilteringIcon(isFiltering, changeFiltering) },
+        scrollBehavior = scrollBehavior,
+        colors = TopAppBarDefaults.largeTopAppBarColors(
+            containerColor = ToDoTaskTheme.colorScheme.backPrimary,
+            scrolledContainerColor = ToDoTaskTheme.colorScheme.backSecondary,
+        ),
+        modifier = Modifier.shadow(animatedShadow)
+
+    )
+}
+
+@Composable
+fun FilteringIcon(
+    isFiltering: Boolean, changeFiltering: () -> Unit
+) {
+    IconButton(onClick = changeFiltering) {
+        Icon(
+            imageVector = if (isFiltering) {
+                ImageVector.vectorResource(R.drawable.visibility_on_icon)
+            } else {
+                ImageVector.vectorResource(R.drawable.visibility_off_icon)
+            }, contentDescription = null, tint = ToDoTaskTheme.colorScheme.colorBlue
+        )
     }
 }
 
 @Composable
 fun TaskList(
-    tasks: List<ToDoItem>,
-    changeTaskState: (String, Boolean) -> Unit,
-    navigate: (String?) -> Unit
+    tasks: List<ToDoItem>, changeTaskState: (String, Boolean) -> Unit, navigate: (String?) -> Unit
 ) {
     val getDeadlineDate = { item: ToDoItem ->
         item.deadlineDate?.let { Util.dateToString(it) }
     }
+    val listState = rememberLazyListState()
 
     LazyColumn(
         modifier = Modifier
@@ -242,8 +325,8 @@ fun TaskList(
             .wrapContentHeight()
             .shadow(4.dp, shape = RoundedCornerShape(12.dp))
             .background(
-                color = MaterialTheme.colorScheme.secondary, shape = RoundedCornerShape(12.dp)
-            ),
+                color = ToDoTaskTheme.colorScheme.backSecondary, shape = RoundedCornerShape(12.dp)
+            ), state = listState
     ) {
         items(tasks) { task ->
             TaskItem(task, changeTaskState, getDeadlineDate, navigate)
@@ -258,7 +341,7 @@ fun TaskList(
                         navigate(null)
                     },
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onTertiary
+                    color = ToDoTaskTheme.colorScheme.labelTertiary
                 )
             )
         }
@@ -292,20 +375,18 @@ fun TaskItem(
                 Text(
                     text = it,
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onTertiary
+                    color = ToDoTaskTheme.colorScheme.labelTertiary
                 )
             }
         }
-        IconButton(
-            modifier = Modifier
-                .padding(end = 16.dp, top = 12.dp)
-                .alpha(0.6f),
-            onClick = { navigate(item.id) }
-        ) {
+        IconButton(modifier = Modifier
+            .padding(end = 16.dp, top = 12.dp)
+            .alpha(0.6f),
+            onClick = { navigate(item.id) }) {
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.info_icon),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onTertiary
+                tint = ToDoTaskTheme.colorScheme.labelTertiary
             )
         }
     }
@@ -318,21 +399,21 @@ fun ItemDescription(description: String, isCompleted: Boolean) {
         maxLines = 3,
         overflow = TextOverflow.Ellipsis,
         style = MaterialTheme.typography.bodyMedium,
-        color = if (isCompleted) MaterialTheme.colorScheme.onTertiary else MaterialTheme.colorScheme.onPrimary,
+        color = if (isCompleted) ToDoTaskTheme.colorScheme.labelTertiary
+        else ToDoTaskTheme.colorScheme.labelPrimary,
         textDecoration = if (isCompleted) TextDecoration.LineThrough else null
     )
 }
 
 @Composable
 fun ItemCheckbox(item: ToDoItem, changeTaskState: (String, Boolean) -> Unit) {
-    Checkbox(
-        modifier = Modifier.padding(start = 16.dp, top = 12.dp),
+    Checkbox(modifier = Modifier.padding(start = 16.dp, top = 12.dp),
         checked = item.isCompleted,
         colors = CheckboxDefaults.colors(
-            uncheckedColor = if (item.importance == Importance.HIGH) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline,
-            checkedColor = MaterialTheme.colorScheme.inversePrimary,
-            checkmarkColor = MaterialTheme.colorScheme.secondary
+            uncheckedColor = if (item.importance == Importance.HIGH) ToDoTaskTheme.colorScheme.colorRed
+            else ToDoTaskTheme.colorScheme.supportSeparator,
+            checkedColor = ToDoTaskTheme.colorScheme.colorGreen,
+            checkmarkColor = ToDoTaskTheme.colorScheme.backSecondary
         ),
-        onCheckedChange = { changeTaskState(item.id, it) }
-    )
+        onCheckedChange = { changeTaskState(item.id, it) })
 }

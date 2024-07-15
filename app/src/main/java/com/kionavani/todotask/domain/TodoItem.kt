@@ -1,4 +1,6 @@
-package com.kionavani.todotask.data
+package com.kionavani.todotask.domain
+
+import com.kionavani.todotask.data.Importance
 
 /**
  * Модель таски для работы с UI

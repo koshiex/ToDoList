@@ -2,6 +2,7 @@ package com.kionavani.todotask.ui
 
 import android.content.Context
 import androidx.annotation.IdRes
+import androidx.annotation.StringRes
 
 /**
  * Позволяет удобно получить доступ к системным ресурсам
@@ -19,5 +20,5 @@ class ResourcesProvider(
         currentContext = appContext
     }
 
-    fun getString(@IdRes resID: Int): String = currentContext.getString(resID)
+    fun getString(@StringRes resID: Int): String = currentContext.getString(resID)
 }

@@ -3,7 +3,9 @@ package com.kionavani.todotask.ui.composable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -17,8 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.unit.dp
+import com.kionavani.todotask.ui.theme.ToDoTaskTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -30,34 +32,53 @@ import kotlinx.coroutines.launch
 @Composable
 fun CustomSnackbar(
     snackbarData: SnackbarData,
-    containerColor: Color = MaterialTheme.colorScheme.error,
-    contentColor: Color = MaterialTheme.colorScheme.onError,
-    actionColor: Color = MaterialTheme.colorScheme.primary
+    containerColor: Color = ToDoTaskTheme.colorScheme.colorRed,
+    contentColor: Color = ToDoTaskTheme.colorScheme.colorWhite,
+    actionColor: Color = ToDoTaskTheme.colorScheme.backPrimary,
+    dismissMessage: String = "",
 ) {
     Snackbar(
         modifier = Modifier.padding(16.dp),
         actionContentColor = actionColor,
-        containerColor = containerColor
+        containerColor = containerColor,
+        dismissActionContentColor = actionColor,
     ) {
         Column(
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.Start
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = snackbarData.visuals.message,
                 color = contentColor,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            snackbarData.visuals.actionLabel?.let { actionLabel ->
-                Text(
-                    text = actionLabel,
-                    color = actionColor,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.clickable {
-                        snackbarData.performAction()
-                    }
-                )
+
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                snackbarData.visuals.actionLabel?.let { actionLabel ->
+                    Text(
+                        text = actionLabel,
+                        color = actionColor,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.clickable {
+                            snackbarData.performAction()
+                        }
+                    )
+                }
+
+                if (snackbarData.visuals.withDismissAction) {
+                    Text(
+                        text = dismissMessage,
+                        color = actionColor,
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.clickable {
+                            snackbarData.dismiss()
+                        }
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(8.dp))
         }
@@ -70,22 +91,27 @@ fun showSnackBar(
     message: String,
     duration: SnackbarDuration,
     onActionMessage: String? = null,
-    onClick: (() -> Unit?)? = null
+    onActionClick: (() -> Unit?)? = null,
+    onDismissClick: (() -> Unit?)? = null,
 ) {
     scope.launch {
         val result = snackbarHostState
             .showSnackbar(
                 message = message,
                 actionLabel = onActionMessage,
-                duration = duration
+                duration = duration,
+                withDismissAction = onDismissClick != null
             )
         when (result) {
             SnackbarResult.ActionPerformed ->
-                if (onClick != null) {
-                    onClick()
+                if (onActionClick != null) {
+                    onActionClick()
                 }
 
-            SnackbarResult.Dismissed -> Unit
+            SnackbarResult.Dismissed ->
+                if (onDismissClick != null) {
+                    onDismissClick()
+                }
         }
     }
 }

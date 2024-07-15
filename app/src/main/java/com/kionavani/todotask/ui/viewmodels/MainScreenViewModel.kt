@@ -4,7 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
-import com.kionavani.todotask.data.ToDoItem
+import com.kionavani.todotask.ui.NetworkMonitor
+import com.kionavani.todotask.domain.ToDoItem
 import com.kionavani.todotask.domain.TodoItemsRepository
 import com.kionavani.todotask.ui.ErrorState
 import com.kionavani.todotask.ui.ErrorState.*
@@ -21,6 +22,7 @@ import javax.inject.Inject
 class MainScreenViewModel @Inject constructor(
     private val repository: TodoItemsRepository,
     private val provider: ResourcesProvider,
+    private val networkMonitor: NetworkMonitor
 ) : ViewModel() {
     private val _todoItems = repository.todoItems
         .map { list -> list.map { it.copy(taskDescription = getDescWithEmoji(it)) } }
@@ -47,19 +49,39 @@ class MainScreenViewModel @Inject constructor(
     val errorFlow = _errorFlow.asStateFlow()
 
     private val exceptionHandler = CoroutineExceptionHandler { _, _ ->
+        viewModelScope.launch {
             _errorFlow.value = FetchingError()
+            needToFetch = true
+            changeLoadingState()
+        }
     }
+
+    private var needToFetch = true
 
     init {
         viewModelScope.launch(exceptionHandler) {
-            _todoItems.collectLatest {
-                updateCompletedCount(it)
+            launch {
+                _todoItems.collectLatest {
+                    updateCompletedCount(it)
+                }
+            }
+            launch {
+                networkMonitor.isConnected.collectLatest {
+                    repository.changeNetworkStatus(it)
+                }
             }
         }
     }
 
     fun changeLoadingState() {
         _isDataLoading.value = !_isDataLoading.value
+    }
+
+    fun continueOffline() {
+        viewModelScope.launch(exceptionHandler) {
+            repository.changeNetworkStatus(false)
+            fetchData()
+        }
     }
 
     fun errorProcessed() {
@@ -71,9 +93,13 @@ class MainScreenViewModel @Inject constructor(
     }
 
     fun fetchData() {
-        viewModelScope.launch(exceptionHandler) {
-            repository.fetchData()
+        if (needToFetch) {
+            needToFetch = false
             changeLoadingState()
+            viewModelScope.launch(exceptionHandler) {
+                repository.fetchData()
+                changeLoadingState()
+            }
         }
     }
 

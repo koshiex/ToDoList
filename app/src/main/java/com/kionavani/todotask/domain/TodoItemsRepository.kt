@@ -1,7 +1,5 @@
 package com.kionavani.todotask.domain
 
-import com.kionavani.todotask.data.ToDoItem
-import com.kionavani.todotask.data.remote.NetworkResult
 import kotlinx.coroutines.flow.StateFlow
 
 /**
@@ -23,4 +21,6 @@ interface TodoItemsRepository {
     suspend fun getTaskById(itemId: String): ToDoItem?
 
     suspend fun getNextId(): String
+
+    suspend fun changeNetworkStatus(isOnline: Boolean)
 }

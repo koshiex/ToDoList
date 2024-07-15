@@ -1,4 +1,4 @@
-package com.kionavani.todotask.di
+package com.kionavani.todotask.di.screensComponent
 
 import androidx.lifecycle.ViewModel
 import dagger.MapKey

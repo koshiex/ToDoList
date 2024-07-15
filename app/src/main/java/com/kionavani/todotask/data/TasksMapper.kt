@@ -1,18 +1,20 @@
 package com.kionavani.todotask.data
 
+import com.kionavani.todotask.data.database.TasksDb
 import com.kionavani.todotask.data.remote.dto.ElementDto
 import com.kionavani.todotask.data.remote.dto.ResponseDto.*
 import com.kionavani.todotask.data.remote.dto.RequestDto.*
+import com.kionavani.todotask.domain.ToDoItem
 
 /**
  * Мапит данные из DTO сетевых ответов/запросов в модель UI-ая
  */
 class TasksMapper {
-    fun toEntityList(dto: ListElementResponseDto): List<ToDoItem> {
+    fun fromNetworkList(dto: ListElementResponseDto): List<ToDoItem> {
         val mapResult: MutableList<ToDoItem> = mutableListOf()
 
         for (element in dto.list) {
-            mapResult += toEntity(element)
+            mapResult += fromNetworkElement(element)
         }
 
         return mapResult
@@ -30,7 +32,7 @@ class TasksMapper {
 
     fun toRequestElement(item: ToDoItem) = SingleElementRequestDto(toElement(item))
 
-    fun toEntity(element: ElementDto): ToDoItem = ToDoItem(
+    fun fromNetworkElement(element: ElementDto): ToDoItem = ToDoItem(
         element.id,
         element.text,
         element.done,
@@ -39,6 +41,50 @@ class TasksMapper {
         element.deadline,
         element.changed_at
     )
+
+    fun toDatabaseElement(item: ToDoItem) : TasksDb {
+        return TasksDb(
+            item.id,
+            item.taskDescription,
+            item.isCompleted,
+            item.importance,
+            item.creatingDate,
+            item.deadlineDate,
+            item.changingDate
+        )
+    }
+
+    fun fromDatabaseElement(item: TasksDb) : ToDoItem {
+        return ToDoItem(
+            item.id,
+            item.description,
+            item.isCompleted,
+            item.importance,
+            item.creatingDate,
+            item.deadlineDate,
+            item.changingDate
+        )
+    }
+
+    fun fromDatabaseList(items : List<TasksDb>) : List<ToDoItem> {
+        val newList: MutableList<ToDoItem> = mutableListOf()
+
+        for (item in items) {
+            newList += fromDatabaseElement(item)
+        }
+
+        return newList
+    }
+
+    fun toDatabaseList(items: List<ToDoItem>) : List<TasksDb> {
+        val newList: MutableList<TasksDb> = mutableListOf()
+
+        for (item in items) {
+            newList += toDatabaseElement(item)
+        }
+
+        return newList
+    }
 
     // TODO: прокинуть айди
     private fun toElement(item: ToDoItem): ElementDto = ElementDto(

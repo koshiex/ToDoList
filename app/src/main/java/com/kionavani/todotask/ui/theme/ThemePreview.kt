@@ -49,55 +49,11 @@ private fun TypographyPreview() {
     }
 }
 
-@Preview(name = "Material Dark preview", showBackground = true)
-@Composable
-private fun MaterialDarkPreview() {
-    ToDoTaskTheme(darkTheme = true, dynamicColor = false) {
-        ColorPalettePreview(
-            colors = listOf(
-                "Primary Dark" to MaterialTheme.colorScheme.primary,
-                "Secondary Dark" to MaterialTheme.colorScheme.secondary,
-                "Tertiary Dark" to MaterialTheme.colorScheme.tertiary,
-                "onPrimary Dark" to MaterialTheme.colorScheme.onPrimary,
-                "onSecondaryContainer Dark" to MaterialTheme.colorScheme.onSecondaryContainer,
-                "onTertiary Dark" to MaterialTheme.colorScheme.onTertiary,
-                "outline Dark" to MaterialTheme.colorScheme.onSurface,
-                "surface Dark" to MaterialTheme.colorScheme.surface,
-                "onSurface Dark" to MaterialTheme.colorScheme.onSurface,
-                "inversePrimary Dark" to MaterialTheme.colorScheme.inversePrimary,
-                "error Dark" to MaterialTheme.colorScheme.error
-            )
-        )
-    }
-}
-
-@Preview(name = "Material Light preview", showBackground = true)
-@Composable
-private fun MaterialLightPreview() {
-    ToDoTaskTheme(darkTheme = false, dynamicColor = false) {
-        ColorPalettePreview(
-            colors = listOf(
-                "Primary Light" to MaterialTheme.colorScheme.primary,
-                "Secondary Light" to MaterialTheme.colorScheme.secondary,
-                "Tertiary Light" to MaterialTheme.colorScheme.tertiary,
-                "onPrimary Light" to MaterialTheme.colorScheme.onPrimary,
-                "onSecondaryContainer Light" to MaterialTheme.colorScheme.onSecondaryContainer,
-                "onTertiary Light" to MaterialTheme.colorScheme.onTertiary,
-                "outline Light" to MaterialTheme.colorScheme.onSurface,
-                "surface Light" to MaterialTheme.colorScheme.surface,
-                "onSurface light" to MaterialTheme.colorScheme.onSurface,
-                "inversePrimary Light" to MaterialTheme.colorScheme.inversePrimary,
-                "error Light" to MaterialTheme.colorScheme.error
-            )
-        )
-    }
-}
-
 
 @Preview(name = "Light Palette", showBackground = true)
 @Composable
 private fun LightPalettePreview() {
-    ToDoTaskTheme(darkTheme = true, dynamicColor = false) {
+    ToDoTaskTheme(darkTheme = true) {
         ColorPalettePreview(
             colors = listOf(
                 "Support (Light) / Separator" to LightSeparator,
@@ -123,7 +79,7 @@ private fun LightPalettePreview() {
 @Preview(name = "Dark Palette", showBackground = true)
 @Composable
 private fun DarkThemePalettePreview() {
-    ToDoTaskTheme(darkTheme = true, dynamicColor = false) {
+    ToDoTaskTheme(darkTheme = true) {
         ColorPalettePreview(
             colors = listOf(
                 "Support (Dark) / Separator" to DarkSeparator,
@@ -149,7 +105,7 @@ private fun DarkThemePalettePreview() {
 @Preview(name = "Typography", showBackground = true)
 @Composable
 private fun Typography() {
-    ToDoTaskTheme(dynamicColor = false) {
+    ToDoTaskTheme() {
         TypographyPreview()
     }
 }
