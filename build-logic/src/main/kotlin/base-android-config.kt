@@ -2,9 +2,10 @@ import com.android.build.gradle.BaseExtension
 
 fun BaseExtension.baseAndroidConfig() {
     namespace = AndroidConst.NAMESPACE
-    setCompileSdkVersion(AndroidConst.COMPILE_SKD)
+    setCompileSdkVersion(AndroidConst.COMPILE_SDK)
     defaultConfig {
-        minSdk = AndroidConst.MIN_SKD
+        minSdk = AndroidConst.MIN_SDK
+        targetSdk = AndroidConst.TARGET_SDK
 
         vectorDrawables {
             useSupportLibrary = true
