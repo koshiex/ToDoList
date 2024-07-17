@@ -16,7 +16,7 @@ enum class Importance(@StringRes val displayName: Int) {
             return when (value) {
                 "low" -> LOW
                 "basic" -> REGULAR
-                "importance" -> HIGH
+                "important" -> HIGH
                 else -> throw ClassCastException()
             }
         }
@@ -26,7 +26,7 @@ enum class Importance(@StringRes val displayName: Int) {
         return when (this) {
             LOW -> "low"
             REGULAR -> "basic"
-            HIGH -> "importance"
+            HIGH -> "important"
         }
     }
 }

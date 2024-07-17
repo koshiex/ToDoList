@@ -1,5 +1,6 @@
 package com.kionavani.todotask.ui.composable
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -34,6 +35,7 @@ import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 @Composable
 fun AddTaskScreen(viewModel: AddTaskViewModel, itemID: String? = null, navigate: () -> Unit) {
     LaunchedEffect(itemID) {
+        Log.i("ADD_SCREEN", "Task id: $itemID")
         if (itemID != null) {
             viewModel.loadTask(itemID)
         } else {
