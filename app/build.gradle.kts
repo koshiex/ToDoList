@@ -16,13 +16,13 @@ android {
         versionName = "1.0"
 
         val clientId: String = providers.environmentVariable("TODO_CLIENT_ID").get()
-        manifestPlaceholders["YANDEX_CLIENT_ID"] = clientId
+        manifestPlaceholders["YANDEX_CLIENT_ID"] = "\"clientId\""
 
         val baseUrl: String =  providers.environmentVariable("TODO_BASE_URL").get()
-        buildConfigField("String", "BASE_URL", baseUrl)
+        buildConfigField("String", "BASE_URL", "\"baseUrl)\"")
 
         val oAuthToken: String =  providers.environmentVariable("TODO_OAUTH_TOKEN").get()
-        buildConfigField("String", "OAUTH_TOKEN", oAuthToken)
+        buildConfigField("String", "OAUTH_TOKEN", "\"oAuthToken)\"")
     }
 }
 
