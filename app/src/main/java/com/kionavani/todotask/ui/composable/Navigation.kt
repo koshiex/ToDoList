@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
+import com.kionavani.todotask.ui.viewmodels.SettingsViewModel
 import kotlinx.serialization.Serializable
 
 /**
@@ -28,9 +29,10 @@ fun SetupUI(viewModelFactory: ViewModelProvider.Factory) {
                 factory = viewModelFactory
             )
 
-            val navigate = { itemId: String? -> navController.navigate(AddTaskScreenNav(itemId)) }
+            val navigateToAdd = { itemId: String? -> navController.navigate(AddTaskScreenNav(itemId)) }
+            val navigateToSettings = { navController.navigate(SettingsScreenNav) }
 
-            MainScreen(viewModel, navigate)
+            MainScreen(viewModel, navigateToAdd)
         }
         composable<AddTaskScreenNav> { backStackEntry ->
             val itemID = backStackEntry.toRoute<AddTaskScreenNav>().itemID
@@ -41,6 +43,15 @@ fun SetupUI(viewModelFactory: ViewModelProvider.Factory) {
             val navigate = { navController.navigate(MainScreenNav) }
 
             AddTaskScreen(viewModel, itemID, navigate)
+        }
+        composable<SettingsScreenNav> {
+            val viewModel = viewModel(
+                modelClass = SettingsViewModel::class.java,
+                factory = viewModelFactory
+            )
+
+            val navigate = { navController.navigate(MainScreenNav) }
+            SettingsScreen(viewModel, navigate)
         }
     }
 
@@ -56,3 +67,6 @@ object MainScreenNav
  */
 @Serializable
 data class AddTaskScreenNav(val itemID: String?)
+
+@Serializable
+object SettingsScreenNav

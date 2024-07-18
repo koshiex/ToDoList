@@ -20,6 +20,11 @@
   <string name="fetching_error">Произошла ошибка при получении данных</string>
   <string name="updating_error">Произошла ошибка при обновлении данных</string>
   <string name="retry">Повторить</string>
+  <string name="settings">Настройки</string>
+  <string name="theme_selector">Тема приложения</string>
+  <string name="system_theme">Как в системе</string>
+  <string name="dark_theme">Тёмная</string>
+  <string name="light_theme">Светлая</string>
 
 
   <string name="high_importance_emoji">&#10071;</string>

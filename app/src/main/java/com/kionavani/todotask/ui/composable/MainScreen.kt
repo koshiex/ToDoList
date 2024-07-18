@@ -1,5 +1,6 @@
 package com.kionavani.todotask.ui.composable
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -8,6 +9,10 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -131,16 +136,15 @@ fun MainScreen(viewModel: MainScreenViewModel, navigate: (String?) -> Unit) {
     }
 
 
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            TopAppBar(
-                scrollBehavior, isCollapsing, completedCount, isFiltering, changeFiltering
-            )
-        },
-        snackbarHost = { CustomSnackbarHost(snackbarHostState, stringResource(R.string.offline_mode)) },
-        floatingActionButton = { AddTaskFab(navigate) }
-    ) { paddingValues ->
+    Scaffold(modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection), topBar = {
+        TopAppBar(
+            scrollBehavior, isCollapsing, completedCount, isFiltering, changeFiltering
+        )
+    }, snackbarHost = {
+        CustomSnackbarHost(
+            snackbarHostState, stringResource(R.string.offline_mode)
+        )
+    }, floatingActionButton = { AddTaskFab(navigate) }) { paddingValues ->
         MainScreenContent(
             tasks = tasks,
             paddingValues = paddingValues,
@@ -247,51 +251,60 @@ fun TopAppBar(
     )
 
 
-    LargeTopAppBar(
-        title = {
-            Column(
-                verticalArrangement = Arrangement.Bottom,
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier
-                    .wrapContentSize()
-                    .padding(
-                        start = animatedStartPadding, top = animatedTopPadding
-                    )
-                    .animateContentSize()
+    LargeTopAppBar(title = {
+        Column(
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.Start,
+            modifier = Modifier
+                .wrapContentSize()
+                .padding(
+                    start = animatedStartPadding, top = animatedTopPadding
+                )
+                .animateContentSize()
 
+        ) {
+            Text(
+                text = stringResource(R.string.my_tasks_title),
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = ToDoTaskTheme.colorScheme.labelPrimary
+                )
+            )
+            AnimatedVisibility(
+                visible = !isCollapsed,
+                enter = fadeIn(animationSpec = tween(durationMillis = 100)),
+                exit = fadeOut(spring(stiffness = Spring.StiffnessLow))
             ) {
                 Text(
-                    text = stringResource(R.string.my_tasks_title),
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        color = ToDoTaskTheme.colorScheme.labelPrimary
-                    )
+                    modifier = Modifier
+                        .alpha(0.8f)
+                        .padding(top = 8.dp),
+                    text = stringResource(R.string.completed_task_title) + " - $completedCount",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = ToDoTaskTheme.colorScheme.labelTertiary
+                    ),
                 )
-                AnimatedVisibility(
-                    visible = !isCollapsed,
-                    enter = fadeIn(animationSpec = tween(durationMillis = 100)),
-                    exit = fadeOut(spring(stiffness = Spring.StiffnessLow))
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .alpha(0.8f)
-                            .padding(top = 8.dp),
-                        text = stringResource(R.string.completed_task_title) + " - $completedCount",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = ToDoTaskTheme.colorScheme.labelTertiary
-                        ),
-                    )
-                }
             }
-        },
-        actions = { FilteringIcon(isFiltering, changeFiltering) },
-        scrollBehavior = scrollBehavior,
-        colors = TopAppBarDefaults.largeTopAppBarColors(
-            containerColor = ToDoTaskTheme.colorScheme.backPrimary,
-            scrolledContainerColor = ToDoTaskTheme.colorScheme.backSecondary,
-        ),
-        modifier = Modifier.shadow(animatedShadow)
+        }
+    }, actions = {
+        SettingsIcon()
+        FilteringIcon(isFiltering, changeFiltering)
+    }, scrollBehavior = scrollBehavior, colors = TopAppBarDefaults.largeTopAppBarColors(
+        containerColor = ToDoTaskTheme.colorScheme.backPrimary,
+        scrolledContainerColor = ToDoTaskTheme.colorScheme.backSecondary,
+    ), modifier = Modifier.shadow(animatedShadow)
 
     )
+}
+
+@Composable
+fun SettingsIcon() {
+    IconButton(onClick = { /*TODO*/ }) {
+        Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.settings_icon),
+            contentDescription = null,
+            tint = ToDoTaskTheme.colorScheme.colorBlue
+        )
+    }
 }
 
 @Composable
@@ -328,8 +341,14 @@ fun TaskList(
                 color = ToDoTaskTheme.colorScheme.backSecondary, shape = RoundedCornerShape(12.dp)
             ), state = listState
     ) {
+
         items(tasks) { task ->
-            TaskItem(task, changeTaskState, getDeadlineDate, navigate)
+            AnimatedContent(
+                targetState = task,
+            ) { item ->
+                TaskItem(item, changeTaskState, getDeadlineDate, navigate)
+            }
+
         }
         item {
             Text(

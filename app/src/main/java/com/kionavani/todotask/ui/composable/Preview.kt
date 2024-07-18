@@ -14,6 +14,7 @@ import com.kionavani.todotask.ui.ResourcesProvider
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
 import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
+import com.kionavani.todotask.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -43,6 +44,11 @@ private fun createAddTaskViewModel(): AddTaskViewModel {
     return AddTaskViewModel(
         MockTodoItemsRepository(), ResourcesProvider(LocalContext.current)
     )
+}
+
+@Composable
+private fun createSettingsViewModel(): SettingsViewModel {
+    return SettingsViewModel()
 }
 
 @Preview(name = "Light Main Screen", showBackground = true)
@@ -78,6 +84,18 @@ private fun PreviewDarkAddTaskScreen() {
     PreviewAddTaskScreen(darkTheme = true)
 }
 
+@Preview(name = "Dark Settings Screen", showBackground = true)
+@Composable
+private fun PreviewDarkSettingsScreen() {
+    PreviewSettingsScreen(darkTheme = true)
+}
+
+@Preview(name = "Light Settings Screen", showBackground = true)
+@Composable
+private fun PreviewLightSettingsScreen() {
+    PreviewSettingsScreen(darkTheme = false)
+}
+
 @Composable
 private fun PreviewAddTaskScreen(darkTheme: Boolean) {
     val viewModel = createAddTaskViewModel()
@@ -85,6 +103,16 @@ private fun PreviewAddTaskScreen(darkTheme: Boolean) {
         val navController = rememberNavController()
         val navigate = { navController.navigate(MainScreenNav) }
         AddTaskScreen(viewModel, "123", navigate)
+    }
+}
+
+@Composable
+private fun PreviewSettingsScreen(darkTheme: Boolean) {
+    val viewModel = createSettingsViewModel()
+    ToDoTaskTheme(darkTheme = darkTheme) {
+        val navController = rememberNavController()
+        val navigate = { navController.navigate(MainScreenNav) }
+        SettingsScreen(viewModel, navigate)
     }
 }
 

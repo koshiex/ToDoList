@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.kionavani.todotask.di.ScreenScope
 import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
+import com.kionavani.todotask.ui.viewmodels.SettingsViewModel
 import com.kionavani.todotask.ui.viewmodels.ViewModelFactory
 import dagger.Binds
 import dagger.Module
@@ -26,6 +27,12 @@ interface ViewModelModule {
     @IntoMap
     @ViewModelKey(AddTaskViewModel::class)
     fun bindAddTaskViewModel(viewModel: AddTaskViewModel) : ViewModel
+
+    @Binds
+    @ScreenScope
+    @IntoMap
+    @ViewModelKey(SettingsViewModel::class)
+    fun bindSettingsViewModel(viewModel: SettingsViewModel) : ViewModel
 
     @Binds
     @ScreenScope

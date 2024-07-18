@@ -12,6 +12,7 @@ import com.kionavani.todotask.ui.composable.SetupUI
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
 import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
+import com.kionavani.todotask.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
