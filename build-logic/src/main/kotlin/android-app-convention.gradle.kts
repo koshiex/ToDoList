@@ -49,4 +49,7 @@ dependencies {
     implementation(libs.data.store)
 
     implementation(libs.system.ui.controller)
+
+    implementation(libs.bundles.div.kit)
+    implementation(libs.picasso.image.loader)
 }

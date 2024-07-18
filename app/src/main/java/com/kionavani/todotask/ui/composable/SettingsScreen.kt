@@ -40,7 +40,7 @@ import com.kionavani.todotask.ui.viewmodels.SettingsViewModel
 
 @Composable
 fun SettingsScreen(
-    viewModel: SettingsViewModel, navigate: () -> Unit
+    viewModel: SettingsViewModel, navigate: () -> Boolean
 ) {
     val themeState by viewModel.selectedThemeState.collectAsStateWithLifecycle()
     var dropDownState by remember { mutableStateOf(false) }
@@ -120,7 +120,7 @@ fun ThemeSelector(
 
 @Composable
 fun SettingsTopBar(
-    navigate: () -> Unit
+    navigate: () -> Boolean
 ) {
     Row(
         modifier = Modifier
@@ -130,8 +130,10 @@ fun SettingsTopBar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
-        IconButton(modifier = Modifier.statusBarsPadding(),
-            onClick = navigate) {
+        IconButton(
+            modifier = Modifier.statusBarsPadding(),
+            onClick = { navigate() }
+        ) {
             Icon(
                 imageVector = ImageVector.vectorResource(R.drawable.arrow_back_icon),
                 contentDescription = null,

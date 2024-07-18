@@ -44,7 +44,7 @@ fun SetupUI(viewModelFactory: ViewModelProvider.Factory) {
                 modelClass = AddTaskViewModel::class.java,
                 factory = viewModelFactory
             )
-            val navigate = { navController.navigate(MainScreenNav) }
+            val navigate = { navController.popBackStack() }
 
             AddTaskScreen(viewModel, itemID, navigate)
         }
@@ -54,7 +54,7 @@ fun SetupUI(viewModelFactory: ViewModelProvider.Factory) {
                 factory = viewModelFactory
             )
 
-            val navigate = { navController.navigate(MainScreenNav) }
+            val navigate = { navController.popBackStack() }
             SettingsScreen(viewModel, navigate)
         }
     }

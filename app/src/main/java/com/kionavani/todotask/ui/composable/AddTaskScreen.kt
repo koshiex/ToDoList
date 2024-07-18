@@ -41,7 +41,7 @@ import kotlinx.coroutines.delay
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddTaskScreen(viewModel: AddTaskViewModel, itemID: String? = null, navigate: () -> Unit) {
+fun AddTaskScreen(viewModel: AddTaskViewModel, itemID: String? = null, navigate: () -> Boolean) {
     LaunchedEffect(itemID) {
         Log.i("ADD_SCREEN", "Task id: $itemID")
         if (itemID != null) {
@@ -96,7 +96,7 @@ fun AddTaskScreen(viewModel: AddTaskViewModel, itemID: String? = null, navigate:
 
 @Composable
 fun Header(
-    viewModel: AddTaskViewModel, itemId: String?, navigate: () -> Unit
+    viewModel: AddTaskViewModel, itemId: String?, navigate: () -> Boolean
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -109,7 +109,7 @@ fun Header(
 }
 
 @Composable
-fun HeaderIconButton(navigate: () -> Unit) {
+fun HeaderIconButton(navigate: () -> Boolean) {
     IconButton(modifier = Modifier.padding(top = 16.dp, start = 16.dp), onClick = { navigate() }) {
         Icon(
             imageVector = ImageVector.vectorResource(id = R.drawable.close_icon),
@@ -120,7 +120,7 @@ fun HeaderIconButton(navigate: () -> Unit) {
 }
 
 @Composable
-fun HeaderTextButton(viewModel: AddTaskViewModel, itemId: String?, navigate: () -> Unit) {
+fun HeaderTextButton(viewModel: AddTaskViewModel, itemId: String?, navigate: () -> Boolean) {
     Text(text = stringResource(id = R.string.save_task_button).uppercase(),
         style = MaterialTheme.typography.labelMedium.copy(
             color = ToDoTaskTheme.colorScheme.colorBlue
@@ -365,7 +365,7 @@ fun DeadlineDatePicker(
 }
 
 @Composable
-fun DeleteTaskRow(itemId: String?, delete: (String) -> Unit, navigate: () -> Unit) {
+fun DeleteTaskRow(itemId: String?, delete: (String) -> Unit, navigate: () -> Boolean) {
     if (itemId != null) {
         var isPressed by remember { mutableStateOf(false) }
         val animatedColor by animateColorAsState(
