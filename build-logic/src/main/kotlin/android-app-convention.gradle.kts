@@ -47,4 +47,6 @@ dependencies {
     implementation(libs.room.runtime)
 
     implementation(libs.data.store)
+
+    implementation(libs.system.ui.controller)
 }

@@ -9,10 +9,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
-import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -52,7 +48,6 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -70,6 +65,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
 import com.kionavani.todotask.domain.ToDoItem
@@ -84,12 +80,16 @@ import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(viewModel: MainScreenViewModel, navigate: (String?) -> Unit) {
-    val tasks by viewModel.todoItems.collectAsState()
-    val completedCount by viewModel.completedTaskCounter.collectAsState()
-    val isFiltering by viewModel.isFiltering.collectAsState()
-    val errorState by viewModel.errorFlow.collectAsState()
-    val loadingState by viewModel.isDataLoading.collectAsState()
+fun MainScreen(
+    viewModel: MainScreenViewModel,
+    navigateToAdd: (String?) -> Unit,
+    navigateToSettings: () -> Unit
+) {
+    val tasks by viewModel.todoItems.collectAsStateWithLifecycle()
+    val completedCount by viewModel.completedTaskCounter.collectAsStateWithLifecycle()
+    val isFiltering by viewModel.isFiltering.collectAsStateWithLifecycle()
+    val errorState by viewModel.errorFlow.collectAsStateWithLifecycle()
+    val loadingState by viewModel.isDataLoading.collectAsStateWithLifecycle()
 
     val scrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
@@ -138,17 +138,17 @@ fun MainScreen(viewModel: MainScreenViewModel, navigate: (String?) -> Unit) {
 
     Scaffold(modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection), topBar = {
         TopAppBar(
-            scrollBehavior, isCollapsing, completedCount, isFiltering, changeFiltering
+            scrollBehavior, isCollapsing, completedCount, isFiltering, changeFiltering, navigateToSettings
         )
     }, snackbarHost = {
         CustomSnackbarHost(
             snackbarHostState, stringResource(R.string.offline_mode)
         )
-    }, floatingActionButton = { AddTaskFab(navigate) }) { paddingValues ->
+    }, floatingActionButton = { AddTaskFab(navigateToAdd) }) { paddingValues ->
         MainScreenContent(
             tasks = tasks,
             paddingValues = paddingValues,
-            navigate = navigate,
+            navigate = navigateToAdd,
             changeTaskState = { id, completed ->
                 viewModel.toggleTaskCompletion(
                     id, completed
@@ -227,7 +227,8 @@ fun TopAppBar(
     isCollapsed: Boolean,
     completedCount: Int,
     isFiltering: Boolean,
-    changeFiltering: () -> Unit
+    changeFiltering: () -> Unit,
+    navigateToSettings: () -> Unit
 ) {
     val scrollFraction by remember {
         derivedStateOf {
@@ -286,7 +287,7 @@ fun TopAppBar(
             }
         }
     }, actions = {
-        SettingsIcon()
+        SettingsIcon(navigateToSettings)
         FilteringIcon(isFiltering, changeFiltering)
     }, scrollBehavior = scrollBehavior, colors = TopAppBarDefaults.largeTopAppBarColors(
         containerColor = ToDoTaskTheme.colorScheme.backPrimary,
@@ -297,8 +298,10 @@ fun TopAppBar(
 }
 
 @Composable
-fun SettingsIcon() {
-    IconButton(onClick = { /*TODO*/ }) {
+fun SettingsIcon(
+    navigateToSettings: () -> Unit
+) {
+    IconButton(onClick = navigateToSettings) {
         Icon(
             imageVector = ImageVector.vectorResource(R.drawable.settings_icon),
             contentDescription = null,

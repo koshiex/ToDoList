@@ -67,8 +67,9 @@ private fun PreviewDarkMainScreen() {
 private fun PreviewMainScreen(darkTheme: Boolean) {
     val viewModel = createMainScreenViewModel()
     val addViewModel = createAddTaskViewModel()
+    val settingsViewModel = createSettingsViewModel()
     ToDoTaskTheme(darkTheme = darkTheme) {
-        PreviewNavHost(viewModel, addViewModel)
+        PreviewNavHost(viewModel, addViewModel, settingsViewModel)
     }
 }
 
@@ -117,19 +118,24 @@ private fun PreviewSettingsScreen(darkTheme: Boolean) {
 }
 
 @Composable
-private fun PreviewNavHost(viewModel: MainScreenViewModel, addViewModel: AddTaskViewModel) {
+private fun PreviewNavHost(viewModel: MainScreenViewModel, addViewModel: AddTaskViewModel, settingsViewModel: SettingsViewModel) {
     val navController = rememberNavController()
     NavHost(
         navController = navController, startDestination = MainScreenNav
     ) {
         composable<MainScreenNav> {
             val navigate = { itemId: String? -> navController.navigate(AddTaskScreenNav(itemId)) }
-            MainScreen(viewModel, navigate)
+            val navigateToSettings = { navController.navigate(SettingsScreenNav) }
+            MainScreen(viewModel, navigate, navigateToSettings)
         }
         composable<AddTaskScreenNav> { backStackEntry ->
             val itemID = backStackEntry.toRoute<AddTaskScreenNav>().itemID
             val navigate = { navController.navigate(MainScreenNav) }
             AddTaskScreen(addViewModel, itemID, navigate)
+        }
+        composable<SettingsScreenNav> {
+            val navigate = { navController.navigate(MainScreenNav) }
+            SettingsScreen(settingsViewModel, navigate)
         }
     }
 }

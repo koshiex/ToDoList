@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
@@ -50,13 +51,13 @@ fun AddTaskScreen(viewModel: AddTaskViewModel, itemID: String? = null, navigate:
         }
     }
 
-    val textFiledState by viewModel.textFieldState.collectAsState()
-    val switchState by viewModel.switchState.collectAsState()
-    val dateTextState by viewModel.dateTextState.collectAsState()
-    val datePickerOnState by viewModel.datePickerOnState.collectAsState()
+    val textFiledState by viewModel.textFieldState.collectAsStateWithLifecycle()
+    val switchState by viewModel.switchState.collectAsStateWithLifecycle()
+    val dateTextState by viewModel.dateTextState.collectAsStateWithLifecycle()
+    val datePickerOnState by viewModel.datePickerOnState.collectAsStateWithLifecycle()
     val dateState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
-    val dropDownState by viewModel.dropDownState.collectAsState()
-    val selectedImportanceState by viewModel.selectedImportanceState.collectAsState()
+    val dropDownState by viewModel.dropDownState.collectAsStateWithLifecycle()
+    val selectedImportanceState by viewModel.selectedImportanceState.collectAsStateWithLifecycle()
 
     Column(
         verticalArrangement = Arrangement.Top,

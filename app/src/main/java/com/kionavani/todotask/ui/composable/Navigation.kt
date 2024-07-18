@@ -1,12 +1,16 @@
 package com.kionavani.todotask.ui.composable
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
 import com.kionavani.todotask.ui.viewmodels.SettingsViewModel
@@ -32,7 +36,7 @@ fun SetupUI(viewModelFactory: ViewModelProvider.Factory) {
             val navigateToAdd = { itemId: String? -> navController.navigate(AddTaskScreenNav(itemId)) }
             val navigateToSettings = { navController.navigate(SettingsScreenNav) }
 
-            MainScreen(viewModel, navigateToAdd)
+            MainScreen(viewModel, navigateToAdd, navigateToSettings)
         }
         composable<AddTaskScreenNav> { backStackEntry ->
             val itemID = backStackEntry.toRoute<AddTaskScreenNav>().itemID
