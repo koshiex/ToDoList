@@ -17,6 +17,38 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
+val LightMaterialScheme = lightColorScheme(
+    primary = LightBackPrimary,
+    secondary = LightBackSecondary,
+    tertiary = LightBackElevated,
+    onPrimary = LightPrimaryLabel,
+    onSecondaryContainer = LightSecondaryLabel,
+    onTertiary = LightTertiaryLabel,
+    outline = LightSeparator,
+    surface = LightOverlay,
+    onSurface = LightBackElevated,
+    inverseSurface = TransparentLightBlue,
+    inverseOnSurface = LightBlue,
+    inversePrimary = LightGreen,
+    error = LightRed
+)
+
+val DarkMaterialScheme = darkColorScheme(
+    primary = DarkBackPrimary,
+    secondary = DarkBackSecondary,
+    tertiary = DarkBackElevated,
+    onPrimary = DarkPrimaryLabel,
+    onSecondaryContainer = DarkSecondaryLabel,
+    onTertiary = DarkTertiaryLabel,
+    outline = DarkSeparator,
+    surface = DarkOverlay,
+    onSurface = DarkBackElevated,
+    inverseSurface = TransparentDarkBlue,
+    inverseOnSurface = DarkBlue,
+    inversePrimary = DarkGreen,
+    error = DarkRed
+)
+
 @Composable
 fun ToDoTaskTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -38,7 +70,8 @@ fun ToDoTaskTheme(
     CompositionLocalProvider(LocalColorScheme provides colorScheme) {
         MaterialTheme(
             typography = Typography,
-            content = content
+            content = content,
+            colorScheme = if (darkTheme) DarkMaterialScheme else LightMaterialScheme
         )
     }
 }

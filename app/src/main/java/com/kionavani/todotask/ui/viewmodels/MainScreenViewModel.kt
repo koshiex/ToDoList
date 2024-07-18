@@ -1,5 +1,6 @@
 package com.kionavani.todotask.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kionavani.todotask.R
@@ -52,7 +53,6 @@ class MainScreenViewModel @Inject constructor(
         viewModelScope.launch {
             _errorFlow.value = FetchingError()
             needToFetch = true
-            changeLoadingState()
         }
     }
 
@@ -93,6 +93,7 @@ class MainScreenViewModel @Inject constructor(
     }
 
     fun fetchData() {
+        Log.e("ViewModel", "needToFetch: $needToFetch")
         if (needToFetch) {
             needToFetch = false
             changeLoadingState()

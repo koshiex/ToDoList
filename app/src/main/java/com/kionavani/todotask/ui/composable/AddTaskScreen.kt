@@ -1,23 +1,29 @@
 package com.kionavani.todotask.ui.composable
 
 import android.util.Log
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -27,6 +33,7 @@ import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
 import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
+import kotlinx.coroutines.delay
 
 /**
  * UI экрана редактирования/создания новой таски
@@ -359,29 +366,49 @@ fun DeadlineDatePicker(
 @Composable
 fun DeleteTaskRow(itemId: String?, delete: (String) -> Unit, navigate: () -> Unit) {
     if (itemId != null) {
+        var isPressed by remember { mutableStateOf(false) }
+        val animatedColor by animateColorAsState(
+            targetValue = if (isPressed) ToDoTaskTheme.colorScheme.colorBlue else ToDoTaskTheme.colorScheme.colorRed,
+            animationSpec = tween(durationMillis = 300)
+        )
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 27.dp, start = 16.dp)
+                .clickable(
+                    onClick = {
+                        isPressed = true
+                    },
+                    onClickLabel = stringResource(R.string.delete_button),
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = rememberRipple(bounded = true)
+                )
         ) {
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.delete_icon),
                 contentDescription = null,
-                tint = ToDoTaskTheme.colorScheme.colorRed
+                tint = animatedColor
             )
-            Text(text = stringResource(R.string.delete_button),
+            Text(
+                text = stringResource(R.string.delete_button),
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    color = ToDoTaskTheme.colorScheme.colorRed
+                    color = animatedColor
                 ),
-                modifier = Modifier
-                    .padding(start = 12.dp)
-                    .clickable {
-                        delete(itemId)
-                        navigate()
-                    }
+                modifier = Modifier.padding(start = 12.dp)
             )
+        }
+
+        if (isPressed) {
+            LaunchedEffect(Unit) {
+                delay(300)
+                delete(itemId)
+                navigate()
+            }
         }
     }
 }
+
+
