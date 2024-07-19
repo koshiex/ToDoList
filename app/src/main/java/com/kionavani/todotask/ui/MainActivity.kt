@@ -22,6 +22,8 @@ import com.kionavani.todotask.ui.theme.ToDoTaskTheme
 import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
 import com.kionavani.todotask.ui.viewmodels.SettingsViewModel
+import com.yandex.div.core.expression.variables.DivVariableController
+import com.yandex.div.data.Variable
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,12 +34,14 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
     @Inject
     lateinit var provider: ResourcesProvider
-
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-
     @Inject
     lateinit var networkMonitor: NetworkMonitor
+    @Inject
+    lateinit var variableController: DivVariableController
+    @Inject
+    lateinit var aboutViewFactory: AboutViewFactory
 
     private val mainViewModel by viewModels<MainScreenViewModel> { viewModelFactory }
     private val addViewModel by viewModels<AddTaskViewModel> { viewModelFactory }
@@ -55,7 +59,7 @@ class MainActivity : ComponentActivity() {
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         )
 
-        (this.application as TodoApplication).appComponent.screenComponent()
+        (this.application as TodoApplication).appComponent.screenComponent().activityContext(this)
             .build().inject(this)
 
         networkMonitor.startMonitoring()
@@ -81,6 +85,8 @@ class MainActivity : ComponentActivity() {
                     ThemeState.SYSTEM -> isSystemThemeIsDark()
                 }
 
+                val theme = Variable.BooleanVariable("themeIsDark", currentThemeIsDark)
+                variableController.putOrUpdate(theme)
                 applyTheme()
             }
         }
@@ -99,7 +105,7 @@ class MainActivity : ComponentActivity() {
     private fun applyTheme() {
         setContent {
             ToDoTaskTheme(darkTheme = currentThemeIsDark) {
-                SetupUI(viewModelFactory)
+                SetupUI(viewModelFactory, aboutViewFactory)
             }
         }
     }

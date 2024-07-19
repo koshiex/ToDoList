@@ -25,10 +25,11 @@ interface AppComponent {
 
     @Component.Builder
     interface Builder {
-        fun build(): AppComponent
         @BindsInstance
         fun mainScope(mainScope: CoroutineScope) : Builder
         @BindsInstance
         fun context(application: Context): Builder
+        fun build(): AppComponent
+
     }
 }

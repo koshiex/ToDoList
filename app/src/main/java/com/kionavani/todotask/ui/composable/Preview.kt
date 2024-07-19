@@ -1,5 +1,6 @@
 package com.kionavani.todotask.ui.composable
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -11,24 +12,16 @@ import com.kionavani.todotask.ui.NetworkMonitor
 import com.kionavani.todotask.domain.ToDoItem
 import com.kionavani.todotask.domain.TodoItemsRepository
 import com.kionavani.todotask.ui.ResourcesProvider
+import com.kionavani.todotask.ui.ViewFactoryInt
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
 import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
 import com.kionavani.todotask.ui.viewmodels.SettingsViewModel
+import com.yandex.div.core.DivConfiguration
+import com.yandex.div.core.view2.Div2View
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-private class MockTodoItemsRepository : TodoItemsRepository {
-    override val todoItems: StateFlow<List<ToDoItem>> = MutableStateFlow(emptyList())
-    override suspend fun fetchData() {}
-    override suspend fun addTodoItem(item: ToDoItem) {}
-    override suspend fun updateTodoItem(newItem: ToDoItem) {}
-    override suspend fun deleteTodoItem(itemId: String) {}
-    override suspend fun toggleTaskCompletion(itemId: String, isCompleted: Boolean) {}
-    override suspend fun getTaskById(itemId: String): ToDoItem? = null
-    override suspend fun getNextId(): String = "null"
-    override suspend fun changeNetworkStatus(isOnline: Boolean) {}
-}
 
 @Composable
 private fun createMainScreenViewModel(): MainScreenViewModel {
@@ -140,7 +133,25 @@ private fun PreviewNavHost(viewModel: MainScreenViewModel, addViewModel: AddTask
             SettingsScreen(settingsViewModel, navigate, navigateToInfo)
         }
         composable<AboutInfoNav> {
-            AboutInfoScreen()
+            AboutInfoScreen(MockViewFactory())
         }
     }
+}
+
+
+private class MockTodoItemsRepository : TodoItemsRepository {
+    override val todoItems: StateFlow<List<ToDoItem>> = MutableStateFlow(emptyList())
+    override suspend fun fetchData() {}
+    override suspend fun addTodoItem(item: ToDoItem) {}
+    override suspend fun updateTodoItem(newItem: ToDoItem) {}
+    override suspend fun deleteTodoItem(itemId: String) {}
+    override suspend fun toggleTaskCompletion(itemId: String, isCompleted: Boolean) {}
+    override suspend fun getTaskById(itemId: String): ToDoItem? = null
+    override suspend fun getNextId(): String = "null"
+    override suspend fun changeNetworkStatus(isOnline: Boolean) {}
+}
+
+private class MockViewFactory: ViewFactoryInt {
+    override fun provideView(): Div2View? = null
+    override fun createDivConfiguration(context: Context): DivConfiguration? = null
 }

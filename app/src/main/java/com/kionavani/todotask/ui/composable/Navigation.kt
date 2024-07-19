@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.kionavani.todotask.ui.ViewFactoryInt
 import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
 import com.kionavani.todotask.ui.viewmodels.SettingsViewModel
@@ -21,7 +22,7 @@ import kotlinx.serialization.Serializable
  * Функция для создания навигации между экранами и прокидывания зависимостей
  */
 @Composable
-fun SetupUI(viewModelFactory: ViewModelProvider.Factory) {
+fun SetupUI(viewModelFactory: ViewModelProvider.Factory, aboutViewFactory: ViewFactoryInt) {
     val navController = rememberNavController()
 
     NavHost(
@@ -60,7 +61,7 @@ fun SetupUI(viewModelFactory: ViewModelProvider.Factory) {
             SettingsScreen(viewModel, navigateBack, navigateToInfo)
         }
         composable<AboutInfoNav> {
-            AboutInfoScreen()
+            AboutInfoScreen(aboutViewFactory)
         }
     }
 
