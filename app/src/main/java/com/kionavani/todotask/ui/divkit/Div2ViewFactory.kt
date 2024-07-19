@@ -1,4 +1,4 @@
-package com.kionavani.todotask.ui
+package com.kionavani.todotask.ui.divkit
 
 import com.yandex.div.DivDataTag
 import com.yandex.div.core.Div2Context

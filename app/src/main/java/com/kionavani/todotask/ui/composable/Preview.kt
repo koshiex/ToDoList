@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -12,7 +13,7 @@ import com.kionavani.todotask.ui.NetworkMonitor
 import com.kionavani.todotask.domain.ToDoItem
 import com.kionavani.todotask.domain.TodoItemsRepository
 import com.kionavani.todotask.ui.ResourcesProvider
-import com.kionavani.todotask.ui.ViewFactoryInt
+import com.kionavani.todotask.ui.divkit.ViewFactoryInt
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
 import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
@@ -133,7 +134,7 @@ private fun PreviewNavHost(viewModel: MainScreenViewModel, addViewModel: AddTask
             SettingsScreen(settingsViewModel, navigate, navigateToInfo)
         }
         composable<AboutInfoNav> {
-            AboutInfoScreen(MockViewFactory())
+            AboutInfoScreen(MockViewFactory(navController))
         }
     }
 }
@@ -151,7 +152,7 @@ private class MockTodoItemsRepository : TodoItemsRepository {
     override suspend fun changeNetworkStatus(isOnline: Boolean) {}
 }
 
-private class MockViewFactory: ViewFactoryInt {
+private class MockViewFactory(override var navController: NavHostController) : ViewFactoryInt {
     override fun provideView(): Div2View? = null
     override fun createDivConfiguration(context: Context): DivConfiguration? = null
 }

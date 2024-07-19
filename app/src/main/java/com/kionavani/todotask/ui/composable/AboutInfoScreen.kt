@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
-import com.kionavani.todotask.ui.ViewFactoryInt
+import com.kionavani.todotask.ui.divkit.ViewFactoryInt
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
 
 @Composable

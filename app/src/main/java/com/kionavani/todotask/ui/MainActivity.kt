@@ -1,23 +1,19 @@
 package com.kionavani.todotask.ui
 
-import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
-import android.util.AttributeSet
-import android.util.Log
-import android.view.View
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsControllerCompat
-import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.kionavani.todotask.ui.composable.SetupUI
+import com.kionavani.todotask.ui.divkit.AboutViewFactory
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
 import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
@@ -27,6 +23,8 @@ import com.yandex.div.data.Variable
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+private const val DIVKIT_THEME_IS_DARK_VAR = "themeIsDark"
 
 /**
  * Главное активити приложения
@@ -85,7 +83,7 @@ class MainActivity : ComponentActivity() {
                     ThemeState.SYSTEM -> isSystemThemeIsDark()
                 }
 
-                val theme = Variable.BooleanVariable("themeIsDark", currentThemeIsDark)
+                val theme = Variable.BooleanVariable(DIVKIT_THEME_IS_DARK_VAR, currentThemeIsDark)
                 variableController.putOrUpdate(theme)
                 applyTheme()
             }

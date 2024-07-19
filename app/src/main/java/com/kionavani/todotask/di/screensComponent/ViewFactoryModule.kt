@@ -1,7 +1,7 @@
 package com.kionavani.todotask.di.screensComponent
 
 import com.kionavani.todotask.di.ScreenScope
-import com.kionavani.todotask.ui.AboutViewFactory
+import com.kionavani.todotask.ui.divkit.AboutViewFactory
 import com.yandex.div.core.expression.variables.DivVariableController
 import androidx.activity.ComponentActivity
 import dagger.Module

@@ -99,7 +99,11 @@
                     "bottom": 4
                   },
                   "tint_color": "@{themeIsDark == false ? LabelPrimaryLight : LabelPrimaryDark}",
-                  "tint_mode": "source_in"
+                  "tint_mode": "source_in",
+                  "action": {
+                    "log_id": "back",
+                    "url": "about-action://back"
+                  }
                 },
                 {
                   "type": "text",
@@ -273,7 +277,11 @@
                     "end": 18
                   },
                   "tint_color": "@{themeIsDark == false ? LabelPrimaryLight : LabelPrimaryDark}",
-                  "tint_mode": "source_in"
+                  "tint_mode": "source_in",
+                  "action": {
+                    "log_id": "github_deeplink",
+                    "url": "about-action://github"
+                  }
                 },
                 {
                   "type": "container",

@@ -1,29 +1,30 @@
 package com.kionavani.todotask.ui.composable
 
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.kionavani.todotask.ui.ViewFactoryInt
+import com.kionavani.todotask.ui.divkit.ViewFactoryInt
 import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
 import com.kionavani.todotask.ui.viewmodels.SettingsViewModel
-import com.yandex.div.core.view2.Div2View
 import kotlinx.serialization.Serializable
 
 /**
  * Функция для создания навигации между экранами и прокидывания зависимостей
  */
 @Composable
-fun SetupUI(viewModelFactory: ViewModelProvider.Factory, aboutViewFactory: ViewFactoryInt) {
+fun SetupUI(
+    viewModelFactory: ViewModelProvider.Factory,
+    aboutViewFactory: ViewFactoryInt
+) {
     val navController = rememberNavController()
+    aboutViewFactory.navController = navController
 
     NavHost(
         navController = navController,
@@ -35,7 +36,8 @@ fun SetupUI(viewModelFactory: ViewModelProvider.Factory, aboutViewFactory: ViewF
                 factory = viewModelFactory
             )
 
-            val navigateToAdd = { itemId: String? -> navController.navigate(AddTaskScreenNav(itemId)) }
+            val navigateToAdd =
+                { itemId: String? -> navController.navigate(AddTaskScreenNav(itemId)) }
             val navigateToSettings = { navController.navigate(SettingsScreenNav) }
 
             MainScreen(viewModel, navigateToAdd, navigateToSettings)
@@ -72,6 +74,7 @@ fun SetupUI(viewModelFactory: ViewModelProvider.Factory, aboutViewFactory: ViewF
  */
 @Serializable
 object MainScreenNav
+
 /**
  * Объект экрана редактирования/создания для навигации
  */
