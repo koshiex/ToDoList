@@ -43,7 +43,6 @@ class MainActivity : ComponentActivity() {
     private val addViewModel by viewModels<AddTaskViewModel> { viewModelFactory }
     private val settingsViewModel by viewModels<SettingsViewModel> { viewModelFactory }
 
-    private val insetsController by lazy { setupInsetsController() }
     // TODO: сохранять в датастор
     private var currentThemeIsDark = true
 
@@ -56,7 +55,8 @@ class MainActivity : ComponentActivity() {
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         )
 
-        (this.application as TodoApplication).screenComponent.inject(this)
+        (this.application as TodoApplication).appComponent.screenComponent()
+            .build().inject(this)
 
         networkMonitor.startMonitoring()
         provider.attachActivityContext(this)
@@ -106,9 +106,6 @@ class MainActivity : ComponentActivity() {
 
     private fun isSystemThemeIsDark() = resources.configuration.uiMode and
             Configuration.UI_MODE_NIGHT_MASK != Configuration.UI_MODE_NIGHT_NO
-
-    private fun setupInsetsController() = WindowInsetsControllerCompat(window, window.decorView)
-
 }
 
 

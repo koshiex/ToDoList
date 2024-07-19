@@ -19,7 +19,6 @@ room-version = "2.6.1"
 data-store = "1.1.1"
 accompanist = "0.34.0"
 divkit = "30.9.0"
-picasso = "2.8"
 
 [libraries]
 agp = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
@@ -59,14 +58,13 @@ system-ui-controller = { group = "com.google.accompanist", name = "accompanist-s
 ksp-gradle-plugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 
-picasso-image-loader = { group = "com.squareup.picasso", name = "picasso", version.ref = "picasso"}
-
+picasso-image-loader = { group = "com.yandex.div", name = "picasso", version.ref = "divkit"}
 divkit = { group = "com.yandex.div", name = "div", version.ref = "divkit"}
 divkit-json = { group = "com.yandex.div", name = "div-json", version.ref = "divkit"}
 divkit-core = { group = "com.yandex.div", name = "div-core", version.ref = "divkit"}
 
 [bundles]
-div-kit = ["divkit", "divkit-core", "divkit-json"]
+div-kit = ["divkit", "divkit-core", "divkit-json", "picasso-image-loader"]
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

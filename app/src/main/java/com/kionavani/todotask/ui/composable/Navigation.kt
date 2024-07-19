@@ -14,6 +14,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
 import com.kionavani.todotask.ui.viewmodels.SettingsViewModel
+import com.yandex.div.core.view2.Div2View
 import kotlinx.serialization.Serializable
 
 /**
@@ -54,8 +55,12 @@ fun SetupUI(viewModelFactory: ViewModelProvider.Factory) {
                 factory = viewModelFactory
             )
 
-            val navigate = { navController.popBackStack() }
-            SettingsScreen(viewModel, navigate)
+            val navigateBack = { navController.popBackStack() }
+            val navigateToInfo = { navController.navigate(AboutInfoNav) }
+            SettingsScreen(viewModel, navigateBack, navigateToInfo)
+        }
+        composable<AboutInfoNav> {
+            AboutInfoScreen()
         }
     }
 
@@ -74,3 +79,6 @@ data class AddTaskScreenNav(val itemID: String?)
 
 @Serializable
 object SettingsScreenNav
+
+@Serializable
+object AboutInfoNav

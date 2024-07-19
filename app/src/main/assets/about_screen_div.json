@@ -64,7 +64,8 @@
                 "type": "match_parent"
               },
               "height": {
-                "type": "wrap_content"
+                "type": "fixed",
+                "value": 44
               },
               "background": [
                 {
@@ -99,7 +100,7 @@
                   },
                   "paddings": {
                     "top": 4,
-                    "start": 4,
+                    "start": 8,
                     "bottom": 4
                   },
                   "tint_color": "@{themeIsDark == false ? LabelPrimaryLight : LabelPrimaryDark}",
@@ -136,6 +137,19 @@
               "id": "images_state",
               "states": [
                 {
+                  "state_id": "YandexImage",
+                  "div": {
+                    "type": "image",
+                    "image_url": "https://raw.githubusercontent.com/koshiex/ToDoList/99c7bc509b07a4f43641fb9ed312660e7b2073bf/divkit-icons/youngAndYandexLogo.svg?raw=true",
+                    "paddings": {
+                      "top": 50,
+                      "end": 18,
+                      "start": 18,
+                      "bottom": 50
+                    }
+                  }
+                },
+                {
                   "state_id": "kittens",
                   "div": {
                     "type": "pager",
@@ -162,7 +176,7 @@
                     "page_transformation": {
                       "type": "slide",
                       "previous_page_scale": 0.25,
-                      "previous_page_alpha": 30,
+                      "previous_page_alpha": 0.3,
                       "next_page_alpha": 0.7,
                       "next_page_scale": 0.7
                     },
@@ -252,8 +266,9 @@
                   },
                   "alignment_horizontal": "center",
                   "alignment_vertical": "center",
-                  "paddings": {
-                    "top": 16
+                  "margins": {
+                    "top": 30,
+                    "end": 18
                   },
                   "tint_color": "@{themeIsDark == false ? LabelPrimaryLight : LabelPrimaryDark}",
                   "tint_mode": "source_in"
@@ -285,7 +300,11 @@
                       "type": "text",
                       "text": "ТЫК",
                       "text_color": "#FFFFFF",
-                      "font_size": 20
+                      "font_size": 20,
+                      "action": {
+                        "log_id": "switchPictureState",
+                        "url": "div-action://set_state?state_id=0/images_state/kittens"
+                      }
                     }
                   ]
                 }

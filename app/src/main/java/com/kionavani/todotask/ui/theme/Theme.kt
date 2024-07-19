@@ -68,6 +68,7 @@ fun ToDoTaskTheme(
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
+
     CompositionLocalProvider(LocalColorScheme provides colorScheme) {
         MaterialTheme(
             typography = Typography,

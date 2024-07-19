@@ -24,6 +24,7 @@
   <string name="system_theme">System default</string>
   <string name="dark_theme">Dark</string>
   <string name="light_theme">Light</string>
+  <string name="about_app">About app</string>
 
   <string name="high_importance_emoji">&#10071;</string>
   <string name="low_importance_emoji">&#128164;</string>

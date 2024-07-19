@@ -25,7 +25,7 @@
   <string name="system_theme">Как в системе</string>
   <string name="dark_theme">Тёмная</string>
   <string name="light_theme">Светлая</string>
-
+  <string name="about_app">О приложении</string>
 
   <string name="high_importance_emoji">&#10071;</string>
   <string name="low_importance_emoji">&#128164;</string>

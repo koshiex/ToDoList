@@ -40,13 +40,13 @@ import com.kionavani.todotask.ui.viewmodels.SettingsViewModel
 
 @Composable
 fun SettingsScreen(
-    viewModel: SettingsViewModel, navigate: () -> Boolean
+    viewModel: SettingsViewModel, navigateBack: () -> Boolean, navigateToInfo: () -> Unit
 ) {
     val themeState by viewModel.selectedThemeState.collectAsStateWithLifecycle()
     var dropDownState by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = { SettingsTopBar(navigate) }) { contentPadding ->
+        topBar = { SettingsTopBar(navigateBack) }) { contentPadding ->
         Column(
             modifier = Modifier.padding(contentPadding)
         ) {
@@ -58,6 +58,18 @@ fun SettingsScreen(
             )
 
             Divider(modifier = Modifier.padding(vertical = 16.dp, horizontal = 10.dp))
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(R.string.about_app),
+                    color = ToDoTaskTheme.colorScheme.labelTertiary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.clickable { navigateToInfo() }
+                )
+            }
         }
     }
 }

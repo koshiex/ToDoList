@@ -21,7 +21,7 @@ import kotlinx.coroutines.CoroutineScope
 interface AppComponent {
     fun inject(worker: DataFetchWorker)
 
-    fun screenComponent(): ScreenComponent.Factory
+    fun screenComponent(): ScreenComponent.Builder
 
     @Component.Builder
     interface Builder {
