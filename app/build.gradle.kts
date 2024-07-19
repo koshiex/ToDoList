@@ -15,6 +15,10 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
+
         val clientId: String = providers.environmentVariable("TODO_CLIENT_ID").get()
         manifestPlaceholders["YANDEX_CLIENT_ID"] = "\"$clientId\""
 

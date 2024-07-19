@@ -53,7 +53,6 @@ room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room-version"}
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room-version"}
 data-store = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "data-store"}
-system-ui-controller = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist"}
 
 ksp-gradle-plugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -62,6 +61,9 @@ picasso-image-loader = { group = "com.yandex.div", name = "picasso", version.ref
 divkit = { group = "com.yandex.div", name = "div", version.ref = "divkit"}
 divkit-json = { group = "com.yandex.div", name = "div-json", version.ref = "divkit"}
 divkit-core = { group = "com.yandex.div", name = "div-core", version.ref = "divkit"}
+
+accompanist-navigation-animation = { group = "com.google.accompanist", name = "accompanist-navigation-animation", version.ref = "accompanist" }
+system-ui-controller = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist"}
 
 [bundles]
 div-kit = ["divkit", "divkit-core", "divkit-json", "picasso-image-loader"]

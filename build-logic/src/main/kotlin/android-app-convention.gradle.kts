@@ -51,4 +51,6 @@ dependencies {
     implementation(libs.system.ui.controller)
 
     implementation(libs.bundles.div.kit)
+
+    implementation(libs.accompanist.navigation.animation)
 }
