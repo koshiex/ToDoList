@@ -17,6 +17,7 @@ import com.kionavani.todotask.di.screensComponent.ScreenComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 /**
  * Класс приложения... приложения

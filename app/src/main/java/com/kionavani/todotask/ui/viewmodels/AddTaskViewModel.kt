@@ -10,6 +10,7 @@ import com.kionavani.todotask.domain.TodoItemsRepository
 import com.kionavani.todotask.ui.ResourcesProvider
 import com.kionavani.todotask.ui.Util
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -64,9 +65,12 @@ class AddTaskViewModel @Inject constructor(
     private suspend fun getNextId(): String =
         repository.getNextId()
 
-    fun loadTask(itemId: String) {
-        viewModelScope.launch(exceptionHandler) {
-            val task = repository.getTaskById(itemId)
+    fun loadTask(itemId: String?) {
+        viewModelScope.launch {
+            var task: ToDoItem? = null
+            if (itemId != null) {
+                task = repository.getTaskById(itemId)
+            }
             initializeState(task)
         }
     }
@@ -75,13 +79,12 @@ class AddTaskViewModel @Inject constructor(
         _isErrorHappened.value = false
     }
 
-    fun initializeState(task: ToDoItem?) {
+    private fun initializeState(task: ToDoItem?) {
         _textFieldState.value = task?.taskDescription ?: ""
         _switchState.value = task?.deadlineDate != null
         _dateTextState.value = task?.deadlineDate?.let { Util.dateToString(it) }
             ?: resourcesProvider.getString(R.string.deadline_selector)
         _deadlineDate.value = task?.deadlineDate
-        Log.i("ADD_SCREEN", "${_deadlineDate.value}")
         _selectedImportanceState.value = task?.importance ?: Importance.REGULAR
     }
 

@@ -11,6 +11,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
@@ -42,6 +43,7 @@ fun SetupUI(
         modifier = Modifier
             .fillMaxSize()
             .background(ToDoTaskTheme.colorScheme.backPrimary)
+            .safeDrawingPadding()
     ) {
         NavHost(
             navController = navController, startDestination = MainScreenNav

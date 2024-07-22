@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -136,10 +137,12 @@ fun MainScreen(
     }
 
 
-    Scaffold(modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection), topBar = {
-        TopAppBar(
-            scrollBehavior, isCollapsing, completedCount, isFiltering, changeFiltering, navigateToSettings
-        )
+    Scaffold(modifier = Modifier
+        .nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            TopAppBar(
+                scrollBehavior, isCollapsing, completedCount, isFiltering, changeFiltering, navigateToSettings
+            )
     }, snackbarHost = {
         CustomSnackbarHost(
             snackbarHostState, stringResource(R.string.offline_mode)
@@ -173,7 +176,7 @@ fun IndeterminateCircularIndicator(isLoading: Boolean) {
     CircularProgressIndicator(
         modifier = Modifier
             .width(32.dp)
-            .padding(top = 60.dp),
+            .padding(top = 16.dp),
         color = ToDoTaskTheme.colorScheme.colorBlue,
         trackColor = ToDoTaskTheme.colorScheme.supportSeparator,
     )
@@ -336,7 +339,7 @@ fun TaskList(
 
     LazyColumn(
         modifier = Modifier
-            .padding(12.dp)
+            .padding(start = 12.dp, end = 12.dp, top = 12.dp)
             .fillMaxWidth()
             .wrapContentHeight()
             .shadow(4.dp, shape = RoundedCornerShape(12.dp))

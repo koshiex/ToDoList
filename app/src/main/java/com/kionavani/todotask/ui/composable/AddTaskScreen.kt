@@ -15,10 +15,10 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,13 +42,10 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTaskScreen(viewModel: AddTaskViewModel, itemID: String? = null, navigate: () -> Boolean) {
-    LaunchedEffect(itemID) {
-        Log.i("ADD_SCREEN", "Task id: $itemID")
-        if (itemID != null) {
-            viewModel.loadTask(itemID)
-        } else {
-            viewModel.initializeState(null)
-        }
+    val currentItemId by rememberUpdatedState(itemID)
+
+    LaunchedEffect(currentItemId) {
+        viewModel.loadTask(currentItemId)
     }
 
     val textFiledState by viewModel.textFieldState.collectAsStateWithLifecycle()
@@ -66,9 +63,8 @@ fun AddTaskScreen(viewModel: AddTaskViewModel, itemID: String? = null, navigate:
         modifier = Modifier
             .background(ToDoTaskTheme.colorScheme.backPrimary)
             .fillMaxSize()
-            .safeDrawingPadding()
     ) {
-        Header(viewModel, itemID, navigate)
+        Header(viewModel, currentItemId, navigate)
         TaskTextField(textFiledState, onTextChange = viewModel::onTextChange)
         ImportanceDropDown(
             dropDownState,
@@ -88,7 +84,7 @@ fun AddTaskScreen(viewModel: AddTaskViewModel, itemID: String? = null, navigate:
         )
         Divider(modifier = Modifier.padding(vertical = 16.dp))
         DeleteTaskRow(
-            itemID, delete = { itemID ->
+            currentItemId, delete = { itemID ->
                 viewModel.deleteTodoItem(itemID)
             }, navigate
         )
@@ -111,7 +107,7 @@ fun Header(
 
 @Composable
 fun HeaderIconButton(navigate: () -> Boolean) {
-    IconButton(modifier = Modifier.padding(top = 16.dp, start = 16.dp), onClick = { navigate() }) {
+    IconButton(modifier = Modifier.padding(start = 16.dp), onClick = { navigate() }) {
         Icon(
             imageVector = ImageVector.vectorResource(id = R.drawable.close_icon),
             contentDescription = null,
@@ -127,7 +123,7 @@ fun HeaderTextButton(viewModel: AddTaskViewModel, itemId: String?, navigate: () 
             color = ToDoTaskTheme.colorScheme.colorBlue
         ),
         modifier = Modifier
-            .padding(top = 16.dp, end = 16.dp)
+            .padding(end = 16.dp)
             .clickable {
                 viewModel.addOrUpdateTask(itemId)
                 navigate()

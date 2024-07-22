@@ -10,6 +10,7 @@ import com.kionavani.todotask.ui.viewmodels.ViewModelFactory
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
+import javax.inject.Singleton
 
 /**
  * Модуль для инжектирования ViewModel-ей
@@ -23,7 +24,6 @@ interface ViewModelModule {
     fun bindMainViewModel(viewModel: MainScreenViewModel): ViewModel
 
     @Binds
-    @ScreenScope
     @IntoMap
     @ViewModelKey(AddTaskViewModel::class)
     fun bindAddTaskViewModel(viewModel: AddTaskViewModel) : ViewModel
