@@ -19,10 +19,16 @@
   <string name="fetching_error">An error occurred while receiving the data</string>
   <string name="updating_error">An error occurred while updating the data</string>
   <string name="retry">Retry</string>
+  <string name="settings">Settings</string>
+  <string name="theme_selector">App theme</string>
+  <string name="system_theme">System default</string>
+  <string name="dark_theme">Dark</string>
+  <string name="light_theme">Light</string>
+  <string name="about_app">About app</string>
 
   <string name="high_importance_emoji">&#10071;</string>
   <string name="low_importance_emoji">&#128164;</string>
-  <string name="offline_mode">Continue ofline</string>
+  <string name="offline_mode">Continue offline</string>
 
 
 </resources>

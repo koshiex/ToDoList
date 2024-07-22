@@ -1,76 +1,36 @@
 plugins {
-    alias(libs.plugins.androidApplication)
-    alias(libs.plugins.jetbrainsKotlinAndroid)
-    alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.ksp)
+    id("android-app-convention")
+    id("todolist-serialization")
+    id("telegram-sender")
 }
 
-android {
-    namespace = "com.kionavani.todotask"
-    compileSdk = 34
+    telegram {
+        token.set(providers.environmentVariable("TODO_TG_TOKEN"))
+        chatId.set(providers.environmentVariable("TODO_TG_CHAT_ID"))
+    }
 
+android {
     defaultConfig {
         applicationId = "com.kionavani.todotask"
-        minSdk = 26
-        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary = true
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
         }
 
-        val clientId: String = project.findProperty("YANDEX_CLIENT_ID") as String
-        manifestPlaceholders["YANDEX_CLIENT_ID"] = clientId
+        val clientId: String = providers.environmentVariable("TODO_CLIENT_ID").get()
+        manifestPlaceholders["YANDEX_CLIENT_ID"] = "\"$clientId\""
 
-        val baseUrl: String = project.findProperty("BASE_URL") as String
-        buildConfigField("String", "BASE_URL", baseUrl)
+        val baseUrl: String =  providers.environmentVariable("TODO_BASE_URL").get()
+        buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
 
-        val oAuthToken: String = project.findProperty("OAUTH_TOKEN") as String
-        buildConfigField("String", "OAUTH_TOKEN", oAuthToken)
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-    buildFeatures {
-        buildConfig = true
-        compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
-    }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
+        val oAuthToken: String =  providers.environmentVariable("TODO_OAUTH_TOKEN").get()
+        buildConfigField("String", "OAUTH_TOKEN", "\"$oAuthToken\"")
     }
 }
 
 dependencies {
-
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -78,25 +38,4 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation(libs.work.runtime)
-
-    implementation(libs.navigation.compose)
-    implementation(libs.kotlinx.serialization.json)
-
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.client.cio)
-    implementation(libs.ktor.client.okhttp)
-    implementation(libs.ktor.client.serialization)
-    implementation(libs.ktor.client.logging)
-    implementation(libs.ktor.content.negotiation)
-    implementation(libs.ktor.serialization.kotlinx.json)
-
-    implementation(libs.dagger)
-    ksp(libs.dagger.compiler)
-
-    ksp(libs.room.compiler)
-    implementation(libs.room.ktx)
-    implementation(libs.room.runtime)
-
-    implementation(libs.data.store)
 }

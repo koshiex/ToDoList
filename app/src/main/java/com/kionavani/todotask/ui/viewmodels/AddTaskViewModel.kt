@@ -1,5 +1,6 @@
 package com.kionavani.todotask.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kionavani.todotask.R
@@ -80,6 +81,7 @@ class AddTaskViewModel @Inject constructor(
         _dateTextState.value = task?.deadlineDate?.let { Util.dateToString(it) }
             ?: resourcesProvider.getString(R.string.deadline_selector)
         _deadlineDate.value = task?.deadlineDate
+        Log.i("ADD_SCREEN", "${_deadlineDate.value}")
         _selectedImportanceState.value = task?.importance ?: Importance.REGULAR
     }
 

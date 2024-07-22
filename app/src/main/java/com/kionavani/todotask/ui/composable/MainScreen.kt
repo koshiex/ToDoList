@@ -1,5 +1,6 @@
 package com.kionavani.todotask.ui.composable
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -47,7 +48,6 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -65,6 +65,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
 import com.kionavani.todotask.domain.ToDoItem
@@ -79,12 +80,16 @@ import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(viewModel: MainScreenViewModel, navigate: (String?) -> Unit) {
-    val tasks by viewModel.todoItems.collectAsState()
-    val completedCount by viewModel.completedTaskCounter.collectAsState()
-    val isFiltering by viewModel.isFiltering.collectAsState()
-    val errorState by viewModel.errorFlow.collectAsState()
-    val loadingState by viewModel.isDataLoading.collectAsState()
+fun MainScreen(
+    viewModel: MainScreenViewModel,
+    navigateToAdd: (String?) -> Unit,
+    navigateToSettings: () -> Unit
+) {
+    val tasks by viewModel.todoItems.collectAsStateWithLifecycle()
+    val completedCount by viewModel.completedTaskCounter.collectAsStateWithLifecycle()
+    val isFiltering by viewModel.isFiltering.collectAsStateWithLifecycle()
+    val errorState by viewModel.errorFlow.collectAsStateWithLifecycle()
+    val loadingState by viewModel.isDataLoading.collectAsStateWithLifecycle()
 
     val scrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
@@ -131,20 +136,19 @@ fun MainScreen(viewModel: MainScreenViewModel, navigate: (String?) -> Unit) {
     }
 
 
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            TopAppBar(
-                scrollBehavior, isCollapsing, completedCount, isFiltering, changeFiltering
-            )
-        },
-        snackbarHost = { CustomSnackbarHost(snackbarHostState, stringResource(R.string.offline_mode)) },
-        floatingActionButton = { AddTaskFab(navigate) }
-    ) { paddingValues ->
+    Scaffold(modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection), topBar = {
+        TopAppBar(
+            scrollBehavior, isCollapsing, completedCount, isFiltering, changeFiltering, navigateToSettings
+        )
+    }, snackbarHost = {
+        CustomSnackbarHost(
+            snackbarHostState, stringResource(R.string.offline_mode)
+        )
+    }, floatingActionButton = { AddTaskFab(navigateToAdd) }) { paddingValues ->
         MainScreenContent(
             tasks = tasks,
             paddingValues = paddingValues,
-            navigate = navigate,
+            navigate = navigateToAdd,
             changeTaskState = { id, completed ->
                 viewModel.toggleTaskCompletion(
                     id, completed
@@ -223,7 +227,8 @@ fun TopAppBar(
     isCollapsed: Boolean,
     completedCount: Int,
     isFiltering: Boolean,
-    changeFiltering: () -> Unit
+    changeFiltering: () -> Unit,
+    navigateToSettings: () -> Unit
 ) {
     val scrollFraction by remember {
         derivedStateOf {
@@ -247,51 +252,62 @@ fun TopAppBar(
     )
 
 
-    LargeTopAppBar(
-        title = {
-            Column(
-                verticalArrangement = Arrangement.Bottom,
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier
-                    .wrapContentSize()
-                    .padding(
-                        start = animatedStartPadding, top = animatedTopPadding
-                    )
-                    .animateContentSize()
+    LargeTopAppBar(title = {
+        Column(
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.Start,
+            modifier = Modifier
+                .wrapContentSize()
+                .padding(
+                    start = animatedStartPadding, top = animatedTopPadding
+                )
+                .animateContentSize()
 
+        ) {
+            Text(
+                text = stringResource(R.string.my_tasks_title),
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = ToDoTaskTheme.colorScheme.labelPrimary
+                )
+            )
+            AnimatedVisibility(
+                visible = !isCollapsed,
+                enter = fadeIn(animationSpec = tween(durationMillis = 100)),
+                exit = fadeOut(spring(stiffness = Spring.StiffnessLow))
             ) {
                 Text(
-                    text = stringResource(R.string.my_tasks_title),
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        color = ToDoTaskTheme.colorScheme.labelPrimary
-                    )
+                    modifier = Modifier
+                        .alpha(0.8f)
+                        .padding(top = 8.dp),
+                    text = stringResource(R.string.completed_task_title) + " - $completedCount",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = ToDoTaskTheme.colorScheme.labelTertiary
+                    ),
                 )
-                AnimatedVisibility(
-                    visible = !isCollapsed,
-                    enter = fadeIn(animationSpec = tween(durationMillis = 100)),
-                    exit = fadeOut(spring(stiffness = Spring.StiffnessLow))
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .alpha(0.8f)
-                            .padding(top = 8.dp),
-                        text = stringResource(R.string.completed_task_title) + " - $completedCount",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = ToDoTaskTheme.colorScheme.labelTertiary
-                        ),
-                    )
-                }
             }
-        },
-        actions = { FilteringIcon(isFiltering, changeFiltering) },
-        scrollBehavior = scrollBehavior,
-        colors = TopAppBarDefaults.largeTopAppBarColors(
-            containerColor = ToDoTaskTheme.colorScheme.backPrimary,
-            scrolledContainerColor = ToDoTaskTheme.colorScheme.backSecondary,
-        ),
-        modifier = Modifier.shadow(animatedShadow)
+        }
+    }, actions = {
+        SettingsIcon(navigateToSettings)
+        FilteringIcon(isFiltering, changeFiltering)
+    }, scrollBehavior = scrollBehavior, colors = TopAppBarDefaults.largeTopAppBarColors(
+        containerColor = ToDoTaskTheme.colorScheme.backPrimary,
+        scrolledContainerColor = ToDoTaskTheme.colorScheme.backSecondary,
+    ), modifier = Modifier.shadow(animatedShadow)
 
     )
+}
+
+@Composable
+fun SettingsIcon(
+    navigateToSettings: () -> Unit
+) {
+    IconButton(onClick = navigateToSettings) {
+        Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.settings_icon),
+            contentDescription = null,
+            tint = ToDoTaskTheme.colorScheme.colorBlue
+        )
+    }
 }
 
 @Composable
@@ -328,8 +344,14 @@ fun TaskList(
                 color = ToDoTaskTheme.colorScheme.backSecondary, shape = RoundedCornerShape(12.dp)
             ), state = listState
     ) {
+
         items(tasks) { task ->
-            TaskItem(task, changeTaskState, getDeadlineDate, navigate)
+            AnimatedContent(
+                targetState = task,
+            ) { item ->
+                TaskItem(item, changeTaskState, getDeadlineDate, navigate)
+            }
+
         }
         item {
             Text(

@@ -27,7 +27,6 @@ val Context.dataStore: DataStore<Preferences>
 
 class TodoApplication : Application() {
     val appComponent: AppComponent by lazy { setupDi() }
-    val screenComponent: ScreenComponent by lazy { appComponent.screenComponent().create() }
     private val mainScope: CoroutineScope by lazy { CoroutineScope(SupervisorJob()) }
 
     private fun setupDi() = DaggerAppComponent.builder()

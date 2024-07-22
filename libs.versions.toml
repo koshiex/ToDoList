@@ -14,10 +14,15 @@ ktor = "2.3.12"
 dagger = "2.51.1"
 ksp = "1.9.0-1.0.12"
 work-runtime = "2.7.0"
+coroutines = "1.7.3"
 room-version = "2.6.1"
 data-store = "1.1.1"
+accompanist = "0.34.0"
+divkit = "30.9.0"
 
 [libraries]
+agp = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
+kotlin-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -49,9 +54,24 @@ room-compiler = { group = "androidx.room", name = "room-compiler", version.ref =
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room-version"}
 data-store = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "data-store"}
 
+ksp-gradle-plugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+
+picasso-image-loader = { group = "com.yandex.div", name = "picasso", version.ref = "divkit"}
+divkit = { group = "com.yandex.div", name = "div", version.ref = "divkit"}
+divkit-json = { group = "com.yandex.div", name = "div-json", version.ref = "divkit"}
+divkit-core = { group = "com.yandex.div", name = "div-core", version.ref = "divkit"}
+
+accompanist-navigation-animation = { group = "com.google.accompanist", name = "accompanist-navigation-animation", version.ref = "accompanist" }
+system-ui-controller = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist"}
+
+[bundles]
+div-kit = ["divkit", "divkit-core", "divkit-json", "picasso-image-loader"]
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp"}

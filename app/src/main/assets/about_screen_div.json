@@ -1,0 +1,328 @@
+{
+  "card": {
+    "log_id": "about_info_card",
+    "variables": [
+      {
+        "type": "string",
+        "name": "TopBarLightColor",
+        "value": "#FFFFFF"
+      },
+      {
+        "type": "string",
+        "name": "TopBarDarkColor",
+        "value": "#25258"
+      },
+      {
+        "type": "string",
+        "name": "BackgroundLightColor",
+        "value": "#F7F6F2"
+      },
+      {
+        "type": "string",
+        "name": "BackgroundDarkColor",
+        "value": "#161618"
+      },
+      {
+        "type": "string",
+        "name": "LabelPrimaryLight",
+        "value": "#000000"
+      },
+      {
+        "type": "string",
+        "name": "LabelPrimaryDark",
+        "value": "#FFFFFF"
+      }
+    ],
+    "states": [
+      {
+        "state_id": 0,
+        "div": {
+          "type": "container",
+          "width": {
+            "type": "match_parent"
+          },
+          "height": {
+            "type": "match_parent"
+          },
+          "background": [
+            {
+              "type": "solid",
+              "color": "@{themeIsDark == false ? BackgroundLightColor : BackgroundDarkColor}"
+            }
+          ],
+          "items": [
+            {
+              "type": "container",
+              "orientation": "horizontal",
+              "clip_to_bounds": false,
+              "width": {
+                "type": "match_parent"
+              },
+              "height": {
+                "type": "fixed",
+                "value": 44
+              },
+              "background": [
+                {
+                  "type": "solid",
+                  "color": "@{themeIsDark == false ? TopBarLightColor : TopBarDarkColor}"
+                }
+              ],
+              "border": {
+                "shadow": {
+                  "color": "#000000",
+                  "offset": {
+                    "x": {
+                      "value": 0
+                    },
+                    "y": {
+                      "value": 1
+                    }
+                  }
+                },
+                "has_shadow": true
+              },
+              "content_alignment_vertical": "center",
+              "content_alignment_horizontal": "space-between",
+              "items": [
+                {
+                  "type": "image",
+                  "image_url": "https://raw.githubusercontent.com/koshiex/ToDoList/f2b7e53ab72c0851f21955bc07e30c57dccdc3bd/divkit-icons/close_icon.svg?raw=true",
+                  "width": {
+                    "type": "fixed",
+                    "value": 40,
+                    "unit": "dp"
+                  },
+                  "paddings": {
+                    "top": 4,
+                    "start": 16,
+                    "bottom": 4
+                  },
+                  "tint_color": "@{themeIsDark == false ? LabelPrimaryLight : LabelPrimaryDark}",
+                  "tint_mode": "source_in",
+                  "action": {
+                    "log_id": "back",
+                    "url": "about-action://back"
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "О приложении",
+                  "font_size": 20,
+                  "width": {
+                    "type": "wrap_content"
+                  },
+                  "text_alignment_horizontal": "center",
+                  "paddings": {
+                    "top": 4,
+                    "bottom": 4
+                  },
+                  "text_color": "@{themeIsDark == false ? LabelPrimaryLight : LabelPrimaryDark}"
+                },
+                {
+                  "type": "image",
+                  "image_url": "https://raw.githubusercontent.com/koshiex/ToDoList/f2b7e53ab72c0851f21955bc07e30c57dccdc3bd/divkit-icons/close_icon.svg?raw=true",
+                  "width": {
+                    "type": "fixed",
+                    "value": 24,
+                    "unit": "dp"
+                  },
+                  "paddings": {
+                    "top": 4,
+                    "end": 16,
+                    "bottom": 4
+                  },
+                  "visibility": "invisible"
+                }
+              ]
+            },
+            {
+              "type": "state",
+              "id": "images_state",
+              "states": [
+                {
+                  "state_id": "YandexImage",
+                  "div": {
+                    "type": "image",
+                    "image_url": "https://raw.githubusercontent.com/koshiex/ToDoList/99c7bc509b07a4f43641fb9ed312660e7b2073bf/divkit-icons/youngAndYandexLogo.svg?raw=true",
+                    "paddings": {
+                      "top": 50,
+                      "end": 18,
+                      "start": 18,
+                      "bottom": 50
+                    },
+                    "tint_color": "@{themeIsDark == false ? LabelPrimaryLight : LabelPrimaryDark}",
+                    "tint_mode": "source_in"
+                  }
+                },
+                {
+                  "state_id": "kittens",
+                  "div": {
+                    "type": "pager",
+                    "layout_mode": {
+                      "type": "percentage",
+                      "page_width": {
+                        "type": "percentage",
+                        "value": 100
+                      }
+                    },
+                    "infinite_scroll": true,
+                    "default_item": 1,
+                    "item_spacing": {
+                      "value": 5,
+                      "type": "fixed"
+                    },
+                    "alignment_horizontal": "center",
+                    "alignment_vertical": "center",
+                    "margins": {
+                      "start": 16,
+                      "end": 16,
+                      "top": 16
+                    },
+                    "page_transformation": {
+                      "type": "slide",
+                      "previous_page_scale": 0.25,
+                      "previous_page_alpha": 0.3,
+                      "next_page_alpha": 0.7,
+                      "next_page_scale": 0.7
+                    },
+                    "items": [
+                      {
+                        "type": "image",
+                        "image_url": "https://github.com/koshiex/ToDoList/blob/Workshop-5/divkit-icons/cat1.jpg?raw=true",
+                        "aspect": {
+                          "ratio": 1
+                        },
+                        "border": {
+                          "corner_radius": 12,
+                          "stroke": {
+                            "color": "#66666693"
+                          },
+                          "has_shadow": true
+                        }
+                      },
+                      {
+                        "type": "image",
+                        "image_url": "https://github.com/koshiex/ToDoList/blob/Workshop-5/divkit-icons/cat2.jpg?raw=true",
+                        "aspect": {
+                          "ratio": 1
+                        },
+                        "border": {
+                          "corner_radius": 12,
+                          "stroke": {
+                            "color": "#66666693"
+                          },
+                          "has_shadow": true
+                        }
+                      },
+                      {
+                        "type": "image",
+                        "image_url": "https://github.com/koshiex/ToDoList/blob/Workshop-5/divkit-icons/cat3.jpg?raw=true",
+                        "aspect": {
+                          "ratio": 1
+                        },
+                        "border": {
+                          "corner_radius": 12,
+                          "stroke": {
+                            "color": "#66666693"
+                          },
+                          "has_shadow": true
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": "Это приложение для отслеживания дел, разработанное в рамках школы мобильной разработки Яндекса. Оно поможет вам организовать задачи, установить приоритеты и не забывать о важных делах. \nУправляйте своими делами легко и эффективно!",
+              "margins": {
+                "start": 15,
+                "end": 15,
+                "top": 8
+              },
+              "font_size": 17,
+              "text_alignment_horizontal": "center",
+              "text_color": "@{themeIsDark == false ? LabelPrimaryLight : LabelPrimaryDark}"
+            },
+            {
+              "type": "container",
+              "orientation": "horizontal",
+              "content_alignment_horizontal": "space-around",
+              "content_alignment_vertical": "bottom",
+              "alignment_horizontal": "center",
+              "alignment_vertical": "bottom",
+              "width": {
+                "type": "match_parent"
+              },
+              "height": {
+                "type": "wrap_content"
+              },
+              "items": [
+                {
+                  "type": "image",
+                  "image_url": "https://github.com/koshiex/ToDoList/blob/Workshop-5/divkit-icons/github_icon.png?raw=true",
+                  "aspect": {
+                    "ratio": 1
+                  },
+                  "width": {
+                    "type": "fixed",
+                    "value": 50
+                  },
+                  "alignment_horizontal": "center",
+                  "alignment_vertical": "center",
+                  "margins": {
+                    "top": 30,
+                    "end": 18
+                  },
+                  "tint_color": "@{themeIsDark == false ? LabelPrimaryLight : LabelPrimaryDark}",
+                  "tint_mode": "source_in",
+                  "action": {
+                    "log_id": "github_deeplink",
+                    "url": "about-action://github"
+                  }
+                },
+                {
+                  "type": "container",
+                  "content_alignment_horizontal": "center",
+                  "content_alignment_vertical": "center",
+                  "width": {
+                    "type": "wrap_content"
+                  },
+                  "background": [
+                    {
+                      "type": "solid",
+                      "color": "#007AFF"
+                    }
+                  ],
+                  "paddings": {
+                    "top": 10,
+                    "bottom": 10,
+                    "start": 10,
+                    "end": 10
+                  },
+                  "border": {
+                    "corner_radius": 10
+                  },
+                  "items": [
+                    {
+                      "type": "text",
+                      "text": "ТЫК",
+                      "text_color": "#FFFFFF",
+                      "font_size": 20,
+                      "action": {
+                        "log_id": "switchPictureState",
+                        "url": "div-action://set_state?state_id=0/images_state/kittens"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

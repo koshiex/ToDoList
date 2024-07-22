@@ -12,10 +12,43 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+
+val LightMaterialScheme = lightColorScheme(
+    primary = LightBackPrimary,
+    secondary = LightBackSecondary,
+    tertiary = LightBackElevated,
+    onPrimary = LightPrimaryLabel,
+    onSecondaryContainer = LightSecondaryLabel,
+    onTertiary = LightTertiaryLabel,
+    outline = LightSeparator,
+    surface = LightOverlay,
+    onSurface = LightBackElevated,
+    inverseSurface = TransparentLightBlue,
+    inverseOnSurface = LightBlue,
+    inversePrimary = LightGreen,
+    error = LightRed
+)
+
+val DarkMaterialScheme = darkColorScheme(
+    primary = DarkBackPrimary,
+    secondary = DarkBackSecondary,
+    tertiary = DarkBackElevated,
+    onPrimary = DarkPrimaryLabel,
+    onSecondaryContainer = DarkSecondaryLabel,
+    onTertiary = DarkTertiaryLabel,
+    outline = DarkSeparator,
+    surface = DarkOverlay,
+    onSurface = DarkBackElevated,
+    inverseSurface = TransparentDarkBlue,
+    inverseOnSurface = DarkBlue,
+    inversePrimary = DarkGreen,
+    error = DarkRed
+)
 
 @Composable
 fun ToDoTaskTheme(
@@ -31,14 +64,16 @@ fun ToDoTaskTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.backPrimary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+            window.statusBarColor = if (!darkTheme) Color.Black.toArgb() else Color.White.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
+
     CompositionLocalProvider(LocalColorScheme provides colorScheme) {
         MaterialTheme(
             typography = Typography,
-            content = content
+            content = content,
+            colorScheme = if (darkTheme) DarkMaterialScheme else LightMaterialScheme
         )
     }
 }
