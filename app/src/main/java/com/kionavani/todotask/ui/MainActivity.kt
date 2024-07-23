@@ -25,6 +25,7 @@ import com.yandex.div.data.Variable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -78,19 +79,17 @@ class MainActivity : ComponentActivity() {
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         )
 
-        Log.i("SettingsViewModel", "currentThemeIsDark Create - $currentThemeIsDark")
         lifecycleScope.launch {
-            currentThemeIsDark = savedThemeFlow.last()
+            val savedTheme = savedThemeFlow.firstOrNull()
+            currentThemeIsDark = savedTheme
             settingsViewModel.changeThemeBoolean(currentThemeIsDark)
+            applyTheme()
         }
 
-        applyTheme()
 
         networkMonitor.startMonitoring()
         provider.attachActivityContext(this)
         startCoroutines()
-
-        Log.i("VIEWMODEL", "Hash in activity - ${addViewModel.hashCode()}")
     }
 
 
@@ -102,6 +101,20 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun startCoroutines() {
+        themeListener()
+
+        lifecycleScope.launch {
+            mainViewModel.fetchData()
+        }
+
+        lifecycleScope.launch {
+            addViewModel.isErrorHappened.collect {
+                if (it) mainViewModel.setUpdatingError()
+            }
+        }
+    }
+
+    private fun themeListener() {
         lifecycleScope.launch {
             settingsViewModel.selectedThemeState.collect {
                 currentThemeIsDark = when (it) {
@@ -115,19 +128,8 @@ class MainActivity : ComponentActivity() {
                     currentThemeIsDark ?: isSystemThemeIsDark()
                 )
                 variableController.putOrUpdate(theme)
-                Log.i("SettingsViewModel", "currentThemeIsDark - $currentThemeIsDark")
                 applyTheme()
                 dataStoreInst.saveNullableBoolean(THEME_IS_DARK_KEY, currentThemeIsDark)
-            }
-        }
-
-        lifecycleScope.launch {
-            mainViewModel.fetchData()
-        }
-
-        lifecycleScope.launch {
-            addViewModel.isErrorHappened.collect {
-                if (it) mainViewModel.setUpdatingError()
             }
         }
     }
@@ -135,7 +137,7 @@ class MainActivity : ComponentActivity() {
     private fun applyTheme() {
         setContent {
             ToDoTaskTheme(darkTheme = currentThemeIsDark ?: isSystemThemeIsDark()) {
-                SetupUI(viewModelFactory, aboutViewFactory)
+                SetupUI(this, aboutViewFactory)
             }
         }
     }

@@ -21,13 +21,14 @@ class SettingsViewModel @Inject constructor() : ViewModel() {
     }
 
     fun changeThemeBoolean(themeIsDark: Boolean?) {
-            _selectedThemeState.value = when {
-                themeIsDark == null -> ThemeState.SYSTEM
-                themeIsDark -> ThemeState.DARK
-                else -> ThemeState.LIGHT
-            }
+        val newThemeState = when {
+            themeIsDark == null -> ThemeState.SYSTEM
+            themeIsDark -> ThemeState.DARK
+            else -> ThemeState.LIGHT
+        }
 
-        Log.i("SettingsViewModel", "changeThemeBoolean: $themeIsDark")
-
+        if (_selectedThemeState.value != newThemeState) {
+            _selectedThemeState.value = newThemeState
+        }
     }
 }
