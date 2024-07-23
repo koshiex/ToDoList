@@ -4,6 +4,7 @@ import android.content.Context
 import com.kionavani.todotask.ui.DataFetchWorker
 import com.kionavani.todotask.di.AppScope
 import com.kionavani.todotask.di.screensComponent.ScreenComponent
+import com.kionavani.todotask.ui.MainActivity
 import com.kionavani.todotask.ui.TodoApplication
 import dagger.BindsInstance
 import dagger.Component
@@ -21,7 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 ])
 interface AppComponent {
     fun inject(worker: DataFetchWorker)
-
+    fun inject(application: TodoApplication)
     fun screenComponent(): ScreenComponent.Builder
 
     @Component.Builder

@@ -57,7 +57,7 @@ fun SettingsScreen(
                 selectedThemeState = themeState,
                 dropDownState = dropDownState,
                 onDropDownStateChange = { dropDownState = it },
-                onDropDownSelected = viewModel::changeTheme
+                onDropDownSelected = viewModel::changeThemeDropDown
             )
 
             Divider(modifier = Modifier.padding(vertical = 16.dp, horizontal = 10.dp))
