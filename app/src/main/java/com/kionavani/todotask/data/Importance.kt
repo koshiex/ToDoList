@@ -6,10 +6,10 @@ import com.kionavani.todotask.R
 /**
  * Enum класс важности таски
  */
-enum class Importance(@StringRes val displayName: Int) {
-    LOW(R.string.importance_low),
-    REGULAR(R.string.importance_regular),
-    HIGH(R.string.importance_high);
+enum class Importance(@StringRes val displayName: Int, @StringRes val description: Int) {
+    LOW(R.string.importance_low, R.string.low_importance_descr),
+    REGULAR(R.string.importance_regular, R.string.regular_importance_descr),
+    HIGH(R.string.importance_high, R.string.high_importance_descr);
 
     companion object {
         fun fromString(value: String): Importance {

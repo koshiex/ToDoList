@@ -27,11 +27,18 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.isEditable
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kionavani.todotask.R
 import com.kionavani.todotask.data.Importance
+import com.kionavani.todotask.ui.removeNonLetters
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
 import com.kionavani.todotask.ui.viewmodels.AddTaskViewModel
 import kotlinx.coroutines.delay
@@ -96,9 +103,11 @@ fun Header(
     viewModel: AddTaskViewModel, itemId: String?, navigate: () -> Boolean
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics { isTraversalGroup = true },
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         HeaderIconButton(navigate)
         HeaderTextButton(viewModel, itemId, navigate)
@@ -110,7 +119,7 @@ fun HeaderIconButton(navigate: () -> Boolean) {
     IconButton(modifier = Modifier.padding(start = 16.dp), onClick = { navigate() }) {
         Icon(
             imageVector = ImageVector.vectorResource(id = R.drawable.close_icon),
-            contentDescription = null,
+            contentDescription = stringResource(R.string.go_back_btn_descr),
             tint = ToDoTaskTheme.colorScheme.labelPrimary
         )
     }
@@ -140,6 +149,7 @@ fun TaskTextField(textFiledState: String, onTextChange: (String) -> Unit) {
             .shadow(1.dp, RoundedCornerShape(12.dp))
             .background(ToDoTaskTheme.colorScheme.backSecondary, RoundedCornerShape(8.dp))
     ) {
+        val textFieldHint = stringResource(R.string.text_field_descr)
         BasicTextField(
             value = textFiledState,
             onValueChange = onTextChange,
@@ -149,7 +159,14 @@ fun TaskTextField(textFiledState: String, onTextChange: (String) -> Unit) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState())
+                .clearAndSetSemantics {
+                    contentDescription = textFiledState.ifEmpty {
+                        textFieldHint
+                    }
+                    isEditable = true
+                    onClick { true }
+                },
             decorationBox = { innerTextField ->
                 if (textFiledState.isEmpty()) {
                     Text(
@@ -204,11 +221,13 @@ fun ImportanceDropDownMenu(
     onDropDownSelected: (Importance) -> Unit,
     selectedImportanceState: Importance
 ) {
+    val selectedImportanceText = stringResource(selectedImportanceState.displayName)
     Text(
         modifier = Modifier
             .alpha(0.7f)
-            .padding(top = 4.dp),
-        text = stringResource(selectedImportanceState.displayName),
+            .padding(top = 4.dp)
+            .semantics { contentDescription = selectedImportanceText.removeNonLetters() },
+        text = selectedImportanceText,
         style = MaterialTheme.typography.headlineSmall.copy(
             color = ToDoTaskTheme.colorScheme.labelTertiary
         )
@@ -219,12 +238,16 @@ fun ImportanceDropDownMenu(
         expanded = dropDownState,
         onDismissRequest = { onDropDownStateChange(false) }) {
         Importance.entries.forEach { importance ->
+            val importanceText = stringResource(importance.displayName)
             DropdownMenuItem(text = {
                 Text(
-                    text = stringResource(importance.displayName),
+                    text = importanceText,
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = ToDoTaskTheme.colorScheme.labelPrimary
-                    )
+                    ),
+                    modifier = Modifier.semantics {
+                        contentDescription = importanceText.removeNonLetters()
+                    }
                 )
             }, onClick = {
                 onDropDownSelected(importance)
@@ -251,13 +274,13 @@ fun DeadlineRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 27.dp, start = 16.dp, end = 16.dp)
+            .clickable(enabled = switchState) {
+                onDatePickerOnStateChange(true)
+            }
     ) {
         Column(
             modifier = Modifier
-                .height(50.dp)
-                .clickable(enabled = switchState) {
-                        onDatePickerOnStateChange(true)
-                },
+                .height(50.dp),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
@@ -272,6 +295,8 @@ fun DeadlineRow(
             )
         }
 
+        val addDeadlineDescr = stringResource(R.string.add_deadline_descr)
+        val removeDeadlineDescr = stringResource(R.string.remove_deadline_descr)
         Switch(
             checked = switchState,
             onCheckedChange = onSwitchStateChange,
@@ -280,7 +305,10 @@ fun DeadlineRow(
                 checkedThumbColor = ToDoTaskTheme.colorScheme.colorBlue,
                 uncheckedTrackColor = ToDoTaskTheme.colorScheme.supportOverlay,
                 uncheckedThumbColor = ToDoTaskTheme.colorScheme.backElevated,
-            )
+            ),
+            modifier = Modifier.semantics {
+                contentDescription = if (switchState) removeDeadlineDescr else addDeadlineDescr
+            }
         )
     }
 }
@@ -363,48 +391,48 @@ fun DeadlineDatePicker(
 
 @Composable
 fun DeleteTaskRow(itemId: String?, delete: (String) -> Unit, navigate: () -> Boolean) {
-    if (itemId != null) {
-        var isPressed by remember { mutableStateOf(false) }
-        val animatedColor by animateColorAsState(
-            targetValue = if (isPressed) ToDoTaskTheme.colorScheme.colorBlue else ToDoTaskTheme.colorScheme.colorRed,
-            animationSpec = tween(durationMillis = 300)
+    var isPressed by remember { mutableStateOf(false) }
+
+    val animatedColor by animateColorAsState(
+        targetValue = if (isPressed) ToDoTaskTheme.colorScheme.colorBlue else ToDoTaskTheme.colorScheme.colorRed,
+        animationSpec = tween(durationMillis = 300)
+    )
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp, start = 16.dp)
+            .clickable(
+                onClick = {
+                    isPressed = true
+                },
+                onClickLabel = stringResource(R.string.delete_btn_descr),
+                interactionSource = remember { MutableInteractionSource() },
+                indication = rememberRipple(bounded = true),
+                enabled = itemId != null
+            )
+    ) {
+        Icon(
+            imageVector = ImageVector.vectorResource(id = R.drawable.delete_icon),
+            contentDescription = null,
+            tint = if (itemId != null) animatedColor else ToDoTaskTheme.colorScheme.labelTertiary
         )
+        Text(
+            text = stringResource(R.string.delete_button),
+            style = MaterialTheme.typography.bodyMedium.copy(
+                color = if (itemId != null) animatedColor else ToDoTaskTheme.colorScheme.labelTertiary
+            ),
+            modifier = Modifier.padding(start = 12.dp)
+        )
+    }
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 27.dp, start = 16.dp)
-                .clickable(
-                    onClick = {
-                        isPressed = true
-                    },
-                    onClickLabel = stringResource(R.string.delete_button),
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = rememberRipple(bounded = true)
-                )
-        ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.delete_icon),
-                contentDescription = null,
-                tint = animatedColor
-            )
-            Text(
-                text = stringResource(R.string.delete_button),
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = animatedColor
-                ),
-                modifier = Modifier.padding(start = 12.dp)
-            )
-        }
-
-        if (isPressed) {
-            LaunchedEffect(Unit) {
-                delay(300)
-                delete(itemId)
-                navigate()
-            }
+    if (isPressed && itemId != null) {
+        LaunchedEffect(Unit) {
+            delay(300)
+            delete(itemId)
+            navigate()
         }
     }
 }

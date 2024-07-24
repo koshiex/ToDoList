@@ -25,10 +25,32 @@
   <string name="dark_theme">Dark</string>
   <string name="light_theme">Light</string>
   <string name="about_app">About app</string>
+  <string name="offline_mode">Continue offline</string>
 
   <string name="high_importance_emoji">&#10071;</string>
   <string name="low_importance_emoji">&#128164;</string>
-  <string name="offline_mode">Continue offline</string>
+
+  <!--  TalkBack-->
+  <string name="settings_btn_desc">Settings</string>
+  <string name="hide_completed_btn_desc">Hide completed tasks</string>
+  <string name="all_tasks_btn_desc">Show all tasks</string>
+  <string name="add_new_task_btn_descr">New task</string>
+  <string name="change_task_btn_descr">Edit task</string>
+  <string name="indicator_descr">Downloading</string>
+  <string name="text_field_descr">Enter task description</string>
+  <string name="add_deadline_descr">Add deadline</string>
+  <string name="remove_deadline_descr">Remove deadline</string>
+
+  <string name="completed_descr">Completed</string>
+  <string name="uncompleted_descr">Uncompleted</string>
+
+  <string name="low_importance_descr">Low importance</string>
+  <string name="regular_importance_descr">Regular importance</string>
+  <string name="high_importance_descr">High importance</string>
+
+  <string name="go_back_btn_descr">Go back</string>
+  <string name="save_btn_descr">Save changes</string>
+  <string name="delete_btn_descr">Delete task</string>
 
 
 </resources>

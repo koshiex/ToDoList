@@ -31,5 +31,27 @@
   <string name="low_importance_emoji">&#128164;</string>
   <string name="offline_mode">Продолжить оффлайн</string>
 
+  <!--  TalkBack-->
+  <string name="settings_btn_desc">Настройки</string>
+  <string name="hide_completed_btn_desc">Скрыть выполненые задачи</string>
+  <string name="all_tasks_btn_desc">Отобразить все задачи</string>
+  <string name="add_new_task_btn_descr">Новое дело</string>
+  <string name="change_task_btn_descr">Редактировать дело</string>
+  <string name="indicator_descr">Загрузка</string>
+  <string name="text_field_descr">Введите описание дела</string>
+  <string name="add_deadline_descr">Добавить дедлайн</string>
+  <string name="remove_deadline_descr">Убрать дедлайн</string>
+
+  <string name="completed_descr">Выполненым</string>
+  <string name="uncompleted_descr">Невыполнено</string>
+
+  <string name="low_importance_descr">Низкая важность</string>
+  <string name="regular_importance_descr">Обычная важность</string>
+  <string name="high_importance_descr">Важно</string>
+
+  <string name="go_back_btn_descr">Вернуться назад</string>
+  <string name="save_btn_descr">Сохранить изменения</string>
+  <string name="delete_btn_descr">Удалить дело</string>
+
 </resources>
 

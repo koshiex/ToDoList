@@ -14,3 +14,12 @@ object Util {
         return formatter.format(date)
     }
 }
+
+fun String.removeNonLetters(): String {
+    return this.replace("[^\\p{L}]".toRegex(), "")
+}
+
+fun String.removeAllEmojis(): String {
+    val emojiRegex = "[\\uD83C-\\uDBFF\\uDC00-\\uDFFF\\u2600-\\u26FF\\u2700-\\u27BF]".toRegex()
+    return this.replace(emojiRegex, "")
+}

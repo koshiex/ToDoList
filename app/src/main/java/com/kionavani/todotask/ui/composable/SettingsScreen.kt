@@ -31,6 +31,11 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -48,7 +53,8 @@ fun SettingsScreen(
 
     Scaffold(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .semantics { isTraversalGroup = true },
         topBar = { SettingsTopBar(navigateBack) }) { contentPadding ->
         Column(
             modifier = Modifier.padding(contentPadding)
@@ -64,13 +70,16 @@ fun SettingsScreen(
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics { traversalIndex = 1f }
             ) {
                 Text(
                     text = stringResource(R.string.about_app),
                     color = ToDoTaskTheme.colorScheme.labelTertiary,
                     style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.clickable { navigateToInfo() }
+                    modifier = Modifier
+                        .clickable { navigateToInfo() }
                 )
             }
         }
@@ -89,7 +98,8 @@ fun ThemeSelector(
             .padding(start = 16.dp, end = 16.dp, top = 16.dp)
             .fillMaxWidth()
             .wrapContentHeight()
-            .clickable { onDropDownStateChange(true) },
+            .clickable { onDropDownStateChange(true) }
+            .semantics { traversalIndex = 0f },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -137,16 +147,23 @@ fun ThemeSelector(
 fun SettingsTopBar(
     navigate: () -> Boolean
 ) {
+    val goBackDescription = stringResource(R.string.go_back_btn_descr)
     Row(
         modifier = Modifier
             .shadow(3.dp)
             .fillMaxWidth()
+            .semantics(mergeDescendants = true) {
+                onClick(label = goBackDescription) { navigate() }
+                traversalIndex = -1f
+            }
             .background(ToDoTaskTheme.colorScheme.backSecondary),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
         IconButton(
-            modifier = Modifier.statusBarsPadding(),
+            modifier = Modifier
+                .statusBarsPadding()
+                .clearAndSetSemantics {  },
             onClick = { navigate() }
         ) {
             Icon(
