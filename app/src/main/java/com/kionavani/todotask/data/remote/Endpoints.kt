@@ -6,10 +6,10 @@ import com.kionavani.todotask.BuildConfig
  * Объект с константными эндпоинтами для работы с сетью
  */
 object Endpoints {
-    private const val BASE_URL = BuildConfig.BASE_URL
-    const val LIST = "$BASE_URL/list"
+    const val BASE_URL = BuildConfig.BASE_URL
+    const val LIST = "/list"
 
-    fun getListOneUrl(id: String): String {
-        return "$BASE_URL/list/$id"
+    fun getListOneUrl(id: String, baseUrl: String): String {
+        return "$baseUrl/list/$id"
     }
 }

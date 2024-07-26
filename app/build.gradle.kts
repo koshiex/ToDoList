@@ -31,8 +31,16 @@ android {
 }
 
 dependencies {
+    testImplementation(libs.ktor.client.cio)
+    testImplementation(libs.ktor.client.mock)
+    testImplementation(libs.mockwebserver)
+    testImplementation(libs.core.ktx)
+    testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.androidx.junit)
+    testImplementation(libs.robolectric)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)

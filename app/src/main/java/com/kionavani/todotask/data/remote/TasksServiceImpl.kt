@@ -19,6 +19,7 @@ import io.ktor.client.request.setBody
 import io.ktor.client.request.url
 import io.ktor.serialization.kotlinx.json.json
 import com.kionavani.todotask.BuildConfig
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.http.ContentType.Application
@@ -31,7 +32,7 @@ private const val CLIENT_LOGGER_TAG = "HTTP call"
 /**
  * Функция для создания сетевого клиента
  */
-fun createHttpClient() = HttpClient {
+fun createHttpClient(engine: HttpClientEngine) = HttpClient(engine) {
     install(ContentNegotiation) {
         json(Json {
             ignoreUnknownKeys = true
@@ -68,10 +69,11 @@ fun createHttpClient() = HttpClient {
  */
 
 class TasksServiceImpl(
-    private val client: HttpClient
+    private val client: HttpClient,
+    private val baseUrl: String
 ) : TasksService {
     override suspend fun getList(): NetworkResult<ListElementResponseDto> = try {
-        val response: ListElementResponseDto = client.get { url(Endpoints.LIST) }.body()
+        val response: ListElementResponseDto = client.get { url(baseUrl + Endpoints.LIST) }.body()
         NetworkResult.Success(response)
     } catch (e: Exception) {
         NetworkResult.Error(e)
@@ -82,7 +84,7 @@ class TasksServiceImpl(
         list: ListElementRequestDto, revision: Int
     ): NetworkResult<ListElementResponseDto> = try {
         val response: ListElementResponseDto = client.patch {
-            url(Endpoints.LIST)
+            url(baseUrl + Endpoints.LIST)
             setBody(list)
             header(REVISION_HEADER, revision.toString())
         }.body()
@@ -94,7 +96,7 @@ class TasksServiceImpl(
 
     override suspend fun getTask(taskId: String): NetworkResult<SingleElementResponseDto> = try {
         val response: SingleElementResponseDto = client.get {
-            url(Endpoints.getListOneUrl(taskId))
+            url(Endpoints.getListOneUrl(taskId, baseUrl))
         }.body()
         NetworkResult.Success(response)
     } catch (e: Exception) {
@@ -107,7 +109,7 @@ class TasksServiceImpl(
     ): NetworkResult<SingleElementResponseDto> =
         try {
             val response: SingleElementResponseDto = client.post {
-                url(Endpoints.LIST)
+                url(baseUrl + Endpoints.LIST)
                 header(REVISION_HEADER, revision.toString())
                 setBody(task)
             }.body()
@@ -120,7 +122,7 @@ class TasksServiceImpl(
         try {
             val taskId = task.element.id
             val response: SingleElementResponseDto = client.put {
-                url(Endpoints.getListOneUrl(taskId))
+                url(Endpoints.getListOneUrl(taskId, baseUrl))
                 header(REVISION_HEADER, revision.toString())
                 setBody(task)
             }.body()
@@ -132,7 +134,7 @@ class TasksServiceImpl(
     override suspend fun deleteTask(taskId: String, revision: Int): NetworkResult<SingleElementResponseDto> =
         try {
             val response: SingleElementResponseDto = client.delete {
-                url(Endpoints.getListOneUrl(taskId))
+                url(Endpoints.getListOneUrl(taskId, baseUrl))
                 header(REVISION_HEADER, revision.toString())
             }.body()
             NetworkResult.Success(response)

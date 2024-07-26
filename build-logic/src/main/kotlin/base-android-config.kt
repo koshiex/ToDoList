@@ -20,6 +20,11 @@ fun BaseExtension.baseAndroidConfig() {
             )
         }
     }
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
     compileOptions {
         sourceCompatibility = AndroidConst.COMPILE_JDK_VERSION
         targetCompatibility = AndroidConst.COMPILE_JDK_VERSION
