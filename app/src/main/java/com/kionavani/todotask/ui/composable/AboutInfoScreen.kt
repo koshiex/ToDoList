@@ -19,8 +19,7 @@ fun AboutInfoScreen(viewFactory: ViewFactoryInt) {
     ) {
         AndroidView(
             modifier = Modifier
-                .fillMaxSize()
-                .statusBarsPadding(),
+                .fillMaxSize(),
             factory = { viewFactory.provideView() ?: LinearLayout(it) }
         )
     }

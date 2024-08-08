@@ -226,4 +226,5 @@ class TodoItemsRepositoryImpl(
 object DataStoreContract {
     const val STORE_NAME = "todo_tasks_store"
     const val REVISION_KEY = "current_revision"
+    const val THEME_IS_DARK_KEY = "theme_is_dark"
 }

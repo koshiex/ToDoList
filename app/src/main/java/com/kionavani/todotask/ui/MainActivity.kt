@@ -2,16 +2,18 @@ package com.kionavani.todotask.ui
 
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
+import com.kionavani.todotask.data.DataStoreContract
 import com.kionavani.todotask.ui.composable.SetupUI
 import com.kionavani.todotask.ui.divkit.AboutViewFactory
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
@@ -20,8 +22,13 @@ import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
 import com.kionavani.todotask.ui.viewmodels.SettingsViewModel
 import com.yandex.div.core.expression.variables.DivVariableController
 import com.yandex.div.data.Variable
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 private const val DIVKIT_THEME_IS_DARK_VAR = "themeIsDark"
@@ -32,12 +39,16 @@ private const val DIVKIT_THEME_IS_DARK_VAR = "themeIsDark"
 class MainActivity : ComponentActivity() {
     @Inject
     lateinit var provider: ResourcesProvider
+
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
+
     @Inject
     lateinit var networkMonitor: NetworkMonitor
+
     @Inject
     lateinit var variableController: DivVariableController
+
     @Inject
     lateinit var aboutViewFactory: AboutViewFactory
 
@@ -45,11 +56,22 @@ class MainActivity : ComponentActivity() {
     private val addViewModel by viewModels<AddTaskViewModel> { viewModelFactory }
     private val settingsViewModel by viewModels<SettingsViewModel> { viewModelFactory }
 
-    // TODO: сохранять в датастор
-    private var currentThemeIsDark = true
+    private var currentThemeIsDark: Boolean? = null
+    private val THEME_IS_DARK_KEY = booleanPreferencesKey(DataStoreContract.THEME_IS_DARK_KEY)
+
+    @Inject
+    lateinit var dataStoreInst: DataStore<Preferences>
+    private val savedThemeFlow: Flow<Boolean?> by lazy {
+        dataStoreInst.getNullableBoolean(
+            THEME_IS_DARK_KEY
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        (this.application as TodoApplication).appComponent.screenComponent().activityContext(this)
+            .build().inject(this)
 
         enableEdgeToEdge()
         window.setFlags(
@@ -57,37 +79,29 @@ class MainActivity : ComponentActivity() {
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         )
 
-        (this.application as TodoApplication).appComponent.screenComponent().activityContext(this)
-            .build().inject(this)
+        lifecycleScope.launch {
+            val savedTheme = savedThemeFlow.firstOrNull()
+            currentThemeIsDark = savedTheme
+            settingsViewModel.changeThemeBoolean(currentThemeIsDark)
+            applyTheme()
+        }
+
 
         networkMonitor.startMonitoring()
         provider.attachActivityContext(this)
         startCoroutines()
-
-        applyTheme()
     }
 
 
     override fun onDestroy() {
         provider.detachActivityContext()
         networkMonitor.stopMonitoring()
+
         super.onDestroy()
     }
 
     private fun startCoroutines() {
-        lifecycleScope.launch {
-            settingsViewModel.selectedThemeState.collectLatest {
-                currentThemeIsDark = when(it) {
-                    ThemeState.DARK -> true
-                    ThemeState.LIGHT -> false
-                    ThemeState.SYSTEM -> isSystemThemeIsDark()
-                }
-
-                val theme = Variable.BooleanVariable(DIVKIT_THEME_IS_DARK_VAR, currentThemeIsDark)
-                variableController.putOrUpdate(theme)
-                applyTheme()
-            }
-        }
+        themeListener()
 
         lifecycleScope.launch {
             mainViewModel.fetchData()
@@ -100,10 +114,30 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun themeListener() {
+        lifecycleScope.launch {
+            settingsViewModel.selectedThemeState.collect {
+                currentThemeIsDark = when (it) {
+                    ThemeState.DARK -> true
+                    ThemeState.LIGHT -> false
+                    ThemeState.SYSTEM -> null
+                }
+
+                val theme = Variable.BooleanVariable(
+                    DIVKIT_THEME_IS_DARK_VAR,
+                    currentThemeIsDark ?: isSystemThemeIsDark()
+                )
+                variableController.putOrUpdate(theme)
+                applyTheme()
+                dataStoreInst.saveNullableBoolean(THEME_IS_DARK_KEY, currentThemeIsDark)
+            }
+        }
+    }
+
     private fun applyTheme() {
         setContent {
-            ToDoTaskTheme(darkTheme = currentThemeIsDark) {
-                SetupUI(viewModelFactory, aboutViewFactory)
+            ToDoTaskTheme(darkTheme = currentThemeIsDark ?: isSystemThemeIsDark()) {
+                SetupUI(this, aboutViewFactory)
             }
         }
     }

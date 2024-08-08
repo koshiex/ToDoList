@@ -1,5 +1,6 @@
 package com.kionavani.todotask.ui.composable
 
+import android.util.Log
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -11,9 +12,12 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -33,7 +37,7 @@ import kotlinx.serialization.Serializable
  */
 @Composable
 fun SetupUI(
-    viewModelFactory: ViewModelProvider.Factory, aboutViewFactory: ViewFactoryInt
+    storeOwner: ViewModelStoreOwner, aboutViewFactory: ViewFactoryInt
 ) {
     val navController = rememberNavController()
     aboutViewFactory.navController = navController
@@ -42,6 +46,7 @@ fun SetupUI(
         modifier = Modifier
             .fillMaxSize()
             .background(ToDoTaskTheme.colorScheme.backPrimary)
+            .safeDrawingPadding()
     ) {
         NavHost(
             navController = navController, startDestination = MainScreenNav
@@ -52,9 +57,7 @@ fun SetupUI(
                 popEnterTransition = { enterTransition() },
                 popExitTransition = { exitTransition() }
             ) {
-                val viewModel = viewModel(
-                    modelClass = MainScreenViewModel::class.java, factory = viewModelFactory
-                )
+                val viewModel = viewModel<MainScreenViewModel>(storeOwner)
 
                 val navigateToAdd =
                     { itemId: String? -> navController.navigate(AddTaskScreenNav(itemId)) }
@@ -69,10 +72,10 @@ fun SetupUI(
                 popExitTransition = { exitTransition() }
             ) { backStackEntry ->
                 val itemID = backStackEntry.toRoute<AddTaskScreenNav>().itemID
-                val viewModel = viewModel(
-                    modelClass = AddTaskViewModel::class.java, factory = viewModelFactory
-                )
+                val viewModel = viewModel<AddTaskViewModel>(storeOwner)
+
                 val navigate = { navController.popBackStack() }
+                Log.i("VIEWMODEL", "Hash in compose - ${viewModel.hashCode()}")
 
                 AddTaskScreen(viewModel, itemID, navigate)
             }
@@ -82,9 +85,7 @@ fun SetupUI(
                 popEnterTransition = { enterTransition() },
                 popExitTransition = { exitTransition() }
             ) {
-                val viewModel = viewModel(
-                    modelClass = SettingsViewModel::class.java, factory = viewModelFactory
-                )
+                val viewModel = viewModel<SettingsViewModel>(storeOwner)
 
                 val navigateBack = { navController.popBackStack() }
                 val navigateToInfo = { navController.navigate(AboutInfoNav) }

@@ -60,6 +60,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.invisibleToUser
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -72,6 +79,7 @@ import com.kionavani.todotask.domain.ToDoItem
 import com.kionavani.todotask.ui.ErrorState.FetchingError
 import com.kionavani.todotask.ui.ErrorState.UpdatingError
 import com.kionavani.todotask.ui.Util
+import com.kionavani.todotask.ui.removeAllEmojis
 import com.kionavani.todotask.ui.theme.ToDoTaskTheme
 import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
 
@@ -81,9 +89,7 @@ import com.kionavani.todotask.ui.viewmodels.MainScreenViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    viewModel: MainScreenViewModel,
-    navigateToAdd: (String?) -> Unit,
-    navigateToSettings: () -> Unit
+    viewModel: MainScreenViewModel, navigateToAdd: (String?) -> Unit, navigateToSettings: () -> Unit
 ) {
     val tasks by viewModel.todoItems.collectAsStateWithLifecycle()
     val completedCount by viewModel.completedTaskCounter.collectAsStateWithLifecycle()
@@ -136,15 +142,24 @@ fun MainScreen(
     }
 
 
-    Scaffold(modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection), topBar = {
-        TopAppBar(
-            scrollBehavior, isCollapsing, completedCount, isFiltering, changeFiltering, navigateToSettings
-        )
-    }, snackbarHost = {
-        CustomSnackbarHost(
-            snackbarHostState, stringResource(R.string.offline_mode)
-        )
-    }, floatingActionButton = { AddTaskFab(navigateToAdd) }) { paddingValues ->
+    Scaffold(
+        modifier = Modifier
+            .nestedScroll(scrollBehavior.nestedScrollConnection)
+            .semantics { isTraversalGroup = true },
+        topBar = {
+            TopAppBar(
+                scrollBehavior,
+                isCollapsing,
+                completedCount,
+                isFiltering,
+                changeFiltering,
+                navigateToSettings
+            )
+        }, snackbarHost = {
+            CustomSnackbarHost(
+                snackbarHostState, stringResource(R.string.offline_mode)
+            )
+        }, floatingActionButton = { AddTaskFab(navigateToAdd) }) { paddingValues ->
         MainScreenContent(
             tasks = tasks,
             paddingValues = paddingValues,
@@ -169,11 +184,13 @@ fun MainScreen(
 @Composable
 fun IndeterminateCircularIndicator(isLoading: Boolean) {
     if (!isLoading) return
+    val contentDescription = stringResource(R.string.indicator_descr)
 
     CircularProgressIndicator(
         modifier = Modifier
             .width(32.dp)
-            .padding(top = 60.dp),
+            .padding(top = 16.dp)
+            .semantics { this.contentDescription = contentDescription },
         color = ToDoTaskTheme.colorScheme.colorBlue,
         trackColor = ToDoTaskTheme.colorScheme.supportSeparator,
     )
@@ -194,12 +211,15 @@ fun CustomSnackbarHost(snackbarHostState: SnackbarHostState, dismissMassage: Str
 
 @Composable
 fun AddTaskFab(navigate: (String?) -> Unit) {
-    FloatingActionButton(modifier = Modifier.padding(end = 12.dp, bottom = 24.dp),
+    FloatingActionButton(
+        modifier = Modifier
+            .padding(end = 12.dp, bottom = 24.dp)
+            .semantics { traversalIndex = -0.1f },
         shape = CircleShape,
         containerColor = ToDoTaskTheme.colorScheme.colorBlue,
         contentColor = ToDoTaskTheme.colorScheme.colorWhite,
         onClick = { navigate(null) }) {
-        Icon(Icons.Filled.Add, null)
+        Icon(Icons.Filled.Add, stringResource(R.string.add_new_task_btn_descr))
     }
 }
 
@@ -262,6 +282,11 @@ fun TopAppBar(
                     start = animatedStartPadding, top = animatedTopPadding
                 )
                 .animateContentSize()
+                .semantics(mergeDescendants = true) {
+                    heading()
+                    isTraversalGroup = true
+                    traversalIndex = -1f
+                }
 
         ) {
             Text(
@@ -292,8 +317,11 @@ fun TopAppBar(
     }, scrollBehavior = scrollBehavior, colors = TopAppBarDefaults.largeTopAppBarColors(
         containerColor = ToDoTaskTheme.colorScheme.backPrimary,
         scrolledContainerColor = ToDoTaskTheme.colorScheme.backSecondary,
-    ), modifier = Modifier.shadow(animatedShadow)
-
+    ), modifier = Modifier
+        .shadow(animatedShadow)
+        .semantics {
+            isTraversalGroup = true
+        }
     )
 }
 
@@ -304,7 +332,7 @@ fun SettingsIcon(
     IconButton(onClick = navigateToSettings) {
         Icon(
             imageVector = ImageVector.vectorResource(R.drawable.settings_icon),
-            contentDescription = null,
+            contentDescription = stringResource(R.string.settings_btn_desc),
             tint = ToDoTaskTheme.colorScheme.colorBlue
         )
     }
@@ -315,13 +343,19 @@ fun FilteringIcon(
     isFiltering: Boolean, changeFiltering: () -> Unit
 ) {
     IconButton(onClick = changeFiltering) {
-        Icon(
-            imageVector = if (isFiltering) {
-                ImageVector.vectorResource(R.drawable.visibility_on_icon)
-            } else {
-                ImageVector.vectorResource(R.drawable.visibility_off_icon)
-            }, contentDescription = null, tint = ToDoTaskTheme.colorScheme.colorBlue
-        )
+        if (isFiltering) {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.visibility_on_icon),
+                contentDescription = stringResource(R.string.all_tasks_btn_desc),
+                tint = ToDoTaskTheme.colorScheme.colorBlue
+            )
+        } else {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.visibility_off_icon),
+                contentDescription = stringResource(R.string.hide_completed_btn_desc),
+                tint = ToDoTaskTheme.colorScheme.colorBlue
+            )
+        }
     }
 }
 
@@ -336,7 +370,7 @@ fun TaskList(
 
     LazyColumn(
         modifier = Modifier
-            .padding(12.dp)
+            .padding(start = 12.dp, end = 12.dp, top = 12.dp)
             .fillMaxWidth()
             .wrapContentHeight()
             .shadow(4.dp, shape = RoundedCornerShape(12.dp))
@@ -359,8 +393,11 @@ fun TaskList(
                 modifier = Modifier
                     .padding(top = 24.dp, bottom = 22.dp, start = 76.dp)
                     .alpha(0.3f)
-                    .clickable {
+                    .clickable(onClickLabel = stringResource(R.string.add_new_task_btn_descr)) {
                         navigate(null)
+                    }
+                    .semantics {
+                        heading()
                     },
                 style = MaterialTheme.typography.bodyMedium.copy(
                     color = ToDoTaskTheme.colorScheme.labelTertiary
@@ -382,15 +419,18 @@ fun TaskItem(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .semantics { isTraversalGroup = true }
     ) {
-        ItemCheckbox(item, changeTaskState)
+        ItemCheckbox(item, deadlineDate, changeTaskState)
         Column(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .padding(start = 12.dp, top = 12.dp)
                 .weight(1f)
+                .clearAndSetSemantics {}
         ) {
             ItemDescription(item.taskDescription, item.isCompleted)
             deadlineDate?.let {
@@ -407,7 +447,7 @@ fun TaskItem(
             onClick = { navigate(item.id) }) {
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.info_icon),
-                contentDescription = null,
+                contentDescription = stringResource(R.string.change_task_btn_descr),
                 tint = ToDoTaskTheme.colorScheme.labelTertiary
             )
         }
@@ -428,8 +468,27 @@ fun ItemDescription(description: String, isCompleted: Boolean) {
 }
 
 @Composable
-fun ItemCheckbox(item: ToDoItem, changeTaskState: (String, Boolean) -> Unit) {
-    Checkbox(modifier = Modifier.padding(start = 16.dp, top = 12.dp),
+fun ItemCheckbox(
+    item: ToDoItem,
+    deadlineDate: String?,
+    changeTaskState: (String, Boolean) -> Unit
+) {
+    val completedDescription = stringResource(R.string.completed_descr)
+    val uncompletedDescription = stringResource(R.string.uncompleted_descr)
+    val deadlineDescription =
+        if (deadlineDate != null) stringResource(R.string.switch_deadline_descr) + deadlineDate
+        else ""
+    val importanceDescription = stringResource(item.importance.description)
+
+    Checkbox(modifier = Modifier
+        .padding(start = 16.dp, top = 12.dp)
+        .semantics {
+            contentDescription =
+                (if (item.isCompleted) completedDescription else uncompletedDescription) +
+                        "\n$importanceDescription" +
+                        "\n${item.taskDescription.removeAllEmojis()}" +
+                        "\n $deadlineDescription"
+        },
         checked = item.isCompleted,
         colors = CheckboxDefaults.colors(
             uncheckedColor = if (item.importance == Importance.HIGH) ToDoTaskTheme.colorScheme.colorRed

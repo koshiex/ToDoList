@@ -28,7 +28,6 @@ import kotlinx.coroutines.launch
  * Кастомный снек-бак
  */
 
-// TODO: Сделать более красиво
 @Composable
 fun CustomSnackbar(
     snackbarData: SnackbarData,
